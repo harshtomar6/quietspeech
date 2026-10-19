@@ -1,0 +1,815 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WhisprProto — Dictation Overlay Concepts</title>
+<style>
+  :root{
+    --bg:#08080a;
+    --bg-soft:#111114;
+    --line:rgba(255,255,255,.09);
+    --text:#f5f5f7;
+    --muted:rgba(235,235,245,.58);
+    --faint:rgba(235,235,245,.32);
+    --accent:#32d74b;
+    --accent-2:#0a84ff;
+    --warn:#ff9f0a;
+    --radius:22px;
+    --font:-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    --mono:ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:
+      radial-gradient(1200px 700px at 15% -10%, rgba(10,132,255,.10), transparent 60%),
+      radial-gradient(900px 600px at 90% 5%, rgba(50,215,75,.07), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--font);
+    -webkit-font-smoothing:antialiased;
+    padding:56px 28px 120px;
+  }
+
+  .wrap{max-width:1080px;margin:0 auto}
+
+  /* ---------- page chrome ---------- */
+  header.top{margin-bottom:52px}
+  .eyebrow{
+    font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--faint);margin:0 0 14px
+  }
+  h1{
+    font-size:40px;line-height:1.08;letter-spacing:-.025em;
+    margin:0 0 16px;font-weight:650
+  }
+  .lede{
+    font-size:16px;line-height:1.62;color:var(--muted);
+    max-width:66ch;margin:0
+  }
+
+  .principles{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(228px,1fr));
+    gap:12px;margin:32px 0 0;padding:0;list-style:none
+  }
+  .principles li{
+    border:1px solid var(--line);border-radius:14px;
+    padding:14px 15px;background:rgba(255,255,255,.022)
+  }
+  .principles b{
+    display:block;font-size:12.5px;letter-spacing:.01em;
+    margin-bottom:5px;font-weight:600
+  }
+  .principles span{font-size:12.5px;line-height:1.5;color:var(--muted)}
+
+  /* ---------- concept shell ---------- */
+  section.concept{margin:64px 0 0;scroll-margin-top:24px}
+  .chead{display:flex;align-items:flex-start;gap:18px;margin-bottom:18px}
+  .cnum{
+    flex:none;width:30px;height:30px;border-radius:9px;
+    display:grid;place-items:center;
+    font-size:12.5px;font-weight:650;
+    background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.03));
+    border:1px solid var(--line);color:var(--muted)
+  }
+  .ctitle{font-size:19px;font-weight:620;letter-spacing:-.012em;margin:0 0 4px}
+  .ctag{font-size:13.5px;line-height:1.55;color:var(--muted);margin:0;max-width:70ch}
+
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin:11px 0 0}
+  .chip{
+    font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;
+    padding:3.5px 8px;border-radius:999px;
+    border:1px solid var(--line);color:var(--faint)
+  }
+  .chip.on{color:rgba(50,215,75,.92);border-color:rgba(50,215,75,.30);background:rgba(50,215,75,.07)}
+
+  /* ---------- stage ---------- */
+  .stage{
+    position:relative;border-radius:var(--radius);overflow:hidden;
+    border:1px solid var(--line);
+    height:400px;
+    background:linear-gradient(180deg,#1a1a1e,#101013);
+    box-shadow:0 30px 70px -30px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.05);
+  }
+  .stage.short{height:330px}
+  .stage.tall{height:440px}
+
+  /* fake app behind the overlay, so glass/legibility is judgeable */
+  .mock{position:absolute;inset:0;opacity:.85}
+  .mock-bar{
+    height:38px;display:flex;align-items:center;gap:7px;
+    padding:0 14px;border-bottom:1px solid rgba(255,255,255,.06);
+    background:rgba(255,255,255,.028)
+  }
+  .dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.14)}
+  .dot.r{background:#ff5f57}.dot.y{background:#febc2e}.dot.g{background:#28c840}
+  .mock-body{display:flex;height:100%}
+  .mock-side{
+    width:168px;flex:none;border-right:1px solid rgba(255,255,255,.05);
+    padding:16px 14px;display:flex;flex-direction:column;gap:10px
+  }
+  .mock-side i{display:block;height:9px;border-radius:5px;background:rgba(255,255,255,.07)}
+  .mock-side i:nth-child(2n){width:72%}
+  .mock-side i:nth-child(3n){width:54%}
+  .mock-lines{flex:1;padding:22px 26px;display:flex;flex-direction:column;gap:13px}
+  .mock-lines i{
+    display:block;height:9px;border-radius:5px;
+    background:linear-gradient(90deg,rgba(255,255,255,.10),rgba(255,255,255,.05));
+  }
+  .mock.hideline .mock-lines{opacity:.5}
+
+  /* anchor hint */
+  .anchor{
+    position:absolute;left:14px;bottom:12px;z-index:9;
+    font-family:var(--mono);font-size:10px;letter-spacing:.04em;
+    color:rgba(255,255,255,.30)
+  }
+
+  /* ---------- shared overlay material ---------- */
+  .glass{
+    background:rgba(30,30,34,.72);
+    -webkit-backdrop-filter:blur(26px) saturate(190%);
+    backdrop-filter:blur(26px) saturate(190%);
+    border:1px solid rgba(255,255,255,.11);
+    box-shadow:
+      0 18px 44px -14px rgba(0,0,0,.72),
+      0 2px 8px rgba(0,0,0,.30),
+      inset 0 1px 0 rgba(255,255,255,.09);
+  }
+  .ov{
+    position:absolute;z-index:5;
+    opacity:0;transform:translateY(4px) scale(.985);
+    transition:opacity .16s ease, transform .16s cubic-bezier(.2,.9,.3,1.2);
+    pointer-events:none;
+  }
+  .stage.live .ov{opacity:1;transform:none}
+
+  /* ============================================================
+     1 — CAPSULE
+     ============================================================ */
+  #c1 .ov{
+    left:50%;bottom:26px;transform-origin:center bottom;
+    width:min(560px,86%);height:52px;
+    border-radius:999px;display:flex;align-items:center;gap:12px;
+    padding:0 16px 0 14px;margin-left:-280px;
+    transform:translateY(4px) scale(.985);
+  }
+  #c1.live .ov{transform:none}
+  #c1 .rec{
+    flex:none;width:9px;height:9px;border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 0 0 0 rgba(50,215,75,.55);
+    animation:pulse 1.5s ease-out infinite;
+  }
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(50,215,75,.55)}
+    70%{box-shadow:0 0 0 9px rgba(50,215,75,0)}
+    100%{box-shadow:0 0 0 0 rgba(50,215,75,0)}
+  }
+  #c1 .bars{flex:none;display:flex;align-items:center;gap:2.5px;height:26px}
+  #c1 .bars s{
+    display:block;width:2.5px;border-radius:2px;
+    background:linear-gradient(180deg,#5ef07a,#1fa83c);
+    height:5px;
+  }
+  #c1 .txt{
+    flex:1;min-width:0;font-size:14.5px;letter-spacing:-.005em;white-space:nowrap;
+    overflow:hidden;color:rgba(255,255,255,.94);
+    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 18px,#000 82%,transparent 100%);
+    mask-image:linear-gradient(90deg,transparent 0,#000 18px,#000 82%,transparent 100%);
+  }
+  #c1 .txt .rest{color:rgba(255,255,255,.30)}
+  #c1 .dim{
+    flex:none;font-family:var(--mono);font-size:11px;
+    color:var(--faint);letter-spacing:.02em
+  }
+
+  /* ============================================================
+     2 — FLOATING CARD
+     ============================================================ */
+  #c2 .ov{
+    left:50%;top:96px;width:min(500px,84%);
+    margin-left:-250px;border-radius:20px;padding:16px 18px 15px;
+    transform:translateY(6px) scale(.98)
+  }
+  #c2.live .ov{transform:none}
+  #c2 .head{display:flex;align-items:center;gap:9px;margin-bottom:13px}
+  #c2 .app{
+    width:22px;height:22px;border-radius:6px;flex:none;
+    background:linear-gradient(145deg,#3a3a42,#22222a);
+    border:1px solid rgba(255,255,255,.14);
+    display:grid;place-items:center;font-size:10px;color:rgba(255,255,255,.75)
+  }
+  #c2 .who{font-size:12.5px;color:var(--muted)}
+  #c2 .who b{color:rgba(255,255,255,.9);font-weight:560}
+  #c2 .spacer{flex:1}
+  #c2 .time{font-family:var(--mono);font-size:11.5px;color:var(--faint)}
+  #c2 .ribbon{
+    height:52px;display:flex;align-items:center;justify-content:center;
+    gap:2.5px;margin:2px 0 13px;
+    -webkit-mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);
+    mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);
+  }
+  #c2 .ribbon s{
+    display:block;width:3px;border-radius:3px;height:4px;
+    background:linear-gradient(180deg,#68f286,#22b343);
+  }
+  #c2 .line{
+    font-size:15px;line-height:1.5;letter-spacing:-.006em;
+    min-height:2.9em;color:rgba(255,255,255,.95)
+  }
+  #c2 .line .rest{color:rgba(255,255,255,.28)}
+  #c2 .caret{
+    display:inline-block;width:2px;height:1.02em;vertical-align:-.16em;
+    background:var(--accent);margin-left:1px;
+    animation:blink 1.05s steps(1,end) infinite
+  }
+  @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+  #c2 .foot{
+    display:flex;align-items:center;gap:7px;margin-top:13px;
+    padding-top:11px;border-top:1px solid rgba(255,255,255,.075);
+    font-size:11.5px;color:var(--faint)
+  }
+  #c2 .kbd{
+    font-family:var(--font);font-size:10.5px;font-weight:560;
+    padding:2px 6px;border-radius:5px;color:rgba(255,255,255,.72);
+    background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.11)
+  }
+
+  /* ============================================================
+     3 — ORB
+     ============================================================ */
+  #c3 .ov{
+    left:50%;bottom:34px;margin-left:-140px;width:280px;
+    display:flex;flex-direction:column;align-items:center;gap:16px;
+    background:none;border:none;box-shadow:none;backdrop-filter:none;
+  }
+  #c3 .ring{
+    position:absolute;left:50%;top:0;width:116px;height:116px;
+    margin-left:-58px;border-radius:50%;
+    border:1px solid rgba(50,215,75,.36)
+  }
+  #c3 .orb{
+    position:relative;width:116px;height:116px;border-radius:50%;
+    background:
+      radial-gradient(circle at 34% 30%, rgba(255,255,255,.92), rgba(255,255,255,.10) 34%, transparent 62%),
+      radial-gradient(circle at 62% 68%, #2ee04f, #14853a 62%, #0b4d22 100%);
+    box-shadow:
+      0 0 44px 6px rgba(46,224,79,.30),
+      0 0 110px 22px rgba(46,224,79,.14),
+      inset 0 -12px 26px rgba(0,0,0,.35);
+    will-change:transform
+  }
+  #c3 .txt{
+    text-align:center;font-size:14.5px;line-height:1.5;
+    max-width:270px;color:rgba(255,255,255,.95);
+    text-shadow:0 1px 14px rgba(0,0,0,.85)
+  }
+  #c3 .txt .rest{color:rgba(255,255,255,.34)}
+  #c3 .state{
+    font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+    color:rgba(50,215,75,.85)
+  }
+
+  /* ============================================================
+     4 — NOTCH STRIP
+     ============================================================ */
+  #c4 .ov{
+    left:50%;top:0;margin-left:-320px;width:640px;height:44px;
+    border-radius:0 0 16px 16px;
+    border-top:none;
+    display:flex;align-items:center;gap:14px;padding:0 20px;
+    transform:translateY(-6px)
+  }
+  #c4.live .ov{transform:none}
+  #c4 .vu{flex:none;display:flex;align-items:center;gap:2.5px}
+  #c4 .vu s{
+    display:block;width:3px;height:14px;border-radius:1.5px;
+    background:rgba(255,255,255,.12);transition:background .08s linear
+  }
+  #c4 .display{
+    flex:1;min-width:0;font-family:var(--mono);font-size:12.5px;
+    white-space:nowrap;overflow:hidden;color:rgba(255,255,255,.9);
+    -webkit-mask-image:linear-gradient(90deg,#000 78%,transparent);
+    mask-image:linear-gradient(90deg,#000 78%,transparent);
+  }
+  #c4 .display .rest{color:rgba(255,255,255,.26)}
+  #c4 .badge{
+    flex:none;font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+    padding:3px 8px;border-radius:6px;color:rgba(50,215,75,.9);
+    background:rgba(50,215,75,.10);border:1px solid rgba(50,215,75,.22)
+  }
+
+  /* ============================================================
+     5 — MONOSPACE
+     ============================================================ */
+  #c5 .ov{
+    left:50%;bottom:28px;margin-left:-290px;width:580px;
+    border-radius:13px;padding:14px 16px 13px;
+    background:rgba(10,12,11,.86);
+    border-color:rgba(50,215,75,.20);
+    font-family:var(--mono)
+  }
+  #c5 .row{display:flex;align-items:center;gap:9px;font-size:12.5px}
+  #c5 .prompt{color:rgba(50,215,75,.9);flex:none}
+  #c5 .meter{color:rgba(50,215,75,.62);flex:none;letter-spacing:1px}
+  #c5 .who{
+    flex:1;text-align:right;font-size:10.5px;
+    color:rgba(255,255,255,.28);letter-spacing:.04em
+  }
+  #c5 .body{
+    margin-top:9px;font-size:13.5px;line-height:1.55;
+    color:rgba(226,255,232,.96);white-space:pre-wrap;word-break:break-word
+  }
+  #c5 .body .rest{color:rgba(226,255,232,.24)}
+  #c5 .cursor{
+    display:inline-block;width:8px;height:1.02em;vertical-align:-.15em;
+    background:rgba(50,215,75,.85);margin-left:1px;
+    animation:blink 1.02s steps(1,end) infinite
+  }
+  #c5 .status{
+    margin-top:10px;padding-top:9px;font-size:11px;
+    border-top:1px solid rgba(50,215,75,.13);
+    color:rgba(50,215,75,.62);display:flex;gap:8px;align-items:center
+  }
+  #c5 .spinner{
+    width:9px;height:9px;border-radius:50%;flex:none;
+    border:1.5px solid rgba(50,215,75,.25);border-top-color:rgba(50,215,75,.95);
+    animation:spin .7s linear infinite
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ---------- controls ---------- */
+  .tools{display:flex;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap}
+  button.play{
+    font:inherit;font-size:13px;font-weight:540;color:var(--text);
+    padding:7px 14px;border-radius:9px;cursor:pointer;
+    background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.06));
+    border:1px solid var(--line);
+    transition:transform .08s ease, background .15s ease
+  }
+  button.play:hover{background:linear-gradient(180deg,rgba(255,255,255,.19),rgba(255,255,255,.09))}
+  button.play:active{transform:scale(.975)}
+  .note{font-size:12.5px;color:var(--faint)}
+  .note code{
+    font-family:var(--mono);font-size:11.5px;
+    background:rgba(255,255,255,.06);padding:1.5px 5px;border-radius:4px
+  }
+
+  /* ---------- recommendation ---------- */
+  .rec{
+    margin:80px 0 0;border:1px solid var(--line);
+    border-radius:18px;padding:26px 28px;
+    background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.012))
+  }
+  .rec h2{margin:0 0 14px;font-size:17px;letter-spacing:-.01em;font-weight:600}
+  .rec ol{margin:0;padding-left:20px;color:var(--muted);font-size:14px;line-height:1.75}
+  .rec ol b{color:var(--text);font-weight:560}
+  .rec p{margin:16px 0 0;font-size:13.5px;line-height:1.65;color:var(--muted)}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.001s !important;transition-duration:.001s !important}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="eyebrow">WhisprProto · Dictation overlay</p>
+  <h1>Five concepts for the overlay shown while you hold Fn</h1>
+  <p class="lede">
+    Today's overlay is a plain level bar. These are five distinct directions — not recolours of
+    the same thing — for the panel that appears on Fn-down and disappears on release. Every stage
+    below sits over a fake editor window so you can judge legibility over real content.
+  </p>
+
+  <ul class="principles">
+    <li><b>Prove it's hearing you</b><span>The live level is the single most important affordance. If it doesn't move, the user assumes it's broken.</span></li>
+    <li><b>Over arbitrary content</b><span>Vibrant material plus a real shadow. Never rely on the background being dark or plain.</span></li>
+    <li><b>Never look focused</b><span>It's a non-activating panel. Heavy chrome, title bars or a caret the user thinks they can type into are wrong.</span></li>
+    <li><b>Entrance is ~120ms</b><span>It appears mid-thought and leaves mid-thought. Scale + fade, from the edge it's anchored to.</span></li>
+    <li><b>Three states</b><span>Listening → polishing → done. Plus a failure state for missing permission or no speech detected.</span></li>
+  </ul>
+</header>
+
+<!-- ================= 1 ================= -->
+<section class="concept" id="c1s">
+  <div class="chead">
+    <div class="cnum">1</div>
+    <div>
+      <h2 class="ctitle">Capsule</h2>
+      <p class="ctag">The least intrusive option. One line, bottom-centre, fades its own edges.
+        Everything is glanceable in a single horizontal read: recording dot, level, words, timer.</p>
+      <div class="chips"><span class="chip on">listening</span><span class="chip">polishing</span><span class="chip">error</span><span class="chip on">single line</span></div>
+    </div>
+  </div>
+  <div class="stage short" id="c1">
+    <div class="mock">
+      <div class="mock-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+      <div class="mock-body">
+        <div class="mock-side"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="mock-lines"><i style="width:74%"></i><i style="width:88%"></i><i style="width:56%"></i><i style="width:81%"></i><i style="width:64%"></i><i style="width:40%"></i></div>
+      </div>
+    </div>
+    <div class="ov glass">
+      <span class="rec"></span>
+      <span class="bars" data-bars="16"></span>
+      <span class="txt"><span data-text></span><span class="rest"></span></span>
+      <span class="dim" data-time>0:00</span>
+    </div>
+    <span class="anchor">anchored: bottom-centre, 26px</span>
+  </div>
+  <div class="tools"><button class="play">Simulate Fn hold</button><span class="note">Best when dictation is a background act — you keep reading while you talk.</span></div>
+</section>
+
+<!-- ================= 2 ================= -->
+<section class="concept" id="c2s">
+  <div class="chead">
+    <div class="cnum">2</div>
+    <div>
+      <h2 class="ctitle">Floating card</h2>
+      <p class="ctag">The full-featured version. Names the target app, so you can see where the text is
+        about to land, and shows the transcript in flowing lines with a caret. A mirrored ribbon reads
+        as "voice" rather than "volume".</p>
+      <div class="chips"><span class="chip on">listening</span><span class="chip on">polishing</span><span class="chip on">error</span><span class="chip">multi-line</span></div>
+    </div>
+  </div>
+  <div class="stage tall" id="c2">
+    <div class="mock">
+      <div class="mock-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+      <div class="mock-body">
+        <div class="mock-side"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="mock-lines"><i style="width:70%"></i><i style="width:84%"></i><i style="width:52%"></i><i style="width:90%"></i><i style="width:61%"></i><i style="width:76%"></i><i style="width:44%"></i></div>
+      </div>
+    </div>
+    <div class="ov glass">
+      <div class="head">
+        <span class="app" data-appicon>A</span>
+        <span class="who">into <b data-appname>Notes</b></span>
+        <span class="spacer"></span>
+        <span class="time" data-time>0:00</span>
+      </div>
+      <div class="ribbon" data-bars="44"></div>
+      <div class="line"><span data-text></span><span class="rest"></span><span class="caret" data-caret></span></div>
+      <div class="foot"><span class="kbd">Fn</span><span data-foot>release to insert</span></div>
+    </div>
+    <span class="anchor">anchored: above the caret / window centre</span>
+  </div>
+  <div class="tools"><button class="play">Simulate Fn hold</button><span class="note">The safest default: it answers "where will this go?" without stealing focus.</span></div>
+</section>
+
+<!-- ================= 3 ================= -->
+<section class="concept" id="c3s">
+  <div class="chead">
+    <div class="cnum">3</div>
+    <div>
+      <h2 class="ctitle">Orb</h2>
+      <p class="ctag">The ambient one. No chrome at all — just a thing that breathes with your voice and a
+        line of text beneath it. Reads as "an assistant is present" rather than "a recorder is running".</p>
+      <div class="chips"><span class="chip on">listening</span><span class="chip on">polishing</span><span class="chip">error</span><span class="chip">no chrome</span></div>
+    </div>
+  </div>
+  <div class="stage tall" id="c3">
+    <div class="mock">
+      <div class="mock-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+      <div class="mock-body">
+        <div class="mock-side"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="mock-lines"><i style="width:66%"></i><i style="width:82%"></i><i style="width:48%"></i><i style="width:88%"></i><i style="width:58%"></i></div>
+      </div>
+    </div>
+    <div class="ov">
+      <span class="ring" data-ring="1"></span>
+      <span class="ring" data-ring="2"></span>
+      <span class="ring" data-ring="3"></span>
+      <div class="orb" data-orb></div>
+      <div class="txt"><span data-text></span><span class="rest"></span></div>
+      <div class="state" data-state>listening</div>
+    </div>
+    <span class="anchor">anchored: bottom-centre, no panel</span>
+  </div>
+  <div class="tools"><button class="play">Simulate Fn hold</button><span class="note">Trade-off: no container means it must be shadowed/text-shadowed hard to stay legible over white pages.</span></div>
+</section>
+
+<!-- ================= 4 ================= -->
+<section class="concept" id="c4s">
+  <div class="chead">
+    <div class="cnum">4</div>
+    <div>
+      <h2 class="ctitle">Notch strip</h2>
+      <p class="ctag">Attaches to the top edge. Because it never overlaps the document, it can be wide and
+        always in the same place — you never have to find it. A discrete VU meter instead of a waveform.</p>
+      <div class="chips"><span class="chip on">listening</span><span class="chip">polishing</span><span class="chip">error</span><span class="chip on">never overlaps</span></div>
+    </div>
+  </div>
+  <div class="stage short" id="c4">
+    <div class="mock hideline">
+      <div class="mock-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+      <div class="mock-body">
+        <div class="mock-side"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="mock-lines"><i style="width:72%"></i><i style="width:86%"></i><i style="width:54%"></i><i style="width:79%"></i><i style="width:62%"></i></div>
+      </div>
+    </div>
+    <div class="ov glass">
+      <span class="vu" data-vu="26"></span>
+      <span class="display"><span data-text></span><span class="rest"></span></span>
+      <span class="badge" data-badge>rec</span>
+    </div>
+    <span class="anchor">anchored: top edge, flush</span>
+  </div>
+  <div class="tools"><button class="play">Simulate Fn hold</button><span class="note">Strongest for long dictation — the transcript can run a long way before it needs to scroll.</span></div>
+</section>
+
+<!-- ================= 5 ================= -->
+<section class="concept" id="c5s">
+  <div class="chead">
+    <div class="cnum">5</div>
+    <div>
+      <h2 class="ctitle">Monospace</h2>
+      <p class="ctag">Leans into the developer audience. A prompt, an ASCII meter, the text streaming in behind a
+        block cursor, and a status line for the polish pass. Honest and mechanical — it looks like a tool.</p>
+      <div class="chips"><span class="chip on">listening</span><span class="chip on">polishing</span><span class="chip on">error</span><span class="chip">type-out</span></div>
+    </div>
+  </div>
+  <div class="stage" id="c5">
+    <div class="mock">
+      <div class="mock-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
+      <div class="mock-body">
+        <div class="mock-side"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="mock-lines"><i style="width:76%"></i><i style="width:90%"></i><i style="width:58%"></i><i style="width:83%"></i><i style="width:66%"></i></div>
+      </div>
+    </div>
+    <div class="ov">
+      <div class="row">
+        <span class="prompt">&gt;</span>
+        <span class="meter" data-meter>░░░░░░░░░░░░░░░░░░░░</span>
+        <span class="who" data-who>notes · fn</span>
+      </div>
+      <div class="body"><span data-text></span><span class="rest"></span><span class="cursor" data-cursor></span></div>
+      <div class="status"><span class="spinner" data-spinner style="display:none"></span><span data-state>listening — release Fn to insert</span></div>
+    </div>
+    <span class="anchor">anchored: bottom-centre, near caret</span>
+  </div>
+  <div class="tools"><button class="play">Simulate Fn hold</button><span class="note">Also the cheapest to build: monospace type-out is nearly free to animate.</span></div>
+</section>
+
+<!-- ================= recommendation ================= -->
+<div class="rec">
+  <h2>Recommendation</h2>
+  <ol>
+    <li><b>Ship 2 (Floating card) as the default.</b> It's the only one that answers "where is this going?"
+      via the target-app row, which removes the biggest source of anxiety with dictation UIs.</li>
+    <li><b>Offer 1 (Capsule) as the compact setting</b> for people who dictate continuously and find a
+      card in the middle of the screen irritating.</li>
+    <li><b>Treat 3 (Orb) and 5 (Monospace) as personality variants</b> — cheap to add later once the
+      overlay has a state machine, since all five share the same states and data.</li>
+    <li><b>Keep 4 (Notch strip) in your pocket</b> for multi-line dictation; it's the only concept that
+      scales to a paragraph without growing over your work.</li>
+  </ol>
+  <p>
+    All five need the same underlying data: a normalised 0…1 level, a growing partial transcript, an
+    elapsed timer, the target app, and a state. That's already available — <code>SpeechEngine.onAudioLevel</code>
+    drives the bars today, and the streaming partials come from <code>SpeechTranscriber</code>. So the real
+    work here is presentational: pick one, build the state machine (listening → polishing → done → error),
+    and the others become skins.
+  </p>
+</div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const TRANSCRIPT = "so the plan is to ship the overlay on friday and then we can iterate on the waveform";
+
+  /* ---------- shared signal ---------- */
+  // A pseudo-random but smooth envelope, so every concept animates from the
+  // same "voice" rather than looking like separate demos.
+  function levelAt(t, seed){
+    const a = Math.sin(t * 4.1 + seed * 0.62);
+    const b = Math.sin(t * 9.7 + seed * 1.73);
+    const c = Math.sin(t * 21.3 + seed * 3.11);
+    const d = Math.sin(t * 1.37 + seed * 0.21);
+    const v = 0.46 + 0.30 * a + 0.21 * b + 0.13 * c + 0.10 * d;
+    return Math.max(0.04, Math.min(1, v));
+  }
+  function energyAt(t){
+    return Math.max(0.06, Math.min(1, 0.5 + 0.3 * Math.sin(t * 3.3) + 0.2 * Math.sin(t * 8.1)));
+  }
+
+  /* ---------- stage harness ---------- */
+  const stages = [];
+
+  function makeStage(stageId, hooks){
+    // The element carrying the id IS the stage (not a wrapper around one).
+    const stage = document.getElementById(stageId);
+    const root = stage;
+    let state = "idle";
+    let listenStart = 0;
+
+    function setState(next){
+      state = next;
+      if (next === "listening") listenStart = performance.now();
+      stage.classList.toggle("live", next !== "idle");
+      if (hooks.setState) hooks.setState(next, root);
+    }
+
+    function charsAt(now){
+      if (state === "idle") return 0;
+      const elapsed = (now - listenStart) / 1000;
+      // pretend the speaker is ~14 chars/sec, and freeze once done
+      return Math.max(0, Math.min(TRANSCRIPT.length, Math.floor(elapsed * 14)));
+    }
+
+    const api = {
+      root, stage, hooks,
+      get state(){ return state; },
+      setState, charsAt,
+      tick(now){
+        if (state === "idle" && !hooks.tickIdle) return;
+        hooks.tick(now, { state, charsAt: charsAt(now), listenStart });
+      }
+    };
+    stages.push(api);
+    return api;
+  }
+
+  function paint(el, sibling, count){
+    if (!el) return;
+    el.textContent = TRANSCRIPT.slice(0, count);
+    if (sibling) sibling.textContent = TRANSCRIPT.slice(count);
+  }
+
+  function makeBars(container, count){
+    container.innerHTML = "";
+    const bars = [];
+    for (let i = 0; i < count; i++){
+      const s = document.createElement("s");
+      container.appendChild(s);
+      bars.push(s);
+    }
+    return bars;
+  }
+
+  /* ---------- 1 · capsule ---------- */
+  const c1Bars = makeBars(document.querySelector("#c1 [data-bars]"), 16);
+  const c1Txt  = document.querySelector("#c1 [data-text]");
+  const c1Rest = document.querySelector("#c1 .txt .rest");
+  const c1Time = document.querySelector("#c1 [data-time]");
+  const c1 = makeStage("c1", {
+    setState(state, root){
+      if (state === "idle"){ c1Time.textContent = "0:00"; }
+    },
+    tick(now, info){
+      const t = now / 1000;
+      c1Bars.forEach((bar, i) => {
+        const v = info.state === "listening" ? levelAt(t, i) : 0.14;
+        bar.style.height = (4 + v * 20).toFixed(1) + "px";
+      });
+      paint(c1Txt, c1Rest, info.charsAt);
+      if (info.state !== "idle"){
+        const secs = Math.floor((now - info.listenStart) / 1000);
+        c1Time.textContent = "0:" + String(secs).padStart(2, "0");
+      }
+    }
+  });
+
+  /* ---------- 2 · floating card ---------- */
+  const c2Bars = makeBars(document.querySelector("#c2 [data-bars]"), 44);
+  const c2Text = document.querySelector("#c2 [data-text]");
+  const c2Rest = document.querySelector("#c2 .line .rest");
+  const c2Time = document.querySelector("#c2 [data-time]");
+  const c2Caret= document.querySelector("#c2 [data-caret]");
+  const c2Foot = document.querySelector("#c2 [data-foot]");
+  const c2App  = document.querySelector("#c2 [data-appname]");
+  const c2 = makeStage("c2", {
+    setState(state){
+      if (state === "listening"){ c2Caret.style.display = ""; c2Foot.textContent = "release to insert"; }
+      if (state === "polishing"){ c2Caret.style.display = "none"; c2Foot.textContent = "polishing with Apple Intelligence"; }
+      if (state === "done"){ c2Foot.textContent = "inserted"; }
+      if (state === "idle"){ c2Time.textContent = "0:00"; }
+    },
+    tick(now, info){
+      const t = now / 1000;
+      const n = c2Bars.length;
+      c2Bars.forEach((bar, i) => {
+        // centre-weighted envelope so the ribbon tapers at both ends
+        const centre = 1 - Math.abs((i / (n - 1)) * 2 - 1) * 0.72;
+        const v = info.state === "listening" ? levelAt(t, i) * centre : 0.10;
+        bar.style.height = (4 + v * 44).toFixed(1) + "px";
+      });
+      paint(c2Text, c2Rest, info.charsAt);
+      if (info.state !== "idle"){
+        const secs = Math.floor((now - info.listenStart) / 1000);
+        c2Time.textContent = "0:" + String(secs).padStart(2, "0");
+      }
+    }
+  });
+
+  /* ---------- 3 · orb ---------- */
+  const c3Orb   = document.querySelector("#c3 [data-orb]");
+  const c3Rings = [1,2,3].map(n => document.querySelector('#c3 [data-ring="' + n + '"]'));
+  const c3Text  = document.querySelector("#c3 [data-text]");
+  const c3Rest  = document.querySelector("#c3 .txt .rest");
+  const c3State = document.querySelector("#c3 [data-state]");
+  makeStage("c3", {
+    setState(state){
+      c3State.textContent = state === "idle" ? "" : state;
+    },
+    tick(now, info){
+      const t = now / 1000;
+      const e = info.state === "listening" ? energyAt(t) : 0.07;
+      c3Orb.style.transform = "scale(" + (0.92 + e * 0.16).toFixed(3) + ")";
+      c3Rings.forEach((ring, i) => {
+        const phase = ((t * (0.5 + i * 0.16)) % 1);
+        const grow = 1 + phase * (0.5 + e * 0.75);
+        ring.style.transform = "scale(" + grow.toFixed(3) + ")";
+        ring.style.opacity = (info.state === "listening" ? (1 - phase) * (0.30 + e * 0.5) : 0).toFixed(3);
+      });
+      paint(c3Text, c3Rest, info.charsAt);
+    }
+  });
+
+  /* ---------- 4 · notch strip ---------- */
+  const c4Vu    = makeBars(document.querySelector("#c4 [data-vu]"), 26);
+  const c4Text  = document.querySelector("#c4 [data-text]");
+  const c4Rest  = document.querySelector("#c4 .display .rest");
+  const c4Badge = document.querySelector("#c4 [data-badge]");
+  makeStage("c4", {
+    setState(state){
+      c4Badge.textContent = state === "polishing" ? "polish" : "rec";
+    },
+    tick(now, info){
+      const t = now / 1000;
+      const e = info.state === "listening" ? energyAt(t) : 0.05;
+      const lit = Math.round(e * c4Vu.length);
+      c4Vu.forEach((seg, i) => {
+        const on = i < lit;
+        seg.style.background = on
+          ? (i > c4Vu.length * 0.82 ? "rgba(255,159,10,.92)" : "rgba(50,215,75,.92)")
+          : "rgba(255,255,255,.12)";
+      });
+      paint(c4Text, c4Rest, info.charsAt);
+    }
+  });
+
+  /* ---------- 5 · monospace ---------- */
+  const c5Text    = document.querySelector("#c5 [data-text]");
+  const c5Rest    = document.querySelector("#c5 .body .rest");
+  const c5Meter   = document.querySelector("#c5 [data-meter]");
+  const c5State   = document.querySelector("#c5 [data-state]");
+  const c5Spinner = document.querySelector("#c5 [data-spinner]");
+  makeStage("c5", {
+    setState(state){
+      if (state === "listening"){ c5Spinner.style.display = "none"; c5State.textContent = "listening — release Fn to insert"; }
+      if (state === "polishing"){ c5Spinner.style.display = ""; c5State.textContent = "polishing…"; }
+      if (state === "done"){ c5Spinner.style.display = "none"; c5State.textContent = "inserted"; }
+      if (state === "idle"){ c5State.textContent = ""; }
+    },
+    tick(now, info){
+      const t = now / 1000;
+      const e = info.state === "listening" ? energyAt(t) : 0;
+      const slots = 20;
+      const lit = Math.round(e * slots);
+      c5Meter.textContent = "█".repeat(lit) + "░".repeat(slots - lit);
+      paint(c5Text, c5Rest, info.charsAt);
+    }
+  });
+
+  /* ---------- the demo runner ---------- */
+  function runDemo(id){
+    const api = stages.find(s => s.root.id === id);
+    if (!api) return;
+    clearTimeout(api._t1); clearTimeout(api._t2); clearTimeout(api._t3);
+    api.setState("listening");
+    api._t1 = setTimeout(() => api.setState("polishing"), 3600);
+    api._t2 = setTimeout(() => api.setState("done"), 5000);
+    api._t3 = setTimeout(() => api.setState("idle"), 6200);
+  }
+
+  function bind(rootId){
+    const root = document.getElementById(rootId);
+    const btn = root.parentElement.querySelector("button.play");
+    if (btn) btn.addEventListener("click", () => runDemo(rootId));
+  }
+  ["c1","c2","c3","c4","c5"].forEach(bind);
+
+  /* ---------- loop ---------- */
+  function frame(now){
+    for (const s of stages) s.tick(now);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  // Play every concept once on load so the page reads as a gallery rather than
+  // five static panels. The buttons re-run any single one.
+  ["c1","c2","c3","c4","c5"].forEach((id, i) => {
+    setTimeout(() => runDemo(id), 700 + i * 800);
+  });
+})();
+</script>
+</body>
+</html>
