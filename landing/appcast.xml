@@ -3,6 +3,18 @@
     <channel>
         <title>QuietSpeech</title>
         <item>
+            <title>0.2</title>
+            <pubDate>Sun, 25 Oct 2026 19:12:04 +0530</pubDate>
+            <sparkle:version>2</sparkle:version>
+            <sparkle:shortVersionString>0.2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <enclosure url="https://quietspeech.app/downloads/QuietSpeech-0.2.dmg" length="4213843" type="application/octet-stream" sparkle:edSignature="6OlmRKYqbihpSjxu3LvSNnnEzQs36r9SlKnbKP1kWGnnO2X7Fq4sKc3FqHlSra/hgVfnAQSMsHjfYXci8pRTAQ=="/>
+            <sparkle:deltas>
+                <enclosure url="https://quietspeech.app/downloads/QuietSpeech2-1.delta" sparkle:deltaFrom="1" length="311106" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="fgVI+nMdK+fBKTbuLRsPW4Jp+kr2LxXalg4Gd+t3yktDIGrz61Ga2gIGDkUF6kGQxs+XeBFYK86nbq5AlN5LBg=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>0.1</title>
             <pubDate>Sun, 25 Oct 2026 12:48:56 +0530</pubDate>
             <sparkle:version>1</sparkle:version>
