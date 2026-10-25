@@ -1,0 +1,246 @@
+/* QuietSpeech — interface tokens
+   Single source of truth for the settings window, onboarding, and overlay.
+   Palettes: Teal (default) and Indigo. */
+
+:root {
+  color-scheme: light;
+
+  /* Type */
+  --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+  --text-2xs: 9.5px;
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-base: 13px;
+  --text-md: 15px;
+  --text-lg: 17px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 30px;
+  --leading-tight: 1.18;
+  --leading-snug: 1.35;
+  --leading-normal: 1.5;
+  --tracking-tight: -0.02em;
+  --tracking-caps: 0.08em;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* Accent — one accent across every surface */
+  --accent: #0e8fa3;
+  --accent-hover: #0b7f92;
+  --accent-press: #096c7d;
+  --accent-fill: #0b7f92;
+  --accent-fill-hover: #096c7d;
+  --accent-fill-press: #075866;
+  --accent-soft: rgba(14, 143, 163, 0.10);
+  --accent-softer: rgba(14, 143, 163, 0.05);
+  --accent-ring: rgba(14, 143, 163, 0.24);
+  --accent-text: #0a7182;
+  --on-accent: #ffffff;
+  --sidebar-selected-bg: var(--accent-fill);
+  --sidebar-selected-fg: var(--on-accent);
+
+  /* Status */
+  --success: #159c63;
+  --success-soft: rgba(21, 156, 99, 0.12);
+  --warning: #cf8410;
+  --warning-soft: rgba(207, 132, 16, 0.13);
+  --danger: #d9463f;
+  --danger-soft: rgba(217, 70, 63, 0.11);
+  --info: #3b7ff6;
+  --violet: #8b5cf6;
+
+  /* Surfaces */
+  --bg-page: #e9ebf1;
+  --bg-window: #fbfbfd;
+  --bg-sidebar: rgba(243, 244, 248, 0.88);
+  --surface: #ffffff;
+  --surface-muted: #f6f7f9;
+  --surface-sunken: #eff1f5;
+  --field: #ffffff;
+  --border: rgba(17, 24, 39, 0.08);
+  --border-strong: rgba(17, 24, 39, 0.14);
+  --hairline: rgba(255, 255, 255, 0.55);
+
+  /* Text */
+  --text: #151a21;
+  --text-2: #59616f;
+  --text-3: #8b93a1;
+  --text-disabled: #b4bac4;
+
+  /* Overlay material */
+  --overlay-bg: rgba(251, 251, 253, 0.74);
+  --overlay-border: rgba(255, 255, 255, 0.62);
+  --overlay-text: #151a21;
+  --overlay-text-2: rgba(21, 26, 33, 0.58);
+  --overlay-inset: rgba(255, 255, 255, 0.62);
+
+  /* Shape */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+  --radius-2xl: 14px;
+  --radius-window: 14px;
+  --radius-full: 999px;
+
+  /* Spacing — 4pt grid */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* Controls */
+  --control-sm: 26px;
+  --control-md: 30px;
+  --control-lg: 34px;
+
+  /* Elevation */
+  --shadow-window: 0 32px 80px -28px rgba(16, 24, 40, 0.40), 0 2px 8px rgba(16, 24, 40, 0.06);
+  --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04);
+  --shadow-overlay: 0 16px 40px -12px rgba(0, 0, 0, 0.28), 0 2px 8px rgba(0, 0, 0, 0.12);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.2, 0.7, 0.3, 1);
+  --ease-spring: cubic-bezier(0.2, 0.9, 0.3, 1.15);
+  --duration-fast: 130ms;
+  --duration-base: 180ms;
+  --duration-slow: 260ms;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --accent: #5ce1e6;
+  --accent-hover: #7aeef2;
+  --accent-press: #45c9cf;
+  --accent-fill: #2bb8c9;
+  --accent-fill-hover: #45c9cf;
+  --accent-fill-press: #1a9faf;
+  --accent-soft: rgba(92, 225, 230, 0.12);
+  --accent-softer: rgba(92, 225, 230, 0.06);
+  --accent-ring: rgba(92, 225, 230, 0.28);
+  --accent-text: #7aeef2;
+  --on-accent: #052a33;
+  --sidebar-selected-bg: color-mix(in srgb, var(--accent) 38%, #0b1820);
+  --sidebar-selected-fg: #ffffff;
+
+  --success: #3ddc94;
+  --success-soft: rgba(61, 220, 148, 0.12);
+  --warning: #e0a63a;
+  --warning-soft: rgba(224, 166, 58, 0.13);
+  --danger: #ff6b62;
+  --danger-soft: rgba(255, 107, 98, 0.12);
+  --info: #6a9dff;
+  --violet: #a78bfa;
+
+  --bg-page: #060c11;
+  --bg-window: #0a141b;
+  --bg-sidebar: rgba(11, 24, 32, 0.90);
+  --surface: #121f27;
+  --surface-muted: #172630;
+  --surface-sunken: #0c181f;
+  --field: #0c181f;
+  --border: rgba(255, 255, 255, 0.075);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --hairline: rgba(255, 255, 255, 0.06);
+
+  --text: #e9edf3;
+  --text-2: #a2acba;
+  --text-3: #79828f;
+  --text-disabled: #505865;
+
+  --overlay-bg: rgba(18, 31, 39, 0.66);
+  --overlay-border: rgba(255, 255, 255, 0.12);
+  --overlay-text: #f1f4f9;
+  --overlay-text-2: rgba(241, 244, 249, 0.58);
+  --overlay-inset: rgba(255, 255, 255, 0.08);
+
+  --shadow-window: 0 40px 100px -28px rgba(0, 0, 0, 0.85), 0 2px 12px rgba(0, 0, 0, 0.45);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.22);
+  --shadow-overlay: 0 18px 44px -14px rgba(0, 0, 0, 0.72), 0 2px 8px rgba(0, 0, 0, 0.30);
+}
+
+/* ==========================================================================
+   Palette: Indigo
+   Same structure, type, spacing, and status roles. Cooler neutrals + indigo.
+   ========================================================================== */
+html[data-palette="indigo"][data-theme="light"] {
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --accent-press: #3730a3;
+  --accent-fill: #4338ca;
+  --accent-fill-hover: #3730a3;
+  --accent-fill-press: #312e81;
+  --accent-soft: rgba(79, 70, 229, 0.10);
+  --accent-softer: rgba(79, 70, 229, 0.05);
+  --accent-ring: rgba(79, 70, 229, 0.24);
+  --accent-text: #4338ca;
+  --on-accent: #ffffff;
+
+  --info: #0ea5e9;
+
+  --bg-page: #e7eaf4;
+  --bg-window: #fbfbfe;
+  --bg-sidebar: rgba(242, 244, 251, 0.88);
+  --surface: #ffffff;
+  --surface-muted: #f5f6fb;
+  --surface-sunken: #edeff8;
+  --field: #ffffff;
+  --border: rgba(28, 25, 70, 0.08);
+  --border-strong: rgba(28, 25, 70, 0.14);
+
+  --text: #171829;
+  --text-2: #5b5d70;
+  --text-3: #8c8fa2;
+  --text-disabled: #b6b8c6;
+
+  --overlay-bg: rgba(251, 252, 255, 0.74);
+  --overlay-text: #171829;
+  --overlay-text-2: rgba(23, 24, 41, 0.58);
+}
+
+html[data-palette="indigo"][data-theme="dark"] {
+  --accent: #818cf8;
+  --accent-hover: #a5b4fc;
+  --accent-press: #6366f1;
+  --accent-fill: #818cf8;
+  --accent-fill-hover: #a5b4fc;
+  --accent-fill-press: #6366f1;
+  --accent-soft: rgba(129, 140, 248, 0.12);
+  --accent-softer: rgba(129, 140, 248, 0.06);
+  --accent-ring: rgba(129, 140, 248, 0.28);
+  --accent-text: #a5b4fc;
+  --on-accent: #15123a;
+
+  --info: #38bdf8;
+
+  --bg-page: #080910;
+  --bg-window: #141622;
+  --bg-sidebar: rgba(17, 19, 30, 0.90);
+  --surface: #1b1d2b;
+  --surface-muted: #202333;
+  --surface-sunken: #12141f;
+  --field: #12141f;
+  --border: rgba(214, 218, 255, 0.075);
+  --border-strong: rgba(214, 218, 255, 0.14);
+
+  --text: #eceef8;
+  --text-2: #a4a8bd;
+  --text-3: #7d8197;
+  --text-disabled: #555a70;
+
+  --overlay-bg: rgba(27, 29, 43, 0.66);
+  --overlay-text: #f3f4fb;
+  --overlay-text-2: rgba(243, 244, 251, 0.58);
+}
+

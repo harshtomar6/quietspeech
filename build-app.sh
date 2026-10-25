@@ -1,10 +1,11 @@
 #!/bin/zsh
-# Builds WhisprProto and assembles a signed .app bundle around the SPM binary.
+# Builds QuietSpeech and assembles a signed .app bundle around the SPM binary.
 set -euo pipefail
 
 cd "$(dirname "$0")"
+source scripts/embed-sparkle.sh
 
-APP_NAME="WhisprProto"
+APP_NAME="QuietSpeech"
 BUNDLE="${APP_NAME}.app"
 
 echo "==> Compiling (release)…"
@@ -21,6 +22,11 @@ rm -rf "$BUNDLE"
 mkdir -p "${BUNDLE}/Contents/MacOS" "${BUNDLE}/Contents/Resources"
 cp "$BIN" "${BUNDLE}/Contents/MacOS/${APP_NAME}"
 cp Resources/Info.plist "${BUNDLE}/Contents/Info.plist"
+cp Resources/AppIcon.icns "${BUNDLE}/Contents/Resources/AppIcon.icns"
+cp Resources/MenuBarIcon*.png "${BUNDLE}/Contents/Resources/"
+cp Resources/THIRD_PARTY_NOTICES.txt "${BUNDLE}/Contents/Resources/"
+cp LICENSE "${BUNDLE}/Contents/Resources/LICENSE"
+cp NOTICE "${BUNDLE}/Contents/Resources/NOTICE"
 printf 'APPL????' > "${BUNDLE}/Contents/PkgInfo"
 
 # Sign with a stable identity if one is available.
@@ -44,13 +50,17 @@ if [[ -z "$SIGN_IDENTITY" ]]; then
 fi
 
 if [[ -z "$SIGN_IDENTITY" ]]; then
+  echo "==> Embedding Sparkle (ad-hoc)…"
+  embed_sparkle "$BUNDLE" "-" 0
   echo "==> Ad-hoc signing…"
   echo "    WARNING: no code-signing identity found, falling back to ad-hoc."
   echo "    TCC permissions will be revoked on every rebuild."
-  codesign --force --deep --sign - --timestamp=none "$BUNDLE"
+  codesign --force --sign - --timestamp=none "$BUNDLE"
 else
+  echo "==> Embedding Sparkle…"
+  embed_sparkle "$BUNDLE" "$SIGN_IDENTITY" 0
   echo "==> Signing as: ${SIGN_IDENTITY}"
-  codesign --force --deep --sign "$SIGN_IDENTITY" --timestamp=none "$BUNDLE"
+  codesign --force --sign "$SIGN_IDENTITY" --timestamp=none "$BUNDLE"
 fi
 codesign --verify --verbose=1 "$BUNDLE" 2>&1 | sed 's/^/    /'
 

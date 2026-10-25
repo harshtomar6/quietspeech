@@ -1,19 +1,24 @@
 #!/bin/zsh
-# Builds a distributable, notarized WhisprProto for another Mac.
+# Builds a distributable, notarized QuietSpeech for another Mac.
 #
 #   ./package.sh                 build, sign, notarize, staple, make a DMG
 #   SKIP_NOTARIZE=1 ./package.sh sign and package without notarizing
+#   VERSION=0.2 BUILD_NUMBER=2 ./package.sh   build the next Sparkle update
+#
+# BUILD_NUMBER is Sparkle's comparison key: it must increase for every release,
+# or existing installs will never see the new version.
 #
 # Signing needs a "Developer ID Application" certificate. Notarization needs a
 # stored notarytool credential profile — see the error it prints if missing.
 set -euo pipefail
 
 cd "$(dirname "$0")"
+source scripts/embed-sparkle.sh
 
-APP_NAME="WhisprProto"
+APP_NAME="QuietSpeech"
 VERSION="${VERSION:-0.1}"
 BUILD_NUMBER="${BUILD_NUMBER:-1}"
-NOTARY_PROFILE="${NOTARY_PROFILE:-whisprproto-notary}"
+NOTARY_PROFILE="${NOTARY_PROFILE:-quietspeech-notary}"
 DIST="dist"
 BUNDLE="${DIST}/${APP_NAME}.app"
 DMG="${DIST}/${APP_NAME}-${VERSION}.dmg"
@@ -48,13 +53,20 @@ rm -rf "$BUNDLE"
 mkdir -p "$BUNDLE/Contents/MacOS" "$BUNDLE/Contents/Resources"
 cp "$BIN" "$BUNDLE/Contents/MacOS/${APP_NAME}"
 cp Resources/Info.plist "$BUNDLE/Contents/Info.plist"
+cp Resources/AppIcon.icns "$BUNDLE/Contents/Resources/AppIcon.icns"
+cp Resources/MenuBarIcon*.png "$BUNDLE/Contents/Resources/"
 cp Resources/THIRD_PARTY_NOTICES.txt "$BUNDLE/Contents/Resources/"
+cp LICENSE "$BUNDLE/Contents/Resources/LICENSE"
+cp NOTICE "$BUNDLE/Contents/Resources/NOTICE"
 printf 'APPL????' > "$BUNDLE/Contents/PkgInfo"
 
 /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${VERSION}" "$BUNDLE/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${BUILD_NUMBER}" "$BUNDLE/Contents/Info.plist"
 
 # MARK: - Sign (hardened runtime, secure timestamp)
+
+step "Embedding Sparkle…"
+embed_sparkle "$BUNDLE" "$SIGN_IDENTITY" 1
 
 step "Signing as: ${SIGN_IDENTITY}"
 # --options runtime is the hardened runtime, a hard requirement for
@@ -64,7 +76,7 @@ codesign --force \
   --sign "$SIGN_IDENTITY" \
   --options runtime \
   --timestamp \
-  --entitlements Resources/WhisprProto.entitlements \
+  --entitlements Resources/QuietSpeech.entitlements \
   "$BUNDLE"
 
 step "Verifying signature…"
@@ -108,15 +120,17 @@ EOF
   fi
 
   notarize() {
-    local path="$1" label="$2" json status id
+    # Not "path" or "status": in zsh the first is tied to $PATH (a local one
+    # empties it) and the second is read-only.
+    local file="$1" label="$2" json result id
     json="$(mktemp)"
     step "Notarizing ${label} (uploads to Apple, usually 1-5 min)…"
-    xcrun notarytool submit "$path" --keychain-profile "$NOTARY_PROFILE" \
+    xcrun notarytool submit "$file" --keychain-profile "$NOTARY_PROFILE" \
       --wait --output-format json > "$json"
-    status="$(/usr/bin/python3 -c "import json,sys;print(json.load(open(sys.argv[1])).get('status',''))" "$json")"
+    result="$(/usr/bin/python3 -c "import json,sys;print(json.load(open(sys.argv[1])).get('status',''))" "$json")"
     id="$(/usr/bin/python3 -c "import json,sys;print(json.load(open(sys.argv[1])).get('id',''))" "$json")"
-    if [[ "$status" != "Accepted" ]]; then
-      print -r -- "error: notarization of ${label} was ${status:-unknown} (id ${id})" >&2
+    if [[ "$result" != "Accepted" ]]; then
+      print -r -- "error: notarization of ${label} was ${result:-unknown} (id ${id})" >&2
       xcrun notarytool log "$id" --keychain-profile "$NOTARY_PROFILE" >&2 || true
       exit 1
     fi
@@ -145,7 +159,7 @@ STAGE="$(mktemp -d)"
 mkdir -p "${STAGE}/${APP_NAME}"
 cp -R "$BUNDLE" "${STAGE}/${APP_NAME}/"
 ln -s /Applications "${STAGE}/${APP_NAME}/Applications"
-hdiutil create -quiet -volname "Whispr Proto" -srcfolder "${STAGE}/${APP_NAME}" \
+hdiutil create -quiet -volname "QuietSpeech" -srcfolder "${STAGE}/${APP_NAME}" \
   -ov -format UDZO "$DMG"
 rm -rf "$STAGE"
 
@@ -163,6 +177,26 @@ fi
 rm -f "$ZIP"
 ditto -c -k --keepParent --sequesterRsrc "$BUNDLE" "$ZIP"
 
+# MARK: - Appcast
+
+# Installed copies read https://quietspeech.app/appcast.xml (SUFeedURL), so
+# the feed can move hosts without breaking them. Every DMG ever released stays
+# in APPCAST_DIR so generate_appcast keeps the older entries.
+APPCAST_DIR="${APPCAST_DIR:-${DIST}/appcast}"
+DOWNLOAD_URL_PREFIX="${DOWNLOAD_URL_PREFIX:-https://quietspeech.app/downloads/}"
+SPARKLE_BIN=".build/artifacts/sparkle/Sparkle/bin"
+if [[ -x "${SPARKLE_BIN}/generate_appcast" ]]; then
+  step "Updating appcast in ${APPCAST_DIR}…"
+  mkdir -p "$APPCAST_DIR"
+  cp "$DMG" "${APPCAST_DIR}/"
+  "${SPARKLE_BIN}/generate_appcast" "$APPCAST_DIR" \
+    --download-url-prefix "$DOWNLOAD_URL_PREFIX"
+  print -r -- "    Publish ${APPCAST_DIR}/appcast.xml at https://quietspeech.app/appcast.xml"
+  print -r -- "    and $(basename "$DMG") at ${DOWNLOAD_URL_PREFIX}$(basename "$DMG")."
+else
+  step "Skipping appcast (no generate_appcast at ${SPARKLE_BIN})"
+fi
+
 # MARK: - Done
 
 step "Done"
@@ -175,7 +209,7 @@ cat <<EOF
       sw_vers -productVersion   # must be 26.0 or newer
       uname -m                  # must be arm64
 
-  Then open the DMG, drag Whispr Proto to Applications, and launch it. On first
+  Then open the DMG, drag QuietSpeech to Applications, and launch it. On first
   run it will ask for Microphone and Accessibility, and download the on-device
   speech model for your language.
 EOF

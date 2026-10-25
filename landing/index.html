@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QuietSpeech for Mac</title>
+  <meta name="description" content="Dictate, edit, and generate text in any Mac app. On-device by default. One payment, two Macs, no account.">
+  <meta name="theme-color" content="#0a0a0c">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="QuietSpeech for Mac">
+  <meta property="og:description" content="Dictate, edit, and generate text in any Mac app. On-device by default. One payment, two Macs, no account.">
+  <meta property="og:image" content="https://quietspeech.app/assets/og.png">
+  <meta property="og:url" content="https://quietspeech.app/">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="QuietSpeech for Mac. Say it, and it's written.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="QuietSpeech for Mac">
+  <meta name="twitter:description" content="Dictate, edit, and generate text in any Mac app. On-device by default. One payment, two Macs, no account.">
+  <meta name="twitter:image" content="https://quietspeech.app/assets/og.png">
+  <link rel="icon" href="assets/icon-32.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="assets/icon-128.png">
+  <link rel="stylesheet" href="styles.css">
+  <script>document.documentElement.classList.add("js");</script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="nav" id="nav">
+    <div class="nav-inner">
+      <a class="brand" href="#top" aria-label="QuietSpeech home">
+        <img src="assets/icon-32.png" alt="" width="24" height="24">
+        <span>QuietSpeech</span>
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#how">How it works</a>
+        <a href="#demo">Demo</a>
+        <a href="#modes">Modes</a>
+        <a href="#privacy">Privacy</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <a class="btn btn-small btn-primary" href="https://buy.polar.sh/polar_cl_8ooBh11wmw9UodSY2imkMg5OV1WTig6pmp79q2Hr3FQ">Buy, $29</a>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero dark" id="top">
+      <div class="hero-glow" aria-hidden="true"></div>
+      <div class="container hero-copy">
+        <div class="hero-icon" data-reveal>
+          <img src="assets/icon-128.png" srcset="assets/icon-128.png 1x, assets/icon-512.png 2x" alt="" width="96" height="96">
+        </div>
+        <p class="eyebrow" data-reveal>For Apple silicon Macs on macOS 26</p>
+        <h1 data-reveal>Say it, and it&rsquo;s written.</h1>
+        <p class="hero-sub" data-reveal>Dictate, edit, and generate text in any Mac app. On-device by default.</p>
+        <div class="hero-actions" data-reveal>
+          <a class="btn btn-primary" href="https://buy.polar.sh/polar_cl_8ooBh11wmw9UodSY2imkMg5OV1WTig6pmp79q2Hr3FQ">Buy QuietSpeech, $29</a>
+          <a class="btn btn-quiet" href="#demo">See it work <span aria-hidden="true">&darr;</span></a>
+        </div>
+        <p class="hero-shortcut" data-reveal>Hold <kbd>Fn</kbd>. Speak. Let go.</p>
+        <p class="hero-note" data-reveal>One payment. Two Macs. No account.</p>
+      </div>
+
+      <div class="container hero-visual" data-reveal>
+        <div class="mac-window hero-window" role="group" aria-label="QuietSpeech dictating a sentence into Notes">
+          <div class="window-bar">
+            <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="window-title">Notes</span>
+            <span class="window-spacer" aria-hidden="true"></span>
+          </div>
+          <div class="hero-note-body">
+            <p class="note-date">Today, 9:41</p>
+            <h2 class="note-title">Invoice follow-up</h2>
+            <p class="note-text"><span id="hero-typed">Hi Priya, the invoice for August is ready. I pushed the final copy to the shared folder this morning.</span></p>
+          </div>
+          <div class="overlay overlay-card hero-overlay" aria-hidden="true">
+            <div class="overlay-row">
+              <span class="overlay-dot"></span>
+              <span class="overlay-app">Notes</span>
+              <span class="overlay-label" id="hero-overlay-label">Listening</span>
+            </div>
+            <div class="overlay-row overlay-live-row">
+              <span class="waveform">
+                <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+              </span>
+              <span class="overlay-transcript" id="hero-live">Hi Priya, the invoice for August is ready. I pushed the final copy to the shared folder this morning.</span>
+              <span class="overlay-caret"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="proof light">
+      <div class="container proof-grid">
+        <p data-reveal>Audio is transcribed on this Mac.</p>
+        <p data-reveal>Apple Intelligence cleans the text on this Mac.</p>
+        <p data-reveal>Nothing leaves your Mac unless you connect another provider.</p>
+      </div>
+    </section>
+
+    <section class="section light" id="how">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow" data-reveal>How it works</p>
+          <h2 data-reveal>One key, four quiet steps.</h2>
+        </div>
+
+        <div class="steps">
+          <article class="step" data-reveal>
+            <span class="step-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="6" width="18" height="12" rx="3"/><path d="M7 12h4M13 10v4"/></svg>
+            </span>
+            <span class="step-number">01</span>
+            <h3>Hold Fn.</h3>
+            <p>Speak while the keys are down. Tap to toggle if you prefer that.</p>
+          </article>
+
+          <article class="step" data-reveal>
+            <span class="step-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 12h2M9 7v10M14 4v16M19 9v6M22 12h-1"/></svg>
+            </span>
+            <span class="step-number">02</span>
+            <h3>Apple&rsquo;s recognizer listens.</h3>
+            <p>By default, the audio is transcribed on-device, in the language you picked.</p>
+          </article>
+
+          <article class="step" data-reveal>
+            <span class="step-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 3l1.6 5.4L19 10l-5.4 1.6L12 17l-1.6-5.4L5 10l5.4-1.6L12 3Z"/><path d="M18.5 16.5l.7 2.3 2.3.7-2.3.7-.7 2.3-.7-2.3-2.3-.7 2.3-.7.7-2.3Z"/></svg>
+            </span>
+            <span class="step-number">03</span>
+            <h3>Apple Intelligence cleans it up.</h3>
+            <p>Filler goes away, punctuation lands, and the sentence keeps your meaning.</p>
+          </article>
+
+          <article class="step" data-reveal>
+            <span class="step-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M5 3l6.5 16 2.1-6.4L20 10.5 5 3Z"/></svg>
+            </span>
+            <span class="step-number">04</span>
+            <h3>The text appears where you were typing.</h3>
+            <p>Slack, Mail, Notes, Cursor, anywhere with a cursor.</p>
+          </article>
+        </div>
+
+        <p class="section-note" data-reveal>If Apple Intelligence is off, rules-based cleanup takes over. Dictation still works.</p>
+      </div>
+    </section>
+
+    <section class="section dark demo-section" id="demo">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow" data-reveal>See it work</p>
+          <h2 data-reveal>It works in the app you already use.</h2>
+          <p class="section-note section-note-left demo-note" data-reveal>Watch dictation, editing, and generation in the apps you already use. The overlay shows what QuietSpeech heard. The result lands where you are working.</p>
+        </div>
+
+        <div class="demo-layout">
+          <div class="demo-copy">
+            <article class="demo-step is-active" data-demo-step="0">
+              <div class="demo-meta"><span class="step-number">01</span><span class="demo-mode">Dictate</span></div>
+              <h3>A quick update, without the typing.</h3>
+              <p>Hold Fn and talk. The live transcript fills in while you speak, then the cleaned message lands in the channel.</p>
+            </article>
+            <article class="demo-step" data-demo-step="1">
+              <div class="demo-meta"><span class="step-number">02</span><span class="demo-mode">Dictate</span></div>
+              <h3>Code stays code.</h3>
+              <p>QuietSpeech skips AI polish in code and terminal apps, so your syntax does not get rewritten.</p>
+            </article>
+            <article class="demo-step" data-demo-step="2">
+              <div class="demo-meta"><span class="step-number">03</span><span class="demo-mode">Edit</span></div>
+              <h3>Rewrite what you selected.</h3>
+              <p>Select a paragraph, hold Fn, and say what to change. The selection is rewritten in place.</p>
+            </article>
+            <article class="demo-step" data-demo-step="3">
+              <div class="demo-meta"><span class="step-number">04</span><span class="demo-mode">Generate</span></div>
+              <h3>Ask for a first draft.</h3>
+              <p>Say generate, then what you need. QuietSpeech writes a draft and inserts it where you are working.</p>
+            </article>
+          </div>
+
+          <div class="demo-stage">
+            <div class="mac-window demo-window" role="group" aria-label="QuietSpeech dictating, editing, and generating text in Mac apps">
+              <div class="window-bar">
+                <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="window-title" id="demo-window-title">Slack</span>
+                <span class="window-spacer" aria-hidden="true"></span>
+              </div>
+
+              <div class="window-body">
+                <section class="pane pane-slack is-active" id="pane-slack" role="tabpanel" aria-label="Slack" data-pane="0" data-mode="dictate">
+                  <aside class="slack-rail" aria-hidden="true">
+                    <span class="rail-mark"></span>
+                    <span class="rail-dot" style="--tone:#5CE1E6"></span>
+                    <span class="rail-dot" style="--tone:#7C5CFF"></span>
+                    <span class="rail-dot" style="--tone:#F0B45A"></span>
+                    <span class="rail-dot" style="--tone:#8FD48A"></span>
+                  </aside>
+                  <div class="slack-main">
+                    <div class="app-header"><strong># design</strong><span>4 members</span></div>
+                    <div class="message">
+                      <span class="avatar" style="--tone:#7C5CFF">P</span>
+                      <div>
+                        <div class="msg-head"><strong>Priya</strong><span>10:42</span></div>
+                        <p>The new onboarding copy is live. Can you take a look?</p>
+                      </div>
+                    </div>
+                    <div class="message">
+                      <span class="avatar" style="--tone:#5CE1E6">Y</span>
+                      <div>
+                        <div class="msg-head"><strong>You</strong></div>
+                        <p class="typed-line"><span class="typed-target" data-text="Looks good to me. I tightened the second screen and pushed the update this morning.">Looks good to me. I tightened the second screen and pushed the update this morning.</span><span class="caret" aria-hidden="true"></span></p>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="pane pane-code" id="pane-code" role="tabpanel" aria-label="Cursor" data-pane="1" data-mode="dictate">
+                  <div class="code-toolbar"><span class="code-tab is-active">LicenseService.swift</span><span class="code-tab">AppModel.swift</span></div>
+                  <div class="code-body">
+                    <pre aria-hidden="true"><span class="ln">41</span>func refresh() async {
+<span class="ln">42</span>    guard configuration.isConfigured else {
+<span class="ln">43</span>        status = .unconfigured
+<span class="ln">44</span>        return
+<span class="ln">45</span>    }
+<span class="ln">46</span>
+<span class="ln">47</span>    <span class="comment"><span class="typed-target" data-text="Retry the license check twice before showing the error.">Retry the license check twice before showing the error.</span><span class="caret" aria-hidden="true"></span></span>
+<span class="ln">48</span>}</pre>
+                  </div>
+                </section>
+
+                <section class="pane pane-notes" id="pane-notes" role="tabpanel" aria-label="Notes" data-pane="2" data-mode="edit" data-instruction="Make it shorter.">
+                  <aside class="notes-rail" aria-hidden="true">
+                    <p class="notes-rail-title">Notes</p>
+                    <p class="notes-rail-item is-active">Launch notes</p>
+                    <p class="notes-rail-item">Pricing questions</p>
+                    <p class="notes-rail-item">Support replies</p>
+                    <p class="notes-rail-item">Ideas</p>
+                  </aside>
+                  <div class="notes-main">
+                    <p class="note-date">Today, 2:18 PM</p>
+                    <h3>Launch notes</h3>
+                    <p class="demo-edit-line"><span class="edit-original">The release is ready, and the notes are written, and the support docs are updated.</span><span class="edit-result">The release is ready, and the docs are updated.</span></p>
+                  </div>
+                </section>
+
+                <section class="pane pane-mail" id="pane-mail" role="tabpanel" aria-label="Mail" data-pane="3" data-mode="generate" data-instruction="Generate a reply to Priya." data-result="Thanks Priya. The invoice is ready, and I will send the final copy this afternoon.">
+                  <div class="mail-toolbar"><span class="mail-dot"></span><strong>Reply</strong><span class="mail-tools" aria-hidden="true"></span></div>
+                  <div class="mail-fields">
+                    <p><span>To</span>Priya Shah</p>
+                    <p><span>Subject</span>Re: Invoice for August</p>
+                  </div>
+                  <div class="mail-body">
+                    <p class="mail-quote">Priya wrote: Can you send the final invoice when it is ready?</p>
+                    <p class="typed-line"><span class="typed-target"></span><span class="caret" aria-hidden="true"></span></p>
+                  </div>
+                </section>
+              </div>
+
+              <div class="overlay overlay-card" aria-hidden="true">
+                <div class="overlay-row">
+                  <span class="overlay-dot"></span>
+                  <span class="overlay-app" id="demo-overlay-app">Slack</span>
+                  <span class="overlay-label">Listening</span>
+                </div>
+                <div class="overlay-row overlay-live-row">
+                  <span class="waveform">
+                    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                  </span>
+                  <span class="overlay-transcript" id="demo-live"></span>
+                  <span class="overlay-caret"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="demo-tabs" role="tablist" aria-label="Choose an app">
+            <button class="demo-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="pane-slack" data-demo-tab="0">Slack</button>
+            <button class="demo-tab" type="button" role="tab" aria-selected="false" aria-controls="pane-code" data-demo-tab="1">Cursor</button>
+            <button class="demo-tab" type="button" role="tab" aria-selected="false" aria-controls="pane-notes" data-demo-tab="2">Notes</button>
+            <button class="demo-tab" type="button" role="tab" aria-selected="false" aria-controls="pane-mail" data-demo-tab="3">Mail</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section light modes" id="modes">
+      <div class="container">
+        <div class="section-head modes-head">
+          <p class="eyebrow" data-reveal>Three modes</p>
+          <h2 data-reveal>Say this. Get this.</h2>
+          <p class="section-note section-note-left" data-reveal>One key. Three ways to turn speech into the text you need. Start with dictation, then ask for a rewrite or a new draft without leaving the app you are in.</p>
+        </div>
+
+        <div class="mode-grid">
+          <article class="mode-card" data-reveal>
+            <div class="mode-top">
+              <span class="mode-number">01</span>
+              <span class="mode-name">Dictate</span>
+            </div>
+            <h3>Speak, and it types.</h3>
+            <p>Hold Fn and talk. The live transcript fills in while you speak, then the cleaned text lands where your cursor is.</p>
+            <div class="mode-visual mode-visual-dictate" aria-hidden="true">
+              <div class="mode-live"><span class="mode-live-dot"></span>Listening</div>
+              <span class="mode-label">You say</span>
+              <p class="mode-say">So um, I think we should like ship it Friday, you know?</p>
+              <span class="mode-label">You get</span>
+              <p class="mode-result">I think we should ship it on Friday.</p>
+              <span class="mode-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+            </div>
+          </article>
+
+          <article class="mode-card" data-reveal>
+            <div class="mode-top">
+              <span class="mode-number">02</span>
+              <span class="mode-name">Edit</span>
+            </div>
+            <h3>Rewrite what you selected.</h3>
+            <p>Select a paragraph, hold Fn, and say what to change. The selection is rewritten in place.</p>
+            <div class="mode-visual mode-visual-edit" aria-hidden="true">
+              <span class="mode-label">You say</span>
+              <p class="mode-instruction"><span>make it more direct</span></p>
+              <p class="mode-selected">I was just wondering if maybe you could send over the numbers when you get a chance?</p>
+              <span class="mode-label">You get</span>
+              <p class="mode-result">Can you send over the numbers?</p>
+            </div>
+          </article>
+
+          <article class="mode-card" data-reveal>
+            <div class="mode-top">
+              <span class="mode-number">03</span>
+              <span class="mode-name">Generate</span>
+            </div>
+            <h3>Ask for a first draft.</h3>
+            <p>Say &ldquo;generate,&rdquo; then what you need. QuietSpeech writes a draft and inserts it where you are working.</p>
+            <div class="mode-visual mode-visual-generate" aria-hidden="true">
+              <span class="mode-label">You say</span>
+              <p class="mode-instruction"><span>generate</span> a thank-you note for the design team</p>
+              <span class="mode-label">You get</span>
+              <p class="mode-result">Thanks, everyone. The new onboarding screens look great, and the launch went smoothly because of your work.</p>
+              <span class="mode-done">Draft inserted</span>
+            </div>
+          </article>
+        </div>
+
+        <div class="mode-vocab" data-reveal>
+          <div>
+            <h3>It knows your names.</h3>
+            <p>Add people, products, and jargon to your vocabulary. The recognizer gets them right more often.</p>
+          </div>
+          <ul class="mode-vocab-list" aria-label="Vocabulary examples">
+            <li>Priya</li>
+            <li>Polar</li>
+            <li>QuietSpeech</li>
+          </ul>
+        </div>
+
+        <p class="section-note section-note-left modes-note" data-reveal>Edit and generate use Apple Intelligence, or the provider you connect. Dictation stays on-device by default.</p>
+      </div>
+    </section>
+
+    <section class="section dark privacy" id="privacy">
+      <div class="container">
+        <div class="privacy-head">
+          <p class="eyebrow" data-reveal>Privacy</p>
+          <h2 data-reveal>Your voice stays on this Mac by default.</h2>
+          <p class="privacy-sub" data-reveal>Audio is transcribed on-device, and Apple Intelligence processes the text on-device. There is no account, no telemetry, and no audio kept after transcription.</p>
+        </div>
+
+        <ol class="privacy-flow" data-reveal aria-label="How audio stays on this Mac">
+          <li class="privacy-step">
+            <span class="privacy-step-number">01</span>
+            <strong class="privacy-step-title">Microphone</strong>
+            <span class="privacy-step-note">Audio is captured only while you hold Fn.</span>
+          </li>
+          <li class="privacy-step">
+            <span class="privacy-step-number">02</span>
+            <strong class="privacy-step-title">On-device recognizer</strong>
+            <span class="privacy-step-note">Apple&rsquo;s local speech model turns it into text.</span>
+          </li>
+          <li class="privacy-step">
+            <span class="privacy-step-number">03</span>
+            <strong class="privacy-step-title">On-device cleanup</strong>
+            <span class="privacy-step-note">Apple Intelligence removes filler and fixes punctuation.</span>
+          </li>
+          <li class="privacy-step">
+            <span class="privacy-step-number">04</span>
+            <strong class="privacy-step-title">Your app</strong>
+            <span class="privacy-step-note">The finished text lands where your cursor is.</span>
+          </li>
+        </ol>
+        <p class="privacy-flow-note" data-reveal>If you connect OpenAI, Groq, Ollama, or a custom endpoint, that provider sees what you send. QuietSpeech does not.</p>
+      </div>
+    </section>
+
+    <section class="section light why-section" id="why">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow" data-reveal>Why QuietSpeech</p>
+          <h2 data-reveal>The short version.</h2>
+        </div>
+
+        <div class="why-grid">
+          <article class="why-item" data-reveal>
+            <span class="why-number">01</span>
+            <h3>Made for the Mac.</h3>
+            <p>Built on Apple&rsquo;s own Speech and Foundation Models frameworks, the ones already on your Mac.</p>
+          </article>
+
+          <article class="why-item" data-reveal>
+            <span class="why-number">02</span>
+            <h3>Buy once. Own it.</h3>
+            <p>$29 for two Macs. No subscription, no account, and no recurring fee.</p>
+          </article>
+
+          <article class="why-item" data-reveal>
+            <span class="why-number">03</span>
+            <h3>Private by default.</h3>
+            <p>Dictation and cleanup run on this Mac. No telemetry, and no audio kept after transcription.</p>
+          </article>
+        </div>
+
+        <div class="why-reqs" data-reveal>
+          <div>
+            <h3>What it needs.</h3>
+            <p>QuietSpeech is built for the current Mac generation. It is licensed under GPLv3.</p>
+          </div>
+          <ul class="requirement-list" aria-label="Requirements">
+            <li><span>macOS</span><strong>26 Tahoe or later</strong></li>
+            <li><span>Chip</span><strong>Apple silicon, M1 or newer</strong></li>
+            <li><span>Permissions</span><strong>Microphone and Accessibility</strong></li>
+            <li><span>Apple Intelligence</span><strong>On for cleanup and rewrites</strong></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section light pricing-section" id="pricing">
+      <div class="container">
+        <div class="section-head section-head-center">
+          <p class="eyebrow" data-reveal>Pricing</p>
+          <h2 data-reveal>Buy once. Own it. Two Macs.</h2>
+          <p class="section-note pricing-note" data-reveal>One payment of $29. No subscription. No account. The demo above is the trial.</p>
+        </div>
+
+        <div class="price-card" data-reveal>
+          <div class="price-top">
+            <div>
+              <p class="price-label">QuietSpeech for Mac</p>
+              <p class="price">$29</p>
+              <p class="price-note">One-time license</p>
+            </div>
+            <img src="assets/icon-128.png" alt="" width="72" height="72">
+          </div>
+          <ul class="price-list">
+            <li>Two Mac activations</li>
+            <li>No subscription. No account.</li>
+            <li>14-day refund</li>
+            <li>Updates from the menu bar</li>
+            <li>Move a license between Macs in the customer portal</li>
+          </ul>
+          <a class="btn btn-primary btn-wide" href="https://buy.polar.sh/polar_cl_8ooBh11wmw9UodSY2imkMg5OV1WTig6pmp79q2Hr3FQ">Buy QuietSpeech</a>
+          <p class="price-fine">Secure checkout through Polar. <a href="https://polar.sh/momentum-apps/portal">Manage a license</a>.</p>
+          <p class="price-fine price-download">Already have a key? <a href="downloads/QuietSpeech-0.1.dmg" download>Download QuietSpeech 0.1</a> for macOS 26 on Apple silicon.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section light faq-section" id="faq">
+      <div class="container faq-wrap">
+        <div class="section-head">
+          <p class="eyebrow" data-reveal>FAQ</p>
+          <h2 data-reveal>Questions, answered.</h2>
+        </div>
+
+        <div class="faq-list" data-reveal>
+          <details>
+            <summary>Is there a trial?<span aria-hidden="true">+</span></summary>
+            <p>No. You buy a license once, and it works on two Macs. The demo above shows how it works before you pay. If it is not for you, you have 14 days to request a refund.</p>
+          </details>
+          <details>
+            <summary>Does dictation work offline?<span aria-hidden="true">+</span></summary>
+            <p>By default, dictation and Apple Intelligence run on this Mac. If you connect another provider, audio goes there for transcription. The license check needs the internet once every 14 days, and the app keeps working inside that window.</p>
+          </details>
+          <details>
+            <summary>Which apps does it work in?<span aria-hidden="true">+</span></summary>
+            <p>Anywhere you can type. Some apps need the clipboard fallback, and QuietSpeech handles that for you.</p>
+          </details>
+          <details>
+            <summary>What happens if I get a new Mac?<span aria-hidden="true">+</span></summary>
+            <p>Deactivate the old Mac in the customer portal, then activate the new one with the same key.</p>
+          </details>
+          <details>
+            <summary>Do I need an account?<span aria-hidden="true">+</span></summary>
+            <p>No. The license key is the account.</p>
+          </details>
+          <details>
+            <summary>Does it work with Apple Intelligence turned off?<span aria-hidden="true">+</span></summary>
+            <p>Yes. Dictation still works, and cleanup falls back to on-device rules.</p>
+          </details>
+          <details>
+            <summary>Why does it require macOS 26?<span aria-hidden="true">+</span></summary>
+            <p>The app uses Apple&rsquo;s new Speech and Foundation Models frameworks. Both ship with macOS 26.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="final-cta dark">
+      <div class="container final-inner" data-reveal>
+        <img src="assets/icon-128.png" alt="" width="88" height="88">
+        <h2>Your Mac already knows how to listen.</h2>
+        <p>Buy once, activate two Macs, and stop typing the same sentence twice.</p>
+        <a class="btn btn-primary" href="https://buy.polar.sh/polar_cl_8ooBh11wmw9UodSY2imkMg5OV1WTig6pmp79q2Hr3FQ">Buy QuietSpeech, $29</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer dark">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <img src="assets/icon-32.png" alt="" width="24" height="24">
+        <span>QuietSpeech</span>
+      </div>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="#how">How it works</a>
+        <a href="#modes">Modes</a>
+        <a href="#privacy">Privacy</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+        <a href="downloads/QuietSpeech-0.1.dmg" download>Download</a>
+        <a href="https://polar.sh/momentum-apps/portal">Manage a license</a>
+      </nav>
+      <p class="footer-fine">QuietSpeech is GPLv3 software. Made for macOS. &copy; 2026 Harsh Tomar.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

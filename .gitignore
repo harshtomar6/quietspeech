@@ -1,9 +1,13 @@
 # Build output
 .build/
 dist/
+QuietSpeech.app/
 WhisprProto.app/
 *.dmg
 *.zip
 
 # macOS
 .DS_Store
+
+# Vercel project link
+landing/.vercel/

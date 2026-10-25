@@ -5,15 +5,17 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleExecutable</key>
-	<string>WhisprProto</string>
+	<string>QuietSpeech</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
-	<string>dev.harsh.whisprproto</string>
+	<string>dev.harsh.quietspeech</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>WhisprProto</string>
+	<string>QuietSpeech</string>
 	<key>CFBundleDisplayName</key>
-	<string>Whispr Proto</string>
+	<string>QuietSpeech</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -23,16 +25,26 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>26.0</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Prototype</string>
+	<string>Copyright © 2026 Harsh Tomar. Licensed under GPLv3.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Whispr Proto needs the microphone to transcribe your speech on-device.</string>
+	<string>QuietSpeech needs the microphone to transcribe your speech on-device.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Whispr Proto uses Apple's on-device speech recognition to transcribe your speech.</string>
+	<string>QuietSpeech uses Apple's on-device speech recognition to transcribe your speech.</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>LSUIElement</key>
 	<true/>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>SUFeedURL</key>
+	<string>https://quietspeech.app/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>U3IMbfBFpsIJyYCfH4O23eUtiJ1kw62ItNDYGEtBsHc=</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<key>SUAutomaticallyUpdate</key>
+	<true/>
+	<key>SUAllowsAutomaticUpdates</key>
+	<true/>
 </dict>
 </plist>

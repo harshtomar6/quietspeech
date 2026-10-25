@@ -1,0 +1,15 @@
+<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+    <channel>
+        <title>QuietSpeech</title>
+        <item>
+            <title>0.1</title>
+            <pubDate>Sun, 25 Oct 2026 12:48:56 +0530</pubDate>
+            <sparkle:version>1</sparkle:version>
+            <sparkle:shortVersionString>0.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <enclosure url="https://quietspeech.app/downloads/QuietSpeech-0.1.dmg" length="4140961" type="application/octet-stream" sparkle:edSignature="r8pXtFy95prxuA4NKrg5fz4Z9roHNDmqoVDrKqb4CHrOYMipa9FELWhC5ol5LCgWCqAwhoGZGNOjErwPl/GvDw=="/>
+        </item>
+    </channel>
+</rss>

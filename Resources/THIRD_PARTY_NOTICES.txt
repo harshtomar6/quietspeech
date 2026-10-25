@@ -1,15 +1,15 @@
 Third-party notices
 ===================
 
-Whispr Proto contains code derived from FreeFlow, https://github.com/zachlatta/freeflow
+QuietSpeech contains code derived from FreeFlow, https://github.com/zachlatta/freeflow
 
 The following files were ported from FreeFlow's ShortcutCore and adapted:
 
-    Sources/WhisprProto/ShortcutCore/ShortcutModels.swift
-    Sources/WhisprProto/ShortcutCore/ShortcutMatcher.swift
-    Sources/WhisprProto/ShortcutCore/ModifierKeyEventState.swift
-    Sources/WhisprProto/ShortcutCore/DictationShortcutSessionController.swift
-    Sources/WhisprProto/ShortcutCore/ShortcutBackend.swift
+    Sources/QuietSpeech/ShortcutCore/ShortcutModels.swift
+    Sources/QuietSpeech/ShortcutCore/ShortcutMatcher.swift
+    Sources/QuietSpeech/ShortcutCore/ModifierKeyEventState.swift
+    Sources/QuietSpeech/ShortcutCore/DictationShortcutSessionController.swift
+    Sources/QuietSpeech/ShortcutCore/ShortcutBackend.swift
 
 FreeFlow is distributed under the MIT License, reproduced in full below.
 
