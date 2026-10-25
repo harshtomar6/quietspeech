@@ -5,6 +5,7 @@ QuietSpeech.app/
 WhisprProto.app/
 *.dmg
 *.zip
+*.delta
 
 # macOS
 .DS_Store
