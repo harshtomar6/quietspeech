@@ -12,10 +12,15 @@ let package = Package(
             name: "Licensing",
             path: "Sources/Licensing"
         ),
+        .target(
+            name: "Learning",
+            path: "Sources/Learning"
+        ),
         .executableTarget(
             name: "QuietSpeech",
             dependencies: [
                 "Licensing",
+                "Learning",
                 .product(name: "Sparkle", package: "Sparkle"),
             ],
             path: "Sources/QuietSpeech",
@@ -27,6 +32,11 @@ let package = Package(
             name: "LicensingTests",
             dependencies: ["Licensing"],
             path: "Tests/LicensingTests"
+        ),
+        .testTarget(
+            name: "LearningTests",
+            dependencies: ["Learning"],
+            path: "Tests/LearningTests"
         ),
     ]
 )

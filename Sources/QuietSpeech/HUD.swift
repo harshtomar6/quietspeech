@@ -112,10 +112,40 @@ struct HUDView: View {
 
     @ViewBuilder
     private var overlay: some View {
-        switch model.overlayStyle {
-        case .capsule: CapsuleOverlay(model: model)
-        case .card:    CardOverlay(model: model)
+        if let notice = model.learningNotice, !model.isRecording {
+            LearningNoticeOverlay(text: notice, style: model.overlayStyle)
+        } else {
+            switch model.overlayStyle {
+            case .capsule: CapsuleOverlay(model: model)
+            case .card:    CardOverlay(model: model)
+            }
         }
+    }
+}
+
+// MARK: - Learning notice
+
+/// A short line saying which corrected words were learned. Sits where the
+/// dictation overlay does, sized to fit inside the same panel.
+private struct LearningNoticeOverlay: View {
+    let text: String
+    let style: AppModel.OverlayStyle
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "sparkles")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(OverlayPalette.accent)
+            Text(text)
+                .font(.system(size: 13.5))
+                .foregroundStyle(Color.primary.opacity(0.92))
+                .lineLimit(1)
+                .truncationMode(.tail)
+        }
+        .padding(.horizontal, 16)
+        .frame(height: 40)
+        .modifier(OverlaySurface(cornerRadius: 20, restartToken: nil))
+        .frame(width: style.contentSize.width, height: style.contentSize.height, alignment: .bottom)
     }
 }
 

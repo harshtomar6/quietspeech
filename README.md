@@ -49,7 +49,7 @@ swift test                # unit tests
 | `Sources/Licensing/` | License activation and validation, with tests in `Tests/LicensingTests/` |
 | `landing/` | The quietspeech.app website and the Sparkle `appcast.xml` |
 | `design/` | Design system, tokens and overlay concepts |
-| `scripts/` | Build helpers |
+| `scripts/` | Build helpers, and `polish-bench/`, which scores AI polish on your captured dictations |
 
 ## License
 

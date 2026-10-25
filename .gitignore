@@ -11,3 +11,6 @@ WhisprProto.app/
 
 # Vercel project link
 landing/.vercel/
+
+# Polish bench results hold your own dictations
+polish-*.jsonl

@@ -39,10 +39,8 @@ struct OverviewPane: View {
                 SettingsDivider()
 
                 SettingsRow(
-                    "Insertion",
-                    subtitle: model.useDirectInsertion
-                        ? "Types directly into the focused app"
-                        : "Uses clipboard paste"
+                    "Overlay",
+                    subtitle: "Shown while you dictate"
                 ) {
                     Picker("", selection: $model.overlayStyle) {
                         ForEach(AppModel.OverlayStyle.allCases) { style in
@@ -613,11 +611,32 @@ struct PersonalizationPane: View {
                 }
                 .padding(14)
             }
+
+            SettingsGroup(
+                "Learning",
+                icon: "sparkles",
+                note: "Both run on this Mac. Screen text is used for one dictation and never saved or sent to a provider."
+            ) {
+                SettingsRow("Names on screen", subtitle: "When you start dictating, read the focused window and expect the names in it.") {
+                    SettingsToggle(isOn: $model.learnFromScreen) { _ in model.persistPreferences() }
+                }
+
+                SettingsDivider()
+
+                SettingsRow("Learn from corrections", subtitle: "Fix a misheard name after it’s typed and it’s learned the second time. Works where the app’s text can be read.") {
+                    SettingsToggle(isOn: $model.learnFromCorrections) { _ in model.persistPreferences() }
+                }
+            }
         }
     }
 
     private func vocabularyChip(_ word: String) -> some View {
         HStack(spacing: 5) {
+            if model.learnedVocabulary.contains(word) {
+                Image(systemName: "sparkles")
+                    .font(.system(size: 8.5, weight: .semibold))
+                    .help("Learned from your corrections")
+            }
             Text(word)
                 .font(.system(size: 11, weight: .medium))
                 .lineLimit(1)
@@ -667,6 +686,12 @@ struct PersonalizationPane: View {
                 .textFieldStyle(.plain)
                 .font(.system(size: 11.5, weight: .medium))
                 .frame(maxWidth: .infinity, alignment: .leading)
+            if pair.wrappedValue.learned == true {
+                Image(systemName: "sparkles")
+                    .font(.system(size: 9.5))
+                    .foregroundStyle(SettingsColor.accent)
+                    .help("Learned from your corrections")
+            }
             Button {
                 model.removeReplacement(pair.wrappedValue.id)
             } label: {
@@ -1068,7 +1093,7 @@ struct OutputPane: View {
 
                 SettingsDivider()
 
-                SettingsRow("Insert without the clipboard", subtitle: "Tries Accessibility, then synthetic typing, and only pastes if both fail.") {
+                SettingsRow("Insert without the clipboard", subtitle: "Tries Accessibility, then synthetic typing, and pastes only if both fail.") {
                     SettingsToggle(isOn: $model.useDirectInsertion) { _ in model.persistPreferences() }
                 }
 
@@ -1117,7 +1142,7 @@ struct OutputPane: View {
             return "Automatic insertion is off. Dictations stay in the overlay and history so you can copy them manually."
         }
         if model.useDirectInsertion {
-            return "Clipboard managers like FlyCut never record your dictations. The clipboard is touched only if both direct paths fail."
+            return "Browsers, Notes, Slack and other Electron apps get a paste instead, because they drop direct writes. Pastes are marked private so clipboard managers that respect it skip them, and your previous clipboard is put back."
         }
         return "Every insertion uses the clipboard and a synthesized ⌘V. Your previous clipboard is restored, but clipboard managers may record dictations."
     }
@@ -1563,30 +1588,36 @@ struct PrivacyPane: View {
                     SettingsToggle(isOn: $model.historyEnabled) { _ in model.historySettingChanged() }
                 }
 
-                SettingsDivider()
+                if AppModel.developerToolsEnabled {
+                    SettingsDivider()
 
-                SettingsRow("Review cleanup", subtitle: "Appends raw and cleaned text to a file so you can compare them.") {
-                    SettingsToggle(isOn: $model.captureDictations) { _ in
-                        model.persistPreferences()
-                        model.refreshCaptureStatus()
+                    SettingsRow("Review cleanup", subtitle: "Appends raw and cleaned text to a file so you can compare them.") {
+                        SettingsToggle(isOn: $model.captureDictations) { _ in
+                            model.persistPreferences()
+                            model.refreshCaptureStatus()
+                        }
                     }
                 }
 
-                SettingsDivider()
+                // Without developer tools, a file left by an earlier version
+                // can still be deleted.
+                if AppModel.developerToolsEnabled || model.settingsCaptureFileExists {
+                    SettingsDivider()
 
-                SettingsRow("Capture file", subtitle: model.captureStatus) {
-                    HStack(spacing: 7) {
-                        Button("Reveal") { model.revealCaptureFile() }
+                    SettingsRow("Capture file", subtitle: model.captureStatus) {
+                        HStack(spacing: 7) {
+                            Button("Reveal") { model.revealCaptureFile() }
+                                .buttonStyle(.bordered)
+                                .controlSize(.small)
+                                .disabled(!model.settingsCaptureFileExists)
+                            Button("Delete") {
+                                model.clearCaptureFile()
+                            }
                             .buttonStyle(.bordered)
                             .controlSize(.small)
+                            .tint(SettingsColor.red)
                             .disabled(!model.settingsCaptureFileExists)
-                        Button("Delete") {
-                            model.clearCaptureFile()
                         }
-                        .buttonStyle(.bordered)
-                        .controlSize(.small)
-                        .tint(SettingsColor.red)
-                        .disabled(!model.settingsCaptureFileExists)
                     }
                 }
 
@@ -1630,12 +1661,12 @@ struct PrivacyPane: View {
 
                 SettingsDivider()
 
-                SettingsRow("Analytics and accounts", subtitle: "No account, no telemetry, no third-party SDKs.") {
+                SettingsRow("Analytics and accounts", subtitle: "No account and no analytics. The app only checks your license with Polar and looks for updates on quietspeech.app.") {
                     SettingsStatusPill(text: "None", tone: .neutral)
                 }
             }
 
-            SettingsNote("Uninstalling removes local data. The Keychain item is removed from the AI screen.")
+            SettingsNote("Deleting the app leaves its data behind, so clear History first. An AI key is removed from the AI screen.")
         }
     }
 

@@ -3,6 +3,7 @@ import Observation
 import AppKit
 import os
 import Licensing
+import Learning
 
 @MainActor
 @Observable
@@ -101,6 +102,14 @@ final class AppModel {
     var customVocabulary: [String] = []
     /// Spoken phrase → written form, applied after cleanup in one pass.
     var wordReplacements: [WordReplacement] = []
+    /// Expect the names in the focused window for each dictation.
+    var learnFromScreen = true
+    /// Learn names the user fixes after a dictation is typed in.
+    var learnFromCorrections = true
+    /// Vocabulary added from corrections rather than typed in by the user.
+    var learnedVocabulary: Set<String> = []
+    /// Shown briefly in the overlay when a correction is learned.
+    var learningNotice: String?
     /// Keep each finished dictation on this Mac so it can be recovered.
     var historyEnabled = true
     var history: [DictationRecord] = []
@@ -142,6 +151,17 @@ final class AppModel {
     var requestedSettingsPane: SettingsPane?
     let license = LicenseService()
 
+    /// The cleanup capture is a development aid, so release builds leave it
+    /// out unless turned on with
+    /// `defaults write dev.harsh.quietspeech developerTools -bool YES`.
+    static var developerToolsEnabled: Bool {
+        #if DEBUG
+        return true
+        #else
+        return UserDefaults.standard.bool(forKey: "developerTools")
+        #endif
+    }
+
     /// Temporary: append each finished dictation (raw and cleaned) to a local
     /// file so the cleanup rules can be checked against real speech.
     var captureDictations = false
@@ -157,6 +177,9 @@ final class AppModel {
     private let engine = SpeechEngine()
     private let shortcuts = ShortcutBackend()
     private let hud = HUDController()
+    private let correctionWatcher = CorrectionWatcher()
+    private var correctionTally = CorrectionTally()
+    private var isStartingDictation = false
     private(set) var targetApp: NSRunningApplication?
     /// Turns matcher edges into start/stop/switchedToToggle.
     private var shortcutSession = DictationShortcutSessionController()
@@ -293,6 +316,21 @@ final class AppModel {
         errorMessage = nil
         // Captured before any await: did the shortcut session ask for this?
         let startedByShortcut = shortcutSession.isActive
+        // The last dictation's field is judged before this one changes things,
+        // quietly: the overlay is about to show the new dictation.
+        isStartingDictation = true
+        correctionWatcher.finish()
+        isStartingDictation = false
+        learningNotice = nil
+
+        // Read the screen while the microphone and model get ready.
+        var screenText: Task<String, Never>?
+        if learnFromScreen, learningSupported,
+           let app = NSWorkspace.shared.frontmostApplication,
+           app != NSRunningApplication.current {
+            let pid = app.processIdentifier
+            screenText = Task { await ScreenContextReader.read(pid: pid) }
+        }
 
         guard await Permissions.requestMicrophone() else {
             microphoneGranted = false
@@ -355,7 +393,8 @@ final class AppModel {
             Task { @MainActor in self?.pushLevel(value) }
         }
 
-        engine.contextualStrings = customVocabulary
+        let onScreen = await screenText?.value
+        engine.contextualStrings = customVocabulary + screenTerms(from: onScreen)
         remoteTranscriptionThisSession = providerTranscriptionActive
         engine.recordsAudio = remoteTranscriptionThisSession
 
@@ -487,7 +526,8 @@ final class AppModel {
                 configuration: configuration
             )
             guard generation == sessionGeneration else { return }
-            if let reason = PolishGuard.rejection(polished: result, original: base) {
+            if let reason = PolishGuard.rejection(polished: result, original: base)
+                ?? (PolishPrompt.echoesExample(result, input: base) ? "echoed example" : nil) {
                 aiLog.notice("polish rejected: reason=\(reason, privacy: .public) chars=\(result.count, privacy: .public)")
                 finishDictation(cleaned: base, raw: raw)
                 return
@@ -509,6 +549,7 @@ final class AppModel {
         status = "Idle"
         if autoInsert {
             insertText(cleaned, target: targetApp)
+            watchForCorrections(of: cleaned)
         }
         hideOverlay()
     }
@@ -825,6 +866,7 @@ final class AppModel {
 
     func removeVocabulary(_ word: String) {
         customVocabulary.removeAll { $0 == word }
+        learnedVocabulary.remove(word)
         persistPreferences()
     }
 
@@ -849,6 +891,91 @@ final class AppModel {
         refreshCleaned()
     }
 
+    // MARK: - Learning
+
+    /// Languages written with spaces between words. The term and correction
+    /// matching splits on them.
+    private var learningSupported: Bool {
+        language != .japanese && language != .chineseSimplified
+    }
+
+    private func isKnownWord(_ word: String) -> Bool {
+        SpellingDictionary.knows(word, language: language.transcriptionCode)
+    }
+
+    /// Names from the screen that aren't already in the vocabulary. They are
+    /// hints for the on-device recognizer only and are never sent to a
+    /// transcription provider.
+    private func screenTerms(from text: String?) -> [String] {
+        guard let text, learningSupported else { return [] }
+        let known = Set(customVocabulary.map { $0.lowercased() })
+        let terms = ScreenTerms.extract(from: text, isKnownWord: isKnownWord)
+            .filter { !known.contains($0.lowercased()) }
+        if !terms.isEmpty {
+            contextLog.notice("screen terms: \(terms.count, privacy: .public)")
+        }
+        return terms
+    }
+
+    private func watchForCorrections(of inserted: String) {
+        guard learnFromCorrections, learningSupported, !activeProfile.isCodeLike,
+              let pid = targetApp?.processIdentifier,
+              !inserted.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        correctionWatcher.begin(inserted: inserted, pid: pid)
+    }
+
+    private func correctionsObserved(inserted: String, edited: String) {
+        guard learnFromCorrections else { return }
+        let corrections = CorrectionDetector.corrections(original: inserted, edited: edited, isKnownWord: isKnownWord)
+        guard !corrections.isEmpty else { return }
+
+        var learned: [String] = []
+        for correction in corrections {
+            let outcome = correctionTally.record(correction)
+            learned += learn(correction, outcome)
+        }
+        contextLog.notice("corrections: seen=\(corrections.count, privacy: .public) learned=\(learned.count, privacy: .public)")
+        persistPreferences()
+        if !learned.isEmpty {
+            refreshCleaned()
+            showLearningNotice(learned.map { "\u{201C}\($0)\u{201D}" }.joined(separator: ", "))
+        }
+    }
+
+    /// Adds what the tally says is ready: terms to vocabulary, and a
+    /// replacement when the misheard form is safe to rewrite. Returns what is
+    /// new, for the notice.
+    private func learn(_ correction: Correction, _ outcome: CorrectionTally.Outcome) -> [String] {
+        var learned: [String] = []
+        for term in outcome.terms
+        where !customVocabulary.contains(where: { $0.caseInsensitiveCompare(term) == .orderedSame }) {
+            customVocabulary.append(term)
+            learnedVocabulary.insert(term)
+            learned.append(term)
+        }
+        if outcome.replacement,
+           !wordReplacements.contains(where: { $0.heard.caseInsensitiveCompare(correction.heard) == .orderedSame }) {
+            wordReplacements.append(WordReplacement(heard: correction.heard, replacement: correction.corrected, learned: true))
+            if learned.isEmpty { learned.append(correction.corrected) }
+        }
+        return learned
+    }
+
+    private func showLearningNotice(_ terms: String) {
+        // Mid-dictation the overlay is busy; the words are learned regardless.
+        guard !isRecording, !isStartingDictation, overlayPhase != .processing else { return }
+        let notice = "Learned \(terms)"
+        learningNotice = notice
+        hud.show(model: self)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.6) { [weak self] in
+            guard let self, self.learningNotice == notice, !self.isRecording else { return }
+            self.hud.hide()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                if self.learningNotice == notice { self.learningNotice = nil }
+            }
+        }
+    }
+
     // MARK: - Cleanup capture
 
     /// Temporary debugging aid: appends each dictation, raw and cleaned, to a
@@ -861,10 +988,15 @@ final class AppModel {
         return base.appendingPathComponent("QuietSpeech/dictation-capture.jsonl")
     }
 
+    /// The capture file stops growing here; delete it to start a new one.
+    private static let captureFileLimit = 5_000_000
+
     private func captureDictation(raw: String, cleaned: String, kind: String = "dictation") {
-        guard captureDictations else { return }
+        guard captureDictations, Self.developerToolsEnabled else { return }
         let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
+        let size = (try? FileManager.default.attributesOfItem(atPath: Self.captureFileURL.path)[.size] as? Int) ?? 0
+        guard size < Self.captureFileLimit else { return }
 
         let entry: [String: String] = [
             "at": ISO8601DateFormatter().string(from: Date()),
@@ -899,6 +1031,7 @@ final class AppModel {
         let count = (try? String(contentsOf: url, encoding: .utf8))?
             .split(separator: "\n").filter { !$0.isEmpty }.count ?? 0
         captureStatus = "\(count) dictation\(count == 1 ? "" : "s") \u{00b7} \(max(size / 1024, 1)) KB"
+            + (size >= Self.captureFileLimit ? " \u{00b7} full, delete to restart" : "")
     }
 
     func revealCaptureFile() {
@@ -1141,6 +1274,9 @@ final class AppModel {
         // Advisory: the AX write reported success but a later read-back didn't
         // reflect it. We deliberately do NOT paste here — that's what caused
         // doubled insertions. Just point the user at Copy.
+        correctionWatcher.onEdited = { [weak self] inserted, edited in
+            self?.correctionsObserved(inserted: inserted, edited: edited)
+        }
         AXInsertService.onUnverifiedInsert = { [weak self] in
             self?.errorMessage = "Text may not have reached the app — it's in the transcript above if you need Copy."
         }
@@ -1262,6 +1398,12 @@ final class AppModel {
         if let data = try? JSONEncoder().encode(wordReplacements) {
             defaults.set(data, forKey: "wordReplacements")
         }
+        defaults.set(learnFromScreen, forKey: "learnFromScreen")
+        defaults.set(learnFromCorrections, forKey: "learnFromCorrections")
+        defaults.set(Array(learnedVocabulary), forKey: "learnedVocabulary")
+        if let data = try? JSONEncoder().encode(correctionTally) {
+            defaults.set(data, forKey: "correctionTally")
+        }
         defaults.set(historyEnabled, forKey: "historyEnabled")
         defaults.set(contextMode.rawValue, forKey: "contextMode")
         if aiProvider.usesEndpoint {
@@ -1326,6 +1468,19 @@ final class AppModel {
         if let data = defaults.data(forKey: "wordReplacements"),
            let value = try? JSONDecoder().decode([WordReplacement].self, from: data) {
             wordReplacements = value
+        }
+        if defaults.object(forKey: "learnFromScreen") != nil {
+            learnFromScreen = defaults.bool(forKey: "learnFromScreen")
+        }
+        if defaults.object(forKey: "learnFromCorrections") != nil {
+            learnFromCorrections = defaults.bool(forKey: "learnFromCorrections")
+        }
+        if let learned = defaults.stringArray(forKey: "learnedVocabulary") {
+            learnedVocabulary = Set(learned)
+        }
+        if let data = defaults.data(forKey: "correctionTally"),
+           let value = try? JSONDecoder().decode(CorrectionTally.self, from: data) {
+            correctionTally = value
         }
         if defaults.object(forKey: "historyEnabled") != nil {
             historyEnabled = defaults.bool(forKey: "historyEnabled")

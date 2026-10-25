@@ -136,18 +136,18 @@ struct OnboardingView: View {
         stepScaffold(
             symbol: "waveform",
             title: "QuietSpeech",
-            subtitle: "Hold a key, speak, and your words appear in whatever app you’re using — punctuated, capitalised and cleaned up.",
+            subtitle: "Hold a key, speak, and your words appear in whatever app you’re using — punctuated, capitalized and cleaned up.",
             brand: true
         ) {
             SettingsCard {
                 feature("text.bubble", "Speech becomes text",
-                        "Apple’s on-device recogniser. No network needed.")
+                        "Apple’s on-device recognizer. No network needed.")
                 SettingsDivider()
                 feature("wand.and.stars", "Cleanup by rules",
                         "Deterministic, so it can never invent words you didn’t say.")
                 SettingsDivider()
                 feature("lock", "Private by design",
-                        "Audio and text never leave this Mac.")
+                        "Audio and text stay on this Mac unless you connect an AI provider.")
             }
 
             if model.license.isConfigured {
@@ -167,7 +167,7 @@ struct OnboardingView: View {
         stepScaffold(
             symbol: "mic.fill",
             title: "Microphone",
-            subtitle: "QuietSpeech listens only while you hold the key. Nothing is recorded to disk."
+            subtitle: "QuietSpeech listens only while you dictate, and audio isn’t kept."
         ) {
             SettingsCard {
                 HStack(spacing: 12) {
