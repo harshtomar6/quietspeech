@@ -27,6 +27,13 @@ Repository review: 2026-10-26. Existing commits establish the actions below. The
 - **Status:** The owner confirmed that QuietSpeech has just launched and has no active marketing campaigns yet.
 - **Evidence:** Owner confirmation in the project-memory setup conversation on 2026-10-26. No customer research or comparative speed measurement is recorded here.
 
+## 2026-10-26 — Use one MCP endpoint for memory and task tracking
+
+- **Decision:** Keep QuietSpeech's reviewed Markdown in this repository. Serve it with read-only `memory:read` tools alongside Missions task tools (`pm` scope) at `https://harshtomar.com/api/mcp/mcp`.
+- **Why:** Agents need current product context and a place to create and update project tasks through one connector.
+- **Status:** A QuietSpeech Missions project is linked to `harshtomar6/quietspeech`. The previous standalone Cloudflare memory endpoint returns HTTP 410 with the replacement URL.
+- **Evidence:** [Unified MCP implementation](https://github.com/harshtomar6/harshtomar/tree/main/src/lib/mcp), [Missions](https://harshtomar.com/admin/missions), and the live OAuth/tool smoke test on 2026-10-26.
+
 ## Future entries
 
 Add an entry when a decision changes product behavior, audience focus, positioning, pricing, architecture, or a major marketing direction. Record the decision, reason, alternatives, evidence, owner, date, and what would cause a revisit. If superseded, link the new decision instead of silently rewriting history.

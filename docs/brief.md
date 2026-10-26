@@ -22,6 +22,7 @@ QuietSpeech is a macOS menu-bar dictation app for people who do not want to pay 
 - [Decisions](decisions.md): durable choices and their recorded basis.
 - [Memory policy](MEMORY_POLICY.md): when and how agents update these files.
 - [README](../README.md): build, test, distribution, and repository layout.
+- [Missions](https://harshtomar.com/admin/missions): QuietSpeech task tracking. The shared MCP endpoint at `https://harshtomar.com/api/mcp/mcp` exposes this memory and Missions task tools; `list_memory_projects` returns the matching Missions project ID for `create_task`.
 
 ## Current marketing state
 
