@@ -99,18 +99,16 @@ struct OverviewPane: View {
                 )
             }
 
-            VStack(alignment: .leading, spacing: 7) {
+            VStack(alignment: .leading, spacing: 8) {
                 HStack {
-                    Text("Recent dictations")
-                        .font(.system(size: 11, weight: .semibold))
-                        .foregroundStyle(.secondary)
+                    SettingsSectionHeader("Recent dictations")
                     Spacer()
                     Button("Show All") { navigate(.history) }
                         .buttonStyle(.plain)
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(SettingsColor.accent)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(Color.accentColor)
+                        .padding(.trailing, 13)
                 }
-                .padding(.horizontal, 2)
 
                 SettingsCard {
                     if model.history.isEmpty {
@@ -651,11 +649,11 @@ struct PersonalizationPane: View {
             .buttonStyle(.plain)
             .help("Remove from vocabulary")
         }
-        .foregroundStyle(SettingsColor.accent)
+        .foregroundStyle(Color.accentColor)
         .padding(.horizontal, 8)
         .frame(height: 23)
-        .background(Capsule().fill(SettingsColor.accentSoft))
-        .overlay(Capsule().strokeBorder(SettingsColor.accentRing, lineWidth: 1))
+        .background(Capsule().fill(Color.accentColor.opacity(0.11)))
+        .overlay(Capsule().strokeBorder(Color.accentColor.opacity(0.22), lineWidth: 1))
     }
 
     private func replacementBinding(at index: Int) -> Binding<WordReplacement> {
@@ -689,7 +687,7 @@ struct PersonalizationPane: View {
             if pair.wrappedValue.learned == true {
                 Image(systemName: "sparkles")
                     .font(.system(size: 9.5))
-                    .foregroundStyle(SettingsColor.accent)
+                    .foregroundStyle(Color.accentColor)
                     .help("Learned from your corrections")
             }
             Button {
@@ -1170,7 +1168,7 @@ struct OutputPane: View {
         HStack(spacing: 7) {
             SettingsIconTile(
                 symbol: icon,
-                tint: active ? SettingsColor.accent : SettingsColor.faintText,
+                tint: active ? Color.accentColor : SettingsColor.faintText,
                 size: 24
             )
             VStack(alignment: .leading, spacing: 0) {
@@ -1187,11 +1185,11 @@ struct OutputPane: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(active ? SettingsColor.accentSoft : SettingsColor.cardMuted)
+                .fill(active ? Color.accentColor.opacity(0.11) : SettingsColor.cardMuted)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .strokeBorder(active ? SettingsColor.accentRing : SettingsColor.border, lineWidth: 1)
+                .strokeBorder(active ? Color.accentColor.opacity(0.22) : SettingsColor.border, lineWidth: 1)
         )
         .opacity(active ? 1 : 0.65)
     }
@@ -1227,7 +1225,7 @@ struct OutputPane: View {
                     if selected {
                         Image(systemName: "checkmark")
                             .font(.system(size: 9, weight: .bold))
-                            .foregroundStyle(SettingsColor.accent)
+                            .foregroundStyle(Color.accentColor)
                     }
                 }
                 .padding(.horizontal, 10)
@@ -1241,7 +1239,7 @@ struct OutputPane: View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .strokeBorder(selected ? SettingsColor.accent : SettingsColor.border,
+                    .strokeBorder(selected ? Color.accentColor : SettingsColor.border,
                                   lineWidth: selected ? 1.5 : 1)
             )
         }
@@ -1351,7 +1349,7 @@ struct HistoryPane: View {
                             }
                             .buttonStyle(.plain)
                             .font(.system(size: 10, weight: .medium))
-                            .foregroundStyle(SettingsColor.accent)
+                            .foregroundStyle(Color.accentColor)
                         }
                         if !model.history.isEmpty {
                             Button("Clear") { confirmClear = true }
@@ -1621,11 +1619,37 @@ struct PrivacyPane: View {
                     }
                 }
 
+                if AppModel.developerToolsEnabled || model.clipsExist {
+                    SettingsDivider()
+
+                    SettingsRow("Save audio clips", subtitle: "Keeps each dictation's audio for scripts/speech-bench. \(model.clipStatus)") {
+                        HStack(spacing: 7) {
+                            Button("Reveal") { model.revealClips() }
+                                .buttonStyle(.bordered)
+                                .controlSize(.small)
+                                .disabled(!model.clipsExist)
+                            Button("Delete") { model.clearClips() }
+                                .buttonStyle(.bordered)
+                                .controlSize(.small)
+                                .tint(SettingsColor.red)
+                                .disabled(!model.clipsExist)
+                            if AppModel.developerToolsEnabled {
+                                SettingsToggle(isOn: $model.saveAudioClips) { _ in
+                                    model.persistPreferences()
+                                    model.refreshClipStatus()
+                                }
+                            }
+                        }
+                    }
+                }
+
                 SettingsDivider()
 
                 SettingsRow("Audio recordings", subtitle: audioStorageDetail) {
                     SettingsStatusPill(
-                        text: model.providerTranscriptionActive ? "Temporary" : "Not saved",
+                        text: model.saveAudioClips && AppModel.developerToolsEnabled
+                            ? "Saved for testing"
+                            : (model.providerTranscriptionActive ? "Temporary" : "Not saved"),
                         tone: .neutral
                     )
                 }

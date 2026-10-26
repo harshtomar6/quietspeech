@@ -166,6 +166,10 @@ final class AppModel {
     /// file so the cleanup rules can be checked against real speech.
     var captureDictations = false
     var captureStatus = ""
+    /// Developer tools: keep each dictation's audio with Apple's live
+    /// transcript, so recognizers can be compared with scripts/speech-bench.
+    var saveAudioClips = false
+    var clipStatus = ""
 
     // MARK: Permissions
     var microphoneGranted = false
@@ -186,6 +190,7 @@ final class AppModel {
     private var pendingSelection: SelectionSnapshot?
     private var pendingContext: String?
     private var remoteTranscriptionThisSession = false
+    private var savesClipThisSession = false
     private var sessionGeneration = 0
     /// The last text typed into another app, for Paste Again.
     private(set) var lastInsertedText = ""
@@ -396,7 +401,8 @@ final class AppModel {
         let onScreen = await screenText?.value
         engine.contextualStrings = customVocabulary + screenTerms(from: onScreen)
         remoteTranscriptionThisSession = providerTranscriptionActive
-        engine.recordsAudio = remoteTranscriptionThisSession
+        savesClipThisSession = saveAudioClips && Self.developerToolsEnabled
+        engine.recordsAudio = remoteTranscriptionThisSession || savesClipThisSession
 
         do {
             try await engine.start(locale: language.locale)
@@ -438,6 +444,10 @@ final class AppModel {
         let audioURL = await engine.stop()
         isRecording = false
         shortcutLog.notice("engine stopped")
+        if savesClipThisSession, let audioURL {
+            // Before provider transcription replaces Apple's text.
+            saveClip(audioURL)
+        }
 
         if remoteTranscriptionThisSession,
            providerTranscriptionActive,
@@ -1048,6 +1058,86 @@ final class AppModel {
         refreshCaptureStatus()
     }
 
+    // MARK: - Audio clips for the speech bench
+
+    static var clipsDirectoryURL: URL {
+        captureFileURL.deletingLastPathComponent().appendingPathComponent("speech-clips", isDirectory: true)
+    }
+
+    /// About 30 minutes of 16 kHz mono audio.
+    private static let clipsLimit = 60_000_000
+
+    private static func clipFiles() -> [URL] {
+        (try? FileManager.default.contentsOfDirectory(
+            at: clipsDirectoryURL, includingPropertiesForKeys: [.fileSizeKey]
+        )) ?? []
+    }
+
+    /// Copies the session's WAV next to a JSON file with what Apple heard,
+    /// the hints it was given, and where it was dictated.
+    private func saveClip(_ audioURL: URL) {
+        let transcript = rawText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !transcript.isEmpty else { return }
+        let manager = FileManager.default
+        let directory = Self.clipsDirectoryURL
+        let used = Self.clipFiles().reduce(0) {
+            $0 + ((try? $1.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0)
+        }
+        guard used < Self.clipsLimit else {
+            clipStatus = "Clip folder is full; delete it to record more."
+            return
+        }
+
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyyMMdd-HHmmss-SSS"
+        let id = formatter.string(from: Date())
+        let entry: [String: Any] = [
+            "id": id,
+            "at": ISO8601DateFormatter().string(from: Date()),
+            "app": targetApp?.localizedName ?? "",
+            "locale": language.rawValue,
+            "language": language.transcriptionCode,
+            "apple": transcript,
+            "vocabulary": engine.contextualStrings,
+        ]
+        do {
+            try manager.createDirectory(at: directory, withIntermediateDirectories: true)
+            try manager.copyItem(at: audioURL, to: directory.appendingPathComponent("\(id).wav"))
+            let data = try JSONSerialization.data(withJSONObject: entry, options: [.prettyPrinted, .sortedKeys])
+            try data.write(to: directory.appendingPathComponent("\(id).json"))
+        } catch {
+            shortcutLog.error("saving clip failed: \(error.localizedDescription, privacy: .public)")
+        }
+        refreshClipStatus()
+    }
+
+    func refreshClipStatus() {
+        let files = Self.clipFiles()
+        let count = files.filter { $0.pathExtension == "wav" }.count
+        guard count > 0 else {
+            clipStatus = "No clips yet."
+            return
+        }
+        let bytes = files.reduce(0) { $0 + ((try? $1.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0) }
+        clipStatus = "\(count) clip\(count == 1 ? "" : "s") \u{00b7} \(max(bytes / 1_000_000, 1)) MB"
+    }
+
+    func revealClips() {
+        let directory = Self.clipsDirectoryURL
+        guard FileManager.default.fileExists(atPath: directory.path) else { return }
+        NSWorkspace.shared.activateFileViewerSelecting([directory])
+    }
+
+    func clearClips() {
+        try? FileManager.default.removeItem(at: Self.clipsDirectoryURL)
+        refreshClipStatus()
+    }
+
+    var clipsExist: Bool {
+        FileManager.default.fileExists(atPath: Self.clipsDirectoryURL.path)
+    }
+
     // MARK: - History
 
     static var historyFileURL: URL {
@@ -1391,6 +1481,7 @@ final class AppModel {
         defaults.set(useDirectInsertion, forKey: "useDirectInsertion")
         defaults.set(overlayStyle.rawValue, forKey: "overlayStyle")
         defaults.set(captureDictations, forKey: "captureDictations")
+        defaults.set(saveAudioClips, forKey: "saveAudioClips")
         defaults.set(onboardingCompleted, forKey: "onboardingCompleted")
         defaults.set(cleanMode.rawValue, forKey: "cleanMode")
         defaults.set(language.rawValue, forKey: "language")
@@ -1453,6 +1544,7 @@ final class AppModel {
         if defaults.object(forKey: "captureDictations") != nil {
             captureDictations = defaults.bool(forKey: "captureDictations")
         }
+        saveAudioClips = defaults.bool(forKey: "saveAudioClips")
         if defaults.object(forKey: "onboardingCompleted") != nil {
             onboardingCompleted = defaults.bool(forKey: "onboardingCompleted")
         }
@@ -1637,7 +1729,14 @@ final class AppModel {
                 if values.count > 72 { values.removeFirst(values.count - 72) }
                 self.previewLevels = values
             }
+            // Then the states that follow a real dictation.
             guard let self, !Task.isCancelled else { return }
+            self.overlayPhase = .processing
+            try? await Task.sleep(nanoseconds: 900_000_000)
+            guard !Task.isCancelled else { return }
+            self.overlayPhase = .done
+            try? await Task.sleep(nanoseconds: 900_000_000)
+            guard !Task.isCancelled else { return }
             self.hud.hide()
             self.previewText = nil
             self.previewLevels = nil

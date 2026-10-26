@@ -21,7 +21,8 @@ extension AppModel.OverlayStyle {
     var cornerRadius: CGFloat {
         switch self {
         case .capsule: return 27
-        case .card:    return 16
+        // Concentric with the content inside, as macOS 26 glass shapes are.
+        case .card:    return 22
         }
     }
 }
@@ -30,15 +31,6 @@ extension AppModel.OverlayStyle {
 
 private extension AppModel {
     var overlayLevels: [Float] { previewLevels ?? levels }
-
-    var overlayDotColor: Color {
-        switch overlayPhase {
-        case .listening: return OverlayPalette.accent
-        case .processing: return OverlayPalette.warn
-        case .done: return OverlayPalette.success
-        case .error: return SettingsColor.red
-        }
-    }
 
     var overlayStateLabel: String {
         switch overlayPhase {
@@ -151,6 +143,9 @@ private struct LearningNoticeOverlay: View {
 
 // MARK: - Glass surface
 
+/// macOS 26 Liquid Glass, as the system's own floating indicators use. It
+/// draws its own edge highlight and shadow, and adapts to light, dark,
+/// Reduce Transparency and Increase Contrast.
 private struct OverlaySurface: ViewModifier {
     let cornerRadius: CGFloat
     /// Re-plays the entrance animation whenever this changes (each new session).
@@ -161,9 +156,7 @@ private struct OverlaySurface: ViewModifier {
     func body(content: Content) -> some View {
         let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
         return content
-            .background(.ultraThinMaterial, in: shape)
-            .overlay(shape.strokeBorder(SettingsColor.overlayBorder, lineWidth: 1))
-            .shadow(color: .black.opacity(0.34), radius: 16, y: 7)
+            .glassEffect(.regular, in: shape)
             .opacity(shown ? 1 : 0)
             .scaleEffect(shown ? 1 : 0.985)
             .offset(y: shown ? 0 : 5)
@@ -191,27 +184,11 @@ private struct CapsuleOverlay: View {
                           name: model.overlayTargetAppName,
                           isError: model.overlayPhase == .error)
 
-            PulseDot(color: model.overlayDotColor,
-                     active: model.overlayPhase == .listening,
-                     size: 6)
-
-            WaveformView(levels: model.overlayLevels,
-                         level: model.previewLevel ?? model.level,
-                         barCount: 10,
-                         idle: model.overlayPhase != .listening,
-                         fixedBarWidth: 2.5,
-                         spacing: 2,
-                         minBarHeight: 5)
-                .frame(width: 44, height: 24)
+            StatusIndicator(model: model)
 
             liveText
 
-            TimelineView(.periodic(from: .now, by: 0.2)) { _ in
-                Text(model.overlayElapsedLabel)
-                    .font(.system(size: 11, design: .monospaced))
-                    .monospacedDigit()
-                    .foregroundStyle(Color.primary.opacity(0.62))
-            }
+            ElapsedLabel(model: model)
         }
         .padding(.leading, 15)
         .padding(.trailing, 16)
@@ -227,7 +204,7 @@ private struct CapsuleOverlay: View {
             .font(.system(size: 14.5))
             .lineLimit(1)
             .truncationMode(.head)
-            .foregroundStyle(value.isEmpty ? Color.primary.opacity(0.55) : Color.primary.opacity(0.94))
+            .foregroundStyle(value.isEmpty ? .secondary : .primary)
             .frame(maxWidth: .infinity, alignment: .leading)
             .mask(
                 LinearGradient(stops: [
@@ -250,43 +227,15 @@ private struct CardOverlay: View {
             HStack(spacing: 7) {
                 TargetAppIcon(app: model.targetApp,
                               name: model.overlayTargetAppName)
-                Text(model.overlayTargetAppName)
-                    .font(.system(size: 11.5, weight: .medium))
-                    .foregroundStyle(Color.primary.opacity(0.75))
+                Text(cardTitle)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(.secondary)
                     .lineLimit(1)
-                if model.activeProfile != .generic {
-                    Text(model.activeProfile.label.uppercased())
-                        .font(.system(size: 9, weight: .semibold))
-                        .kerning(0.4)
-                        .foregroundStyle(Color.primary.opacity(0.55))
-                        .padding(.horizontal, 5)
-                        .padding(.vertical, 2)
-                        .background(Capsule().fill(Color.primary.opacity(0.07)))
-                }
-                if model.isGenerateSession {
-                    Text("GEN")
-                        .font(.system(size: 9, weight: .semibold))
-                        .kerning(0.4)
-                        .foregroundStyle(OverlayPalette.accent.opacity(0.9))
-                        .padding(.horizontal, 5)
-                        .padding(.vertical, 2)
-                        .background(Capsule().fill(OverlayPalette.accent.opacity(0.12)))
-                } else if model.isEditSession {
-                    Text("EDIT")
-                        .font(.system(size: 9, weight: .semibold))
-                        .kerning(0.4)
-                        .foregroundStyle(OverlayPalette.accent.opacity(0.9))
-                        .padding(.horizontal, 5)
-                        .padding(.vertical, 2)
-                        .background(Capsule().fill(OverlayPalette.accent.opacity(0.12)))
-                }
                 Spacer(minLength: 6)
-                PulseDot(color: model.overlayDotColor,
-                         active: model.overlayPhase == .listening,
-                         size: 6)
+                statusGlyph
                 Text(model.overlayStateLabel)
-                    .font(.system(size: 11.5))
-                    .foregroundStyle(Color.primary.opacity(0.62))
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
             }
 
             WaveformView(levels: model.overlayLevels,
@@ -310,15 +259,10 @@ private struct CardOverlay: View {
                 liveText
                 if model.overlayPhase == .listening { Caret() }
                 Spacer(minLength: 4)
-                TimelineView(.periodic(from: .now, by: 0.2)) { _ in
-                    Text(model.overlayElapsedLabel)
-                        .font(.system(size: 11, design: .monospaced))
-                        .monospacedDigit()
-                        .foregroundStyle(Color.primary.opacity(0.55))
-                }
+                ElapsedLabel(model: model)
             }
         }
-        .padding(.horizontal, 14)
+        .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .frame(width: model.overlayStyle.contentSize.width,
                height: model.overlayStyle.contentSize.height)
@@ -332,11 +276,93 @@ private struct CardOverlay: View {
             .font(.system(size: 14))
             .lineLimit(1)
             .truncationMode(.head)
-            .foregroundStyle(value.isEmpty ? Color.primary.opacity(0.55) : Color.primary.opacity(0.95))
+            .foregroundStyle(value.isEmpty ? .secondary : .primary)
+    }
+
+    /// "Google Chrome · Email": where the words go, and how they'll be shaped.
+    private var cardTitle: String {
+        guard model.activeProfile != .generic else { return model.overlayTargetAppName }
+        return "\(model.overlayTargetAppName) \u{00b7} \(model.activeProfile.label)"
+    }
+
+    /// The card's waveform already shows listening; the header shows the
+    /// other states with a system spinner or symbol.
+    @ViewBuilder
+    private var statusGlyph: some View {
+        switch model.overlayPhase {
+        case .listening:
+            EmptyView()
+        case .processing:
+            ProgressView().controlSize(.mini)
+        case .done:
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 12))
+                .foregroundStyle(OverlayPalette.success)
+        case .error:
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.system(size: 11))
+                .foregroundStyle(OverlayPalette.warn)
+        }
     }
 }
 
 // MARK: - Small pieces
+
+/// What the session is doing, in one place: the live waveform while
+/// listening, then a system spinner, a checkmark or a warning.
+private struct StatusIndicator: View {
+    let model: AppModel
+    var barCount = 10
+    var width: CGFloat = 44
+
+    var body: some View {
+        ZStack {
+            switch model.overlayPhase {
+            case .listening:
+                WaveformView(levels: model.overlayLevels,
+                             level: model.previewLevel ?? model.level,
+                             barCount: barCount,
+                             idle: false,
+                             fixedBarWidth: 2.5,
+                             spacing: 2,
+                             minBarHeight: 5)
+                    .frame(width: width, height: 24)
+                    .transition(.opacity)
+            case .processing:
+                ProgressView()
+                    .controlSize(.small)
+                    .transition(.opacity)
+            case .done:
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 17))
+                    .foregroundStyle(OverlayPalette.success)
+                    .transition(.symbolEffect(.drawOn))
+            case .error:
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(.system(size: 15))
+                    .foregroundStyle(OverlayPalette.warn)
+                    .transition(.symbolEffect(.appear))
+            }
+        }
+        .frame(width: width, height: 24)
+        .animation(.snappy(duration: 0.2), value: model.overlayPhase)
+    }
+}
+
+/// The session timer, in the system font with fixed-width digits like the
+/// screen-recording timer in the menu bar.
+private struct ElapsedLabel: View {
+    let model: AppModel
+
+    var body: some View {
+        TimelineView(.periodic(from: .now, by: 0.2)) { _ in
+            Text(model.overlayElapsedLabel)
+                .font(.system(size: 11.5))
+                .monospacedDigit()
+                .foregroundStyle(.secondary)
+        }
+    }
+}
 
 /// The target app's icon, shown so the overlay always says where the text lands.
 private struct TargetAppIcon: View {
@@ -370,36 +396,6 @@ private struct TargetAppIcon: View {
                 .strokeBorder(Color.red.opacity(isError ? 0.85 : 0), lineWidth: 1.5)
         )
         .accessibilityLabel(name)
-    }
-}
-
-private struct PulseDot: View {
-    var color: Color
-    var active: Bool
-    var size: CGFloat = 9
-
-    @State private var pulse = false
-
-    var body: some View {
-        Circle()
-            .fill(color)
-            .frame(width: size, height: size)
-            .background(
-                Circle()
-                    .stroke(color.opacity(0.5), lineWidth: 1)
-                    .scaleEffect(pulse ? 2.0 : 1)
-                    .opacity(pulse ? 0 : 0.85)
-            )
-            .onAppear(perform: restart)
-            .onChange(of: active) { _, _ in restart() }
-    }
-
-    private func restart() {
-        pulse = false
-        guard active else { return }
-        withAnimation(.easeOut(duration: 1.5).repeatForever(autoreverses: false)) {
-            pulse = true
-        }
     }
 }
 

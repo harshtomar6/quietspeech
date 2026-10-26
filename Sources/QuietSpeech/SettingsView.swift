@@ -92,6 +92,11 @@ struct SettingsView: View {
     @State private var selectedPane: SettingsPane = .overview
     @State private var search = ""
     @FocusState private var searchFocused: Bool
+    @FocusState private var sidebarFocused: Bool
+    /// Panes visited before and after the current one, for Back and Forward.
+    @State private var backStack: [SettingsPane] = []
+    @State private var forwardStack: [SettingsPane] = []
+    @State private var movingThroughHistory = false
 
     private var filteredQuery: String {
         search.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
@@ -102,20 +107,21 @@ struct SettingsView: View {
     }
 
     var body: some View {
-        HStack(spacing: 0) {
+        // Native containers give the window macOS 26's Liquid Glass: a
+        // floating sidebar, a glass search field and toolbar, and content that
+        // scrolls under them.
+        NavigationSplitView {
             sidebar
-            Rectangle()
-                .fill(SettingsColor.border)
-                .frame(width: 1)
+        } detail: {
             content
         }
-        .frame(width: 942, height: 704)
-        .background(SettingsColor.window)
+        .frame(minWidth: 860, idealWidth: 942, minHeight: 600, idealHeight: 704)
         .onAppear {
             model.refreshPermissions()
             model.refreshCaptureStatus()
+            model.refreshClipStatus()
             applyRequestedPane()
-            DispatchQueue.main.async { searchFocused = false }
+            clearInitialFocus()
         }
         .onChange(of: model.requestedSettingsPane) { _, _ in
             applyRequestedPane()
@@ -131,165 +137,45 @@ struct SettingsView: View {
 
     // MARK: - Sidebar
 
-    private var appIcon: NSImage {
-        if let icon = NSApp.applicationIconImage { return icon }
-        if let icon = NSImage(named: "AppIcon") { return icon }
-        if let url = Bundle.main.url(forResource: "AppIcon", withExtension: "icns"),
-           let icon = NSImage(contentsOf: url) { return icon }
-        return BrandMark.image(size: 34)
+    private var selection: Binding<SettingsPane?> {
+        Binding(
+            get: { selectedPane },
+            set: { pane in
+                guard let pane else { return }
+                withAnimation(.easeOut(duration: 0.12)) { selectedPane = pane }
+            }
+        )
     }
 
     private var sidebar: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 9) {
-                Image(nsImage: appIcon)
-                    .resizable()
-                    .interpolation(.high)
-                    .frame(width: 34, height: 34)
-                VStack(alignment: .leading, spacing: 1) {
-                    Text("QuietSpeech")
-                        .font(.system(size: 12.5, weight: .semibold))
-                    Text("Settings")
-                        .font(.system(size: 10))
-                        .foregroundStyle(.secondary)
-                }
-                Spacer(minLength: 0)
-            }
-            .padding(.horizontal, 14)
-            .padding(.top, 26)
-            .padding(.bottom, 12)
-
-            searchField
-                .padding(.horizontal, 12)
-                .padding(.bottom, 10)
-
-            ScrollView {
-                VStack(alignment: .leading, spacing: 14) {
-                    ForEach(SettingsPane.Group.allCases, id: \.self) { group in
-                        let panes = group.panes.filter { $0.matches(filteredQuery) }
-                        if !panes.isEmpty {
-                            VStack(alignment: .leading, spacing: 1) {
-                                Text(group.rawValue.uppercased())
-                                    .font(.system(size: 9.5, weight: .semibold))
-                                    .kerning(0.7)
-                                    .foregroundStyle(.tertiary)
-                                    .padding(.leading, 10)
-                                    .padding(.bottom, 4)
-
-                                ForEach(panes) { pane in
-                                    navItem(pane)
-                                }
-                            }
+        List(selection: selection) {
+            ForEach(SettingsPane.Group.allCases, id: \.self) { group in
+                let panes = group.panes.filter { $0.matches(filteredQuery) }
+                if !panes.isEmpty {
+                    Section(group.rawValue) {
+                        ForEach(panes) { pane in
+                            Label(pane.label, systemImage: pane.icon)
+                                .badge(pane == .ai ? Text(aiBadgeText) : nil)
+                                .tag(pane)
                         }
                     }
-
-                    if !hasSearchResults {
-                        Text("No settings found")
-                            .font(.system(size: 11))
-                            .foregroundStyle(.tertiary)
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .padding(.top, 16)
-                    }
                 }
-                .padding(.horizontal, 8)
-                .padding(.bottom, 14)
             }
-            .scrollIndicators(.never)
-
-            Spacer(minLength: 0)
-
-            sidebarFooter
         }
-        .frame(width: 216)
-        .background(SettingsColor.sidebar)
-    }
-
-    private var searchField: some View {
-        HStack(spacing: 6) {
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 10.5, weight: .medium))
-                .foregroundStyle(.tertiary)
-
-            TextField("Search settings", text: $search)
-                .textFieldStyle(.plain)
-                .font(.system(size: 12))
-                .focused($searchFocused)
-                .onExitCommand {
-                    search = ""
-                    searchFocused = false
-                }
-
-            if !search.isEmpty {
-                Button {
-                    search = ""
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 10))
-                        .foregroundStyle(.tertiary)
-                }
-                .buttonStyle(.plain)
-            } else {
-                Text("\u{2318}K")
-                    .font(.system(size: 9, weight: .medium))
+        .listStyle(.sidebar)
+        .focused($sidebarFocused)
+        .overlay {
+            if !hasSearchResults {
+                Text("No settings found")
+                    .font(.system(size: 11))
                     .foregroundStyle(.tertiary)
-                    .padding(.horizontal, 4)
-                    .frame(height: 16)
-                    .background(
-                        RoundedRectangle(cornerRadius: 4, style: .continuous)
-                            .fill(SettingsColor.cardMuted)
-                    )
             }
         }
-        .padding(.horizontal, 8)
-        .frame(height: 29)
-        .background(
-            RoundedRectangle(cornerRadius: 7, style: .continuous)
-                .fill(SettingsColor.field)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 7, style: .continuous)
-                .strokeBorder(searchFocused ? SettingsColor.accent.opacity(0.65) : SettingsColor.border,
-                              lineWidth: 1)
-        )
-    }
-
-    private func navItem(_ pane: SettingsPane) -> some View {
-        let isSelected = selectedPane == pane
-        return Button {
-            withAnimation(.easeOut(duration: 0.12)) {
-                selectedPane = pane
-            }
-        } label: {
-            HStack(spacing: 8) {
-                Image(systemName: pane.icon)
-                    .font(.system(size: 11, weight: .medium))
-                    .frame(width: 14)
-                Text(pane.label)
-                    .font(.system(size: 13, weight: isSelected ? .medium : .regular))
-                Spacer(minLength: 4)
-                if pane == .ai {
-                    Text(aiBadgeText)
-                        .font(.system(size: 9, weight: .semibold))
-                        .foregroundStyle(isSelected ? SettingsColor.sidebarSelectedText : .secondary)
-                        .padding(.horizontal, 5)
-                        .frame(height: 15)
-                        .background(
-                            RoundedRectangle(cornerRadius: 4, style: .continuous)
-                                .fill(isSelected ? SettingsColor.sidebarSelectedText.opacity(0.16)
-                                                 : SettingsColor.cardMuted)
-                        )
-                }
-            }
-            .foregroundStyle(isSelected ? SettingsColor.sidebarSelectedText : Color.primary.opacity(0.84))
-            .padding(.horizontal, 9)
-            .frame(height: 30)
-            .contentShape(RoundedRectangle(cornerRadius: 7))
-            .background(
-                RoundedRectangle(cornerRadius: 7, style: .continuous)
-                    .fill(isSelected ? SettingsColor.sidebarSelected : Color.clear)
-            )
-        }
-        .buttonStyle(.plain)
+        .searchable(text: $search, placement: .sidebar, prompt: "Search settings")
+        .searchFocused($searchFocused)
+        .safeAreaInset(edge: .bottom, spacing: 0) { sidebarFooter }
+        .navigationSplitViewColumnWidth(min: 228, ideal: 228, max: 300)
+        .toolbar(removing: .sidebarToggle)
     }
 
     private var aiBadgeText: String {
@@ -300,10 +186,6 @@ struct SettingsView: View {
 
     private var sidebarFooter: some View {
         VStack(spacing: 0) {
-            Rectangle()
-                .fill(SettingsColor.border)
-                .frame(height: 1)
-
             HStack(spacing: 6) {
                 Circle()
                     .fill(footerTone)
@@ -341,7 +223,27 @@ struct SettingsView: View {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.1"
     }
 
+    /// AppKit focuses the first text field when a window or pane opens,
+    /// which puts a focus ring on a field nobody chose to edit. The sidebar
+    /// takes focus instead, as in System Settings.
+    private func clearInitialFocus() {
+        DispatchQueue.main.async {
+            searchFocused = false
+            sidebarFocused = true
+        }
+    }
+
     private func applyRequestedPane() {
+        // `open QuietSpeech.app --args -settingsPane ai` opens a pane directly,
+        // and `-previewOverlay YES` plays the overlay preview, for checking
+        // the layout.
+        if let raw = UserDefaults.standard.string(forKey: "settingsPane"),
+           let pane = SettingsPane(rawValue: raw) {
+            selectedPane = pane
+        }
+        if UserDefaults.standard.bool(forKey: "previewOverlay") {
+            model.previewOverlay()
+        }
         guard let pane = model.requestedSettingsPane else { return }
         selectedPane = pane
         model.requestedSettingsPane = nil
@@ -356,17 +258,56 @@ struct SettingsView: View {
                     Color.clear.frame(height: 1).id("top")
                     paneContent
                         .padding(.horizontal, 28)
-                        .padding(.top, 14)
+                        .padding(.top, 6)
                         .padding(.bottom, 30)
                 }
             }
             .scrollIndicators(.automatic)
-            .background(SettingsColor.window)
-            .onChange(of: selectedPane) { _, _ in
+            .toolbar(removing: .title)
+            .toolbar {
+                // As in System Settings. The toolbar also makes macOS run the
+                // sidebar the full window height, traffic lights inside it.
+                ToolbarItem(placement: .navigation) {
+                    ControlGroup {
+                        Button(action: goBack) {
+                            Label("Back", systemImage: "chevron.left")
+                        }
+                        .keyboardShortcut("[", modifiers: .command)
+                        .disabled(backStack.isEmpty)
+                        Button(action: goForward) {
+                            Label("Forward", systemImage: "chevron.right")
+                        }
+                        .keyboardShortcut("]", modifiers: .command)
+                        .disabled(forwardStack.isEmpty)
+                    }
+                }
+            }
+            .onChange(of: selectedPane) { previous, _ in
+                if movingThroughHistory {
+                    movingThroughHistory = false
+                } else {
+                    backStack.append(previous)
+                    forwardStack.removeAll()
+                }
                 proxy.scrollTo("top", anchor: .top)
                 search = ""
+                clearInitialFocus()
             }
         }
+    }
+
+    private func goBack() {
+        guard let pane = backStack.popLast() else { return }
+        forwardStack.append(selectedPane)
+        movingThroughHistory = true
+        selectedPane = pane
+    }
+
+    private func goForward() {
+        guard let pane = forwardStack.popLast() else { return }
+        backStack.append(selectedPane)
+        movingThroughHistory = true
+        selectedPane = pane
     }
 
     @ViewBuilder

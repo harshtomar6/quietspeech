@@ -59,7 +59,7 @@ struct LicensePane: View {
         switch license.statusTone {
         case .green: return SettingsColor.green
         case .amber: return SettingsColor.amber
-        case .accent: return SettingsColor.accent
+        case .accent: return Color.accentColor
         case .neutral: return SettingsColor.faintText
         }
     }
@@ -93,11 +93,8 @@ struct LicensePane: View {
     // MARK: - Licensed
 
     private var licensedCard: some View {
-        VStack(alignment: .leading, spacing: 7) {
-            Text("This Mac")
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(.secondary)
-                .padding(.leading, 2)
+        VStack(alignment: .leading, spacing: 8) {
+            SettingsSectionHeader("This Mac")
 
             SettingsCard {
                 if let details = license.storedDetails {
@@ -154,11 +151,8 @@ struct LicensePane: View {
     // MARK: - Activation
 
     private var activationCard: some View {
-        VStack(alignment: .leading, spacing: 7) {
-            Text(license.isLicensed ? "License" : "Have a key?")
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(.secondary)
-                .padding(.leading, 2)
+        VStack(alignment: .leading, spacing: 8) {
+            SettingsSectionHeader(license.isLicensed ? "License" : "Have a key?")
 
             SettingsCard {
                 VStack(alignment: .leading, spacing: 10) {
@@ -178,10 +172,8 @@ struct LicensePane: View {
                             activate()
                         } label: {
                             Text("Activate")
-                                .foregroundStyle(SettingsColor.onAccent)
                         }
                         .buttonStyle(.borderedProminent)
-                        .tint(SettingsColor.accentFill)
                         .controlSize(.small)
                         .disabled(license.isBusy || trimmedKey.isEmpty)
 
@@ -225,16 +217,13 @@ struct LicensePane: View {
     // MARK: - Purchase
 
     private var purchaseCard: some View {
-        VStack(alignment: .leading, spacing: 7) {
-            Text("Buy")
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(.secondary)
-                .padding(.leading, 2)
+        VStack(alignment: .leading, spacing: 8) {
+            SettingsSectionHeader("Buy")
 
             SettingsCard {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack(alignment: .top, spacing: 10) {
-                        SettingsIconTile(symbol: "cart", tint: SettingsColor.accent, size: 28)
+                        SettingsIconTile(symbol: "cart", tint: Color.accentColor, size: 28)
                         VStack(alignment: .leading, spacing: 2) {
                             Text("QuietSpeech")
                                 .font(.system(size: 13, weight: .medium))
@@ -252,10 +241,8 @@ struct LicensePane: View {
                                 openURL(checkout)
                             } label: {
                                 Text("Buy QuietSpeech")
-                                    .foregroundStyle(SettingsColor.onAccent)
                             }
                             .buttonStyle(.borderedProminent)
-                            .tint(SettingsColor.accentFill)
                             .controlSize(.small)
                         }
 
@@ -275,11 +262,8 @@ struct LicensePane: View {
     // MARK: - Configuration
 
     private var configurationCard: some View {
-        VStack(alignment: .leading, spacing: 7) {
-            Text("Setup")
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(.secondary)
-                .padding(.leading, 2)
+        VStack(alignment: .leading, spacing: 8) {
+            SettingsSectionHeader("Setup")
 
             SettingsCard {
                 VStack(alignment: .leading, spacing: 8) {

@@ -73,7 +73,6 @@ struct LicenseGateView: View {
         .padding(.bottom, 20)
         .frame(width: 460, height: 560)
         .background(SettingsColor.window)
-        .tint(SettingsColor.accent)
         .onChange(of: license.canUseApp) { _, canUse in
             if canUse { close() }
         }
@@ -84,16 +83,16 @@ struct LicenseGateView: View {
     private var header: some View {
         HStack(alignment: .top, spacing: 13) {
             RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(SettingsColor.accentSoft)
+                .fill(Color.accentColor.opacity(0.11))
                 .frame(width: 50, height: 50)
                 .overlay(
                     Image(nsImage: BrandMark.image(size: 30))
                         .renderingMode(.template)
-                        .foregroundStyle(SettingsColor.accent)
+                        .foregroundStyle(Color.accentColor)
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .strokeBorder(SettingsColor.accent.opacity(0.14), lineWidth: 1)
+                        .strokeBorder(Color.accentColor.opacity(0.14), lineWidth: 1)
                 )
 
             VStack(alignment: .leading, spacing: 4) {
@@ -169,7 +168,7 @@ struct LicenseGateView: View {
         switch license.statusTone {
         case .green: return SettingsColor.green
         case .amber: return SettingsColor.amber
-        case .accent: return SettingsColor.accent
+        case .accent: return Color.accentColor
         case .neutral: return SettingsColor.faintText
         }
     }
@@ -196,10 +195,8 @@ struct LicenseGateView: View {
                             activate()
                         } label: {
                             Text("Activate")
-                                .foregroundStyle(SettingsColor.onAccent)
                         }
                         .buttonStyle(.borderedProminent)
-                        .tint(SettingsColor.accentFill)
                         .controlSize(.small)
                         .disabled(license.isBusy || trimmedKey.isEmpty)
                     }
@@ -226,10 +223,8 @@ struct LicenseGateView: View {
                     openURL(checkout)
                 } label: {
                     Text("Buy QuietSpeech")
-                        .foregroundStyle(SettingsColor.onAccent)
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(SettingsColor.accentFill)
                 .controlSize(.regular)
             }
 

@@ -6,6 +6,36 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Menu-bar app: only steal focus when the setup window is about to show.
         let done = UserDefaults.standard.object(forKey: "onboardingCompleted") as? Bool ?? false
         if !done { NSApp.activate(ignoringOtherApps: true) }
+
+        let center = NotificationCenter.default
+        for name in [NSWindow.didBecomeKeyNotification, NSWindow.didMiniaturizeNotification] {
+            center.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated { self?.updateDockIcon(closing: nil) }
+            }
+        }
+        center.addObserver(forName: NSWindow.willCloseNotification, object: nil, queue: .main) { [weak self] note in
+            let window = note.object as? NSWindow
+            MainActor.assumeIsolated { self?.updateDockIcon(closing: window) }
+        }
+        updateDockIcon(closing: nil)
+    }
+
+    /// The app lives in the menu bar, but shows in the Dock and the app
+    /// switcher while one of its windows (Settings, onboarding, license) is
+    /// open, like other menu-bar apps do.
+    @MainActor
+    private func updateDockIcon(closing: NSWindow?) {
+        let hasWindow = NSApp.windows.contains { window in
+            window !== closing
+                && !(window is NSPanel)
+                && window.styleMask.contains(.titled)
+                && (window.isVisible || window.isMiniaturized)
+        }
+        let policy: NSApplication.ActivationPolicy = hasWindow ? .regular : .accessory
+        guard NSApp.activationPolicy() != policy else { return }
+        NSApp.setActivationPolicy(policy)
+        // Becoming a regular app can leave the window behind the previous app.
+        if hasWindow { NSApp.activate(ignoringOtherApps: true) }
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
@@ -28,12 +58,19 @@ struct QuietSpeechApp: App {
                 if model.onboardingCompleted {
                     SettingsView(model: model)
                 } else {
+                    // The same frameless look as the onboarding window.
                     OnboardingView(model: model)
+                        .ignoresSafeArea(.container, edges: .top)
+                        .toolbar(removing: .title)
+                        .toolbarBackgroundVisibility(.hidden, for: .windowToolbar)
                 }
             }
         }
         .defaultSize(width: 560, height: 640)
-        .windowStyle(.hiddenTitleBar)
+        // A standard toolbar window, not a hidden title bar: macOS 26 then
+        // runs the glass sidebar the full height with the traffic lights
+        // inside it, and gives the window its larger corner radius.
+        .windowToolbarStyle(.unified)
         .windowResizability(.contentSize)
         .defaultLaunchBehavior(model.onboardingCompleted ? .suppressed : .presented)
 

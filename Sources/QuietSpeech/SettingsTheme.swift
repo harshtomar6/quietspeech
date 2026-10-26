@@ -3,6 +3,10 @@ import AppKit
 
 // MARK: - Palette
 
+// Settings controls, selection and links use the system accent
+// (`Color.accentColor`), as native Mac apps do. Teal is the brand color, kept
+// for the overlay and onboarding.
+
 enum SettingsColor {
     static let accent = dynamic(
         light: NSColor(srgbRed: 0.055, green: 0.561, blue: 0.639, alpha: 1),
@@ -20,10 +24,6 @@ enum SettingsColor {
         light: NSColor(srgbRed: 0.035, green: 0.424, blue: 0.490, alpha: 1),
         dark: NSColor(srgbRed: 0.271, green: 0.788, blue: 0.812, alpha: 1)
     )
-    static let overlayBorder = dynamic(
-        light: NSColor.white.withAlphaComponent(0.62),
-        dark: NSColor.white.withAlphaComponent(0.12)
-    )
     static let onAccent = dynamic(
         light: .white,
         dark: NSColor(srgbRed: 0.020, green: 0.165, blue: 0.200, alpha: 1)
@@ -37,30 +37,20 @@ enum SettingsColor {
         dark: .white
     )
 
-    static let window = dynamic(
-        light: NSColor(srgbRed: 0.969, green: 0.973, blue: 0.984, alpha: 1),
-        dark: NSColor(srgbRed: 0.039, green: 0.078, blue: 0.106, alpha: 1)
-    )
-    static let sidebar = dynamic(
-        light: NSColor(srgbRed: 0.957, green: 0.961, blue: 0.973, alpha: 1),
-        dark: NSColor(srgbRed: 0.043, green: 0.094, blue: 0.125, alpha: 1)
-    )
+    /// The system window background, so the window picks up macOS 26's
+    /// wallpaper tint like native apps.
+    static let window = Color(nsColor: .windowBackgroundColor)
+    /// A grouped section, measured from a native grouped `Form` on macOS 26:
+    /// a slight shade over the window rather than a bordered card.
     static let card = dynamic(
-        light: .white,
-        dark: NSColor(srgbRed: 0.071, green: 0.122, blue: 0.153, alpha: 1)
+        light: NSColor.black.withAlphaComponent(0.028),
+        dark: NSColor.white.withAlphaComponent(0.045)
     )
     static let cardMuted = dynamic(
-        light: NSColor(srgbRed: 0.969, green: 0.973, blue: 0.980, alpha: 1),
-        dark: NSColor(srgbRed: 0.090, green: 0.149, blue: 0.188, alpha: 1)
+        light: NSColor.black.withAlphaComponent(0.045),
+        dark: NSColor.white.withAlphaComponent(0.07)
     )
-    static let field = dynamic(
-        light: .white,
-        dark: NSColor(srgbRed: 0.047, green: 0.094, blue: 0.122, alpha: 1)
-    )
-    static let segmentTrack = dynamic(
-        light: NSColor.black.withAlphaComponent(0.065),
-        dark: NSColor.white.withAlphaComponent(0.08)
-    )
+    static let field = Color(nsColor: .textBackgroundColor)
     static let border = dynamic(
         light: NSColor.black.withAlphaComponent(0.08),
         dark: NSColor.white.withAlphaComponent(0.08)
@@ -117,12 +107,8 @@ struct SettingsCard<Content: View>: View {
         VStack(spacing: 0) { content }
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .fill(SettingsColor.card)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .strokeBorder(SettingsColor.border, lineWidth: 1)
             )
     }
 }
@@ -141,11 +127,8 @@ struct SettingsGroup<Content: View>: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 7) {
-            Text(label)
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(.secondary)
-                .padding(.leading, 2)
+        VStack(alignment: .leading, spacing: 8) {
+            SettingsSectionHeader(label)
 
             SettingsCard { content }
 
@@ -153,6 +136,21 @@ struct SettingsGroup<Content: View>: View {
                 SettingsNote(note)
             }
         }
+    }
+}
+
+/// A section title, styled like a native grouped form's.
+struct SettingsSectionHeader: View {
+    let title: String
+
+    init(_ title: String) {
+        self.title = title
+    }
+
+    var body: some View {
+        Text(title)
+            .font(.system(size: 13, weight: .semibold))
+            .padding(.leading, 13)
     }
 }
 
@@ -222,11 +220,13 @@ struct SettingsRow<Trailing: View>: View {
     }
 }
 
+/// Inset like a native grouped form's row separators.
 struct SettingsDivider: View {
     var body: some View {
         Rectangle()
             .fill(SettingsColor.border)
             .frame(height: 1)
+            .padding(.horizontal, 13)
     }
 }
 
@@ -264,7 +264,7 @@ struct SettingsStatusPill: View {
         switch tone {
         case .green: return SettingsColor.green
         case .amber: return SettingsColor.amber
-        case .accent: return SettingsColor.accent
+        case .accent: return .accentColor
         case .neutral: return .secondary
         }
     }
@@ -286,16 +286,16 @@ struct SettingsCountBadge: View {
     var body: some View {
         Text("\(count)")
             .font(.system(size: 9.5, weight: .semibold))
-            .foregroundStyle(SettingsColor.accent)
+            .foregroundStyle(Color.accentColor)
             .padding(.horizontal, 5)
             .frame(height: 16)
-            .background(Capsule().fill(SettingsColor.accentSoft))
+            .background(Capsule().fill(Color.accentColor.opacity(0.11)))
     }
 }
 
 struct SettingsIconTile: View {
     let symbol: String
-    var tint: Color = SettingsColor.accent
+    var tint: Color = .accentColor
     var size: CGFloat = 26
 
     var body: some View {
@@ -321,7 +321,6 @@ struct SettingsToggle: View {
             .labelsHidden()
             .toggleStyle(.switch)
             .controlSize(.small)
-            .tint(SettingsColor.accent)
             .onChange(of: isOn) { _, value in onChange(value) }
     }
 }
@@ -331,34 +330,13 @@ struct SettingsSegmentedControl<Option: Hashable>: View {
     @Binding var selection: Option
 
     var body: some View {
-        HStack(spacing: 1) {
+        Picker("", selection: $selection) {
             ForEach(options, id: \.0) { option in
-                Button {
-                    selection = option.0
-                } label: {
-                    Text(option.1)
-                        .font(.system(size: 11.5, weight: .medium))
-                        .foregroundStyle(selection == option.0 ? Color.primary : Color.secondary)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 24)
-                        .background {
-                            if selection == option.0 {
-                                RoundedRectangle(cornerRadius: 6, style: .continuous)
-                                    .fill(SettingsColor.card)
-                                    .shadow(color: .black.opacity(0.14), radius: 1, y: 1)
-                            }
-                        }
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .accessibilityAddTraits(selection == option.0 ? .isSelected : [])
+                Text(option.1).tag(option.0)
             }
         }
-        .padding(2)
-        .background(
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(SettingsColor.segmentTrack)
-        )
+        .pickerStyle(.segmented)
+        .labelsHidden()
     }
 }
 
@@ -376,19 +354,8 @@ struct SettingsField: View {
                 TextField(placeholder, text: $text)
             }
         }
-        .textFieldStyle(.plain)
-        .font(.system(size: 12))
-        .padding(.horizontal, 9)
-        .frame(height: 27)
+        .textFieldStyle(.roundedBorder)
         .frame(width: width)
-        .background(
-            RoundedRectangle(cornerRadius: 6, style: .continuous)
-                .fill(SettingsColor.field)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 6, style: .continuous)
-                .strokeBorder(SettingsColor.borderStrong, lineWidth: 1)
-        )
     }
 }
 
@@ -406,7 +373,7 @@ struct SettingsHintButton: View {
                     .font(.system(size: 9, weight: .semibold))
             }
             .font(.system(size: 11, weight: .medium))
-            .foregroundStyle(SettingsColor.accent)
+            .foregroundStyle(Color.accentColor)
         }
         .buttonStyle(.plain)
     }
@@ -510,10 +477,9 @@ struct SettingsOverlayThumbnail: View {
                 .overlay(Capsule().strokeBorder(Color.white.opacity(0.10), lineWidth: 1))
             case .card:
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("SLACK \u{00b7} LISTENING")
-                        .font(.system(size: 6.5, weight: .semibold))
-                        .kerning(0.4)
-                        .foregroundStyle(.white.opacity(0.45))
+                    Text("Slack \u{00b7} Listening")
+                        .font(.system(size: 7.5, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.55))
                     Text("Meeting at three, then the roadmap.")
                         .font(.system(size: 8.5, weight: .medium))
                         .foregroundStyle(.white.opacity(0.92))
