@@ -25,6 +25,34 @@ if ("IntersectionObserver" in window && !reduceMotion) {
   revealItems.forEach((item) => item.classList.add("is-visible"));
 }
 
+/* The overlay's session timer: counts while listening, holds once the text
+   is being finished, and clears between runs. */
+function overlayClock(windowEl) {
+  const label = windowEl ? windowEl.querySelector(".overlay-time") : null;
+  let started = 0;
+  let interval = null;
+  const render = (seconds) => {
+    if (label) label.textContent = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+  };
+  return {
+    update(state) {
+      if (state === "typing") {
+        if (interval) return;
+        started = performance.now();
+        render(0);
+        interval = setInterval(() => render(Math.floor((performance.now() - started) / 1000)), 250);
+        return;
+      }
+      if (interval) clearInterval(interval);
+      interval = null;
+      if (state !== "processing" && state !== "done") render(0);
+    }
+  };
+}
+
+/* Between the last word and the text landing, the app polishes it. */
+const processingDelay = 850;
+
 const heroText =
   "Hi Priya, the invoice for August is ready. I pushed the final copy to the shared folder this morning.";
 const heroTarget = document.getElementById("hero-typed");
@@ -32,6 +60,7 @@ const heroSection = document.querySelector(".hero");
 const heroWindow = document.querySelector(".hero-window");
 const heroLive = document.getElementById("hero-live");
 const heroOverlayLabel = document.getElementById("hero-overlay-label");
+const heroClock = overlayClock(heroWindow);
 let heroTimer = null;
 let heroVisible = true;
 
@@ -45,10 +74,13 @@ function stopHero() {
 function setHeroChrome(state) {
   if (!heroWindow) return;
   heroWindow.classList.toggle("is-typing", state === "typing");
+  heroWindow.classList.toggle("is-processing", state === "processing");
   heroWindow.classList.toggle("is-done", state === "done");
   heroWindow.classList.toggle("is-resetting", state === "resetting");
+  heroClock.update(state);
   if (heroOverlayLabel) {
-    heroOverlayLabel.textContent = state === "done" ? "Inserted" : "Listening";
+    heroOverlayLabel.textContent =
+      state === "done" ? "Inserted" : state === "processing" ? "Polishing" : "Listening";
   }
 }
 
@@ -82,10 +114,14 @@ function startHero() {
     wordIndex += 1;
 
     if (wordIndex >= words.length) {
-      heroTarget.textContent = heroText;
-      heroTarget.classList.add("is-inserted");
-      setHeroChrome("done");
-      heroTimer = setTimeout(reset, 3600);
+      setHeroChrome("processing");
+      heroTimer = setTimeout(() => {
+        if (!heroVisible) return;
+        heroTarget.textContent = heroText;
+        heroTarget.classList.add("is-inserted");
+        setHeroChrome("done");
+        heroTimer = setTimeout(reset, 3600);
+      }, processingDelay);
       return;
     }
 
@@ -141,6 +177,9 @@ const demoWindow = document.querySelector(".demo-window");
 const demoOverlayLabel = demoWindow ? demoWindow.querySelector(".overlay-label") : null;
 const demoLive = document.getElementById("demo-live");
 const demoOverlayApp = document.getElementById("demo-overlay-app");
+const demoOverlayIcon = document.getElementById("demo-overlay-icon");
+const demoIcons = ["slack", "cursor", "notes", "mail"];
+const demoClock = overlayClock(demoWindow);
 const demoStage = document.querySelector(".demo-stage");
 const demoTitles = ["Slack", "Cursor", "Notes", "Mail"];
 const mobileDemo = window.matchMedia("(max-width: 900px)");
@@ -158,9 +197,9 @@ function stopDemoTyping() {
 }
 
 const demoLabels = {
-  dictate: { active: "Listening", done: "Inserted" },
-  edit: { active: "Editing", done: "Rewritten" },
-  generate: { active: "Generating", done: "Draft inserted" }
+  dictate: { active: "Listening", processing: "Polishing", done: "Inserted" },
+  edit: { active: "Editing", processing: "Rewriting", done: "Rewritten" },
+  generate: { active: "Listening", processing: "Generating", done: "Generated" }
 };
 
 function demoMode() {
@@ -172,9 +211,11 @@ function setDemoChrome(state) {
   if (!demoWindow) return;
   const labels = demoLabels[demoMode()] || demoLabels.dictate;
   demoWindow.classList.toggle("is-typing", state === "typing");
+  demoWindow.classList.toggle("is-processing", state === "processing");
   demoWindow.classList.toggle("is-done", state === "done");
+  demoClock.update(state);
   if (demoOverlayLabel) {
-    demoOverlayLabel.textContent = state === "done" ? labels.done : labels.active;
+    demoOverlayLabel.textContent = labels[state] || labels.active;
   }
 }
 
@@ -213,10 +254,13 @@ function typeInto(target, text, options = {}) {
     wordIndex += 1;
 
     if (wordIndex >= words.length) {
-      demoActiveTyping = false;
-      target.textContent = text;
-      target.classList.add("is-inserted");
-      setDemoChrome("done");
+      setDemoChrome("processing");
+      demoTimer = setTimeout(() => {
+        demoActiveTyping = false;
+        target.textContent = text;
+        target.classList.add("is-inserted");
+        setDemoChrome("done");
+      }, processingDelay);
       return;
     }
 
@@ -267,11 +311,14 @@ function runEditDemo(pane) {
     wordIndex += 1;
 
     if (wordIndex >= words.length) {
-      demoActiveTyping = false;
-      original.classList.add("is-replaced");
-      original.classList.remove("is-selected");
-      result.classList.add("is-inserted");
-      setDemoChrome("done");
+      setDemoChrome("processing");
+      demoTimer = setTimeout(() => {
+        demoActiveTyping = false;
+        original.classList.add("is-replaced");
+        original.classList.remove("is-selected");
+        result.classList.add("is-inserted");
+        setDemoChrome("done");
+      }, processingDelay);
       return;
     }
 
@@ -349,6 +396,7 @@ function setDemoStep(nextIndex, options = {}) {
 
   if (demoLive) demoLive.textContent = "";
   if (demoOverlayApp) demoOverlayApp.textContent = demoTitles[nextIndex] || "";
+  if (demoOverlayIcon) demoOverlayIcon.dataset.app = demoIcons[nextIndex] || "";
 
   demoTabs.forEach((tab, index) => {
     const active = index === nextIndex;
