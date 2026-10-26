@@ -137,6 +137,9 @@ struct SettingsView: View {
 
     // MARK: - Sidebar
 
+    /// Fits "Personalization" and the AI badge.
+    private static let sidebarWidth: CGFloat = 228
+
     private var selection: Binding<SettingsPane?> {
         Binding(
             get: { selectedPane },
@@ -174,7 +177,11 @@ struct SettingsView: View {
         .searchable(text: $search, placement: .sidebar, prompt: "Search settings")
         .searchFocused($searchFocused)
         .safeAreaInset(edge: .bottom, spacing: 0) { sidebarFooter }
-        .navigationSplitViewColumnWidth(min: 228, ideal: 228, max: 300)
+        // The column width alone is ignored on a first open (no saved split
+        // view frame), which leaves a 148 pt sidebar with clipped labels, so
+        // the list's own frame enforces it too.
+        .frame(minWidth: Self.sidebarWidth, idealWidth: Self.sidebarWidth)
+        .navigationSplitViewColumnWidth(min: Self.sidebarWidth, ideal: Self.sidebarWidth, max: 300)
         .toolbar(removing: .sidebarToggle)
     }
 

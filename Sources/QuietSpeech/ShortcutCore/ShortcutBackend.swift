@@ -22,8 +22,11 @@ import os
 // trustworthy permission probe.
 final class ShortcutBackend: @unchecked Sendable {
 
-    /// Delivered on the main queue, in the order the matcher produced them.
-    var onEvent: ((ShortcutEvent) -> Void)?
+    /// Delivered on the main queue, in the order the matcher produced them,
+    /// with the time the key event reached the tap. The main queue can be
+    /// busy for a few hundred milliseconds while dictation starts, so timing
+    /// a press by when it is delivered would be wrong.
+    var onEvent: ((ShortcutEvent, Date) -> Void)?
     /// Reported when the tap cannot be created (missing Accessibility).
     var onTapUnavailable: ((String) -> Void)?
     /// Reports whether the event tap is actually live.
@@ -185,8 +188,9 @@ final class ShortcutBackend: @unchecked Sendable {
             """)
         }
 
+        let receivedAt = Date()
         for event in events {
-            DispatchQueue.main.async { [weak self] in self?.onEvent?(event) }
+            DispatchQueue.main.async { [weak self] in self?.onEvent?(event, receivedAt) }
         }
 
         return decision == .consume ? nil : Unmanaged.passUnretained(event)

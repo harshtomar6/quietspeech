@@ -191,6 +191,17 @@ final class AppModel {
     private var pendingContext: String?
     private var remoteTranscriptionThisSession = false
     private var savesClipThisSession = false
+
+    /// Fn released sooner than this after being pressed is a tap, not
+    /// dictation: the session is dropped without showing the overlay.
+    private static let tapThreshold: TimeInterval = 0.3
+    /// When the hold binding (Fn) started the current session; nil for the
+    /// toggle binding and the menu, which show the overlay at once.
+    private var holdPressedAt: Date?
+    /// Set when Fn came back up within `tapThreshold`.
+    private var discardOnStop = false
+    /// Shows the overlay once a hold has lasted `tapThreshold`.
+    private var overlayRevealTask: Task<Void, Never>?
     private var sessionGeneration = 0
     /// The last text typed into another app, for Paste Again.
     private(set) var lastInsertedText = ""
@@ -410,7 +421,7 @@ final class AppModel {
             status = "Listening…"
             recordingStartedAt = Date()
             overlayPhase = .listening
-            hud.show(model: self)
+            revealOverlay()
             shortcutLog.notice("engine listening")
         } catch {
             shortcutLog.error("engine start failed: \(error.localizedDescription, privacy: .public)")
@@ -436,6 +447,16 @@ final class AppModel {
         guard isRecording else {
             shortcutLog.notice("stop ignored: engine was not recording")
             return
+        }
+        if discardOnStop {
+            await discardTap()
+            return
+        }
+        holdPressedAt = nil
+        if overlayRevealTask != nil {
+            overlayRevealTask?.cancel()
+            overlayRevealTask = nil
+            hud.show(model: self)
         }
         // Whatever stopped us — trigger, menu, overlay — the session is over.
         let generation = sessionGeneration
@@ -690,6 +711,53 @@ final class AppModel {
         }
 
         hideOverlay()
+    }
+
+    /// A hold shows the overlay only once Fn has been down for
+    /// `tapThreshold`, so tapping Fn on its own never flashes it. The
+    /// microphone starts on key-down regardless, so no words are lost.
+    private func revealOverlay() {
+        overlayRevealTask?.cancel()
+        overlayRevealTask = nil
+        guard let pressed = holdPressedAt else {
+            hud.show(model: self)
+            return
+        }
+        let wait = Self.tapThreshold - Date().timeIntervalSince(pressed)
+        guard wait > 0 else {
+            hud.show(model: self)
+            return
+        }
+        overlayRevealTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(wait))
+            guard let self, !Task.isCancelled, self.isRecording else { return }
+            self.overlayRevealTask = nil
+            self.hud.show(model: self)
+        }
+    }
+
+    /// Ends a session started by tapping Fn: nothing is inserted, saved to
+    /// history, or shown.
+    private func discardTap() async {
+        shortcutLog.notice("Fn tapped, not held -> session discarded")
+        discardOnStop = false
+        holdPressedAt = nil
+        overlayRevealTask?.cancel()
+        overlayRevealTask = nil
+        shortcutSession.sessionDidStopExternally()
+        sessionGeneration &+= 1
+        await engine.cancel()
+        isRecording = false
+        finalizedText = ""
+        volatileText = ""
+        cleanedText = ""
+        pendingSelection = nil
+        pendingContext = nil
+        isEditSession = false
+        isGenerateSession = false
+        recordingStartedAt = nil
+        status = "Idle"
+        hud.hide()
     }
 
     private func hideOverlay() {
@@ -1349,8 +1417,8 @@ final class AppModel {
     // MARK: - Activation
 
     private func wireShortcuts() {
-        shortcuts.onEvent = { [weak self] event in
-            self?.handleShortcutEvent(event)
+        shortcuts.onEvent = { [weak self] event, at in
+            self?.handleShortcutEvent(event, at: at)
         }
         shortcuts.onTapUnavailable = { [weak self] message in
             guard let self else { return }
@@ -1372,7 +1440,7 @@ final class AppModel {
         }
     }
 
-    private func handleShortcutEvent(_ event: ShortcutEvent) {
+    private func handleShortcutEvent(_ event: ShortcutEvent, at time: Date) {
         if event == .copyAgainTriggered {
             shortcutLog.notice("event copyAgainTriggered -> paste again")
             pasteAgain()
@@ -1389,14 +1457,23 @@ final class AppModel {
             switch action {
             case .start(let mode):
                 shortcutLog.notice("dictation start (\(mode.rawValue, privacy: .public))")
+                holdPressedAt = mode == .hold ? time : nil
+                discardOnStop = false
                 beginDictation()
             case .stop:
                 shortcutLog.notice("dictation stop")
+                if let pressed = holdPressedAt, time.timeIntervalSince(pressed) < Self.tapThreshold {
+                    // If the engine is still starting, start() sees the
+                    // session has ended and calls stop(), which discards.
+                    discardOnStop = true
+                }
                 Task { await self.stop() }
             case .switchedToToggle:
                 // Fn was being held and Cmd just joined it. The recording and
                 // the audio keep running; only the way it ends has changed.
                 shortcutLog.notice("latched into toggle mode")
+                holdPressedAt = nil
+                if isRecording { revealOverlay() }
             }
         }
     }

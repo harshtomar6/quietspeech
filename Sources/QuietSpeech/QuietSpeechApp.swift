@@ -86,7 +86,9 @@ struct QuietSpeechApp: App {
         MenuBarExtra {
             MenuContent(model: model, updater: updater)
         } label: {
-            Image(nsImage: BrandMark.image())
+            // 24 pt wide puts the ribbon at about 12 pt tall, the height of
+            // the system's own menu bar icons; the artwork's 30 pt looked big.
+            Image(nsImage: BrandMark.image(size: 24))
                 .renderingMode(.template)
                 .foregroundStyle(model.isRecording ? Color(nsColor: .systemRed) : Color.primary)
                 .accessibilityLabel(model.isRecording ? "QuietSpeech, recording" : "QuietSpeech")
