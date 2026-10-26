@@ -59,7 +59,6 @@ const heroTarget = document.getElementById("hero-typed");
 const heroSection = document.querySelector(".hero");
 const heroWindow = document.querySelector(".hero-window");
 const heroLive = document.getElementById("hero-live");
-const heroOverlayLabel = document.getElementById("hero-overlay-label");
 const heroClock = overlayClock(heroWindow);
 let heroTimer = null;
 let heroVisible = true;
@@ -78,10 +77,6 @@ function setHeroChrome(state) {
   heroWindow.classList.toggle("is-done", state === "done");
   heroWindow.classList.toggle("is-resetting", state === "resetting");
   heroClock.update(state);
-  if (heroOverlayLabel) {
-    heroOverlayLabel.textContent =
-      state === "done" ? "Inserted" : state === "processing" ? "Polishing" : "Listening";
-  }
 }
 
 function startHero() {
@@ -174,9 +169,7 @@ const demoTargets = Array.from(document.querySelectorAll("[data-pane]"));
 const demoTabs = Array.from(document.querySelectorAll("[data-demo-tab]"));
 const demoTitle = document.getElementById("demo-window-title");
 const demoWindow = document.querySelector(".demo-window");
-const demoOverlayLabel = demoWindow ? demoWindow.querySelector(".overlay-label") : null;
 const demoLive = document.getElementById("demo-live");
-const demoOverlayApp = document.getElementById("demo-overlay-app");
 const demoOverlayIcon = document.getElementById("demo-overlay-icon");
 const demoIcons = ["slack", "cursor", "notes", "mail"];
 const demoClock = overlayClock(demoWindow);
@@ -196,27 +189,12 @@ function stopDemoTyping() {
   demoActiveTyping = false;
 }
 
-const demoLabels = {
-  dictate: { active: "Listening", processing: "Polishing", done: "Inserted" },
-  edit: { active: "Editing", processing: "Rewriting", done: "Rewritten" },
-  generate: { active: "Listening", processing: "Generating", done: "Generated" }
-};
-
-function demoMode() {
-  const pane = demoTargets[demoIndex];
-  return pane?.dataset.mode || "dictate";
-}
-
 function setDemoChrome(state) {
   if (!demoWindow) return;
-  const labels = demoLabels[demoMode()] || demoLabels.dictate;
   demoWindow.classList.toggle("is-typing", state === "typing");
   demoWindow.classList.toggle("is-processing", state === "processing");
   demoWindow.classList.toggle("is-done", state === "done");
   demoClock.update(state);
-  if (demoOverlayLabel) {
-    demoOverlayLabel.textContent = labels[state] || labels.active;
-  }
 }
 
 function typeInto(target, text, options = {}) {
@@ -395,7 +373,6 @@ function setDemoStep(nextIndex, options = {}) {
   });
 
   if (demoLive) demoLive.textContent = "";
-  if (demoOverlayApp) demoOverlayApp.textContent = demoTitles[nextIndex] || "";
   if (demoOverlayIcon) demoOverlayIcon.dataset.app = demoIcons[nextIndex] || "";
 
   demoTabs.forEach((tab, index) => {

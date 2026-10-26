@@ -492,7 +492,7 @@ a {
   50%, 100% { opacity: 0; }
 }
 
-/* Listening overlay: mirrors the app's card overlay, on macOS 26 Liquid
+/* Listening overlay: mirrors the app's capsule overlay, on macOS 26 Liquid
    Glass. The glass is approximated with a translucent fill, backdrop blur
    and saturation, a bright top edge and a faint rim. */
 
@@ -517,19 +517,16 @@ a {
   -webkit-backdrop-filter: blur(16px) saturate(190%) brightness(1.06);
 }
 
-.mac-window .overlay-card {
+/* One slim line: app icon, waveform (or spinner, or checkmark), the live
+   transcript and the timer. */
+.mac-window .overlay-capsule {
   bottom: 24px;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 8px;
-  width: min(440px, calc(100% - 40px));
-  padding: 12px 16px 11px;
-}
-
-.overlay-row {
-  display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  width: min(440px, calc(100% - 40px));
+  height: 54px;
+  padding: 0 18px 0 16px;
+  border-radius: 999px;
 }
 
 /* The target app's icon, as the app shows it. */
@@ -574,23 +571,23 @@ a {
   border-radius: 1.5px;
 }
 
-.overlay-app,
-.overlay-label {
-  color: rgba(245, 245, 247, 0.62);
-  font-size: 12px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.overlay-label {
-  font-weight: 400;
-}
-
-/* Nothing while listening (the waveform says so), then a spinner, then a
-   checkmark, like the app. */
+/* The waveform while listening, then a spinner, then a checkmark, like the
+   app. */
 .overlay-status {
-  display: inline-flex;
-  margin-left: auto;
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 44px;
+  height: 24px;
+}
+
+.overlay-status > * {
+  grid-area: 1 / 1;
+}
+
+.mac-window.is-processing .overlay-status .waveform,
+.mac-window.is-done .overlay-status .waveform {
+  display: none;
 }
 
 .overlay-spinner,
@@ -600,8 +597,9 @@ a {
 
 .mac-window.is-processing .overlay-spinner {
   display: block;
-  width: 11px;
-  height: 11px;
+  width: 15px;
+  height: 15px;
+  border-width: 2px;
   border: 1.5px solid rgba(255, 255, 255, 0.16);
   border-top-color: rgba(255, 255, 255, 0.72);
   border-radius: 50%;
@@ -610,10 +608,10 @@ a {
 
 .mac-window.is-done .overlay-check {
   display: block;
-  width: 13px;
-  height: 13px;
+  width: 17px;
+  height: 17px;
   border-radius: 50%;
-  background: #30d158 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 6.2l2 2 4-4.4' fill='none' stroke='%23fff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 10px no-repeat;
+  background: #30d158 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 6.2l2 2 4-4.4' fill='none' stroke='%23fff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 12px no-repeat;
   animation: overlay-pop 0.32s cubic-bezier(0.3, 1.5, 0.6, 1) both;
 }
 
@@ -630,15 +628,13 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 2.5px;
+  gap: 2px;
   height: 24px;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
 }
 
 .waveform i {
   display: block;
-  width: 3px;
+  width: 2.5px;
   height: 4px;
   border-radius: 2px;
   background: var(--accent-bright);
@@ -660,26 +656,15 @@ a {
   animation-duration: 0.62s;
 }
 
-/* After listening the waveform rests as a row of dots. */
-.mac-window.is-processing .waveform i,
-.mac-window.is-done .waveform i {
-  height: 3px;
-  opacity: 0.4;
-  animation: none;
-  transition: height 0.25s ease, opacity 0.25s ease;
-}
-
-.overlay-live-row {
-  gap: 3px;
-}
-
 .overlay-transcript {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%);
+  mask-image: linear-gradient(90deg, transparent, #000 6%);
   flex: 1;
   min-width: 0;
   overflow: hidden;
   color: #f5f5f7;
   direction: rtl;
-  font-size: 13.5px;
+  font-size: 14px;
   line-height: 1.4;
   text-align: left;
   text-overflow: ellipsis;
@@ -694,26 +679,12 @@ a {
   content: "\200E";
 }
 
-.overlay-caret {
-  flex: 0 0 auto;
-  width: 2px;
-  height: 14px;
-  background: var(--accent-bright);
-  animation: blink 1.05s steps(1) infinite;
-}
-
 /* The session timer: system font with fixed-width digits. */
 .overlay-time {
   flex: 0 0 auto;
-  margin-left: 8px;
   color: rgba(245, 245, 247, 0.55);
   font-size: 11.5px;
   font-variant-numeric: tabular-nums;
-}
-
-.js .mac-window:not(.is-typing) .overlay-caret {
-  opacity: 0;
-  animation: none;
 }
 
 .js .demo-window .typed-line .caret {
@@ -2332,17 +2303,23 @@ a {
     bottom: 18px;
   }
 
-  .mac-window .overlay-card {
+  .mac-window .overlay-capsule {
     bottom: 18px;
     width: calc(100% - 28px);
-    padding: 10px 14px;
+    height: 48px;
+    gap: 8px;
+    padding: 0 14px 0 12px;
   }
 
   .overlay-transcript {
     font-size: 12px;
   }
 
-  .waveform i:nth-child(n + 19) {
+  .overlay-status {
+    width: 36px;
+  }
+
+  .waveform i:nth-child(n + 9) {
     display: none;
   }
 
