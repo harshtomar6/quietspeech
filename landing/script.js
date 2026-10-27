@@ -197,6 +197,22 @@ function setDemoChrome(state) {
   demoClock.update(state);
 }
 
+// An "@Name" in the result shows as a Slack mention.
+function fillTarget(target, text) {
+  target.textContent = "";
+  text.split(/(@[A-Z][a-z]+)/).forEach((part) => {
+    if (!part) return;
+    if (part.startsWith("@")) {
+      const mention = document.createElement("span");
+      mention.className = "mention";
+      mention.textContent = part;
+      target.append(mention);
+    } else {
+      target.append(part);
+    }
+  });
+}
+
 function typeInto(target, text, options = {}) {
   if (!target) return;
   stopDemoTyping();
@@ -205,10 +221,10 @@ function typeInto(target, text, options = {}) {
   target.classList.remove("is-inserted");
   if (demoLive) demoLive.textContent = "";
 
-  const spoken = options.instruction || text;
+  const spoken = options.instruction || target.dataset.spoken || text;
 
   if (reduceMotion) {
-    target.textContent = text;
+    fillTarget(target, text);
     target.classList.add("is-inserted");
     if (demoLive) demoLive.textContent = spoken;
     setDemoChrome("done");
@@ -235,7 +251,7 @@ function typeInto(target, text, options = {}) {
       setDemoChrome("processing");
       demoTimer = setTimeout(() => {
         demoActiveTyping = false;
-        target.textContent = text;
+        fillTarget(target, text);
         target.classList.add("is-inserted");
         setDemoChrome("done");
       }, processingDelay);

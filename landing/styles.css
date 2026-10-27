@@ -993,6 +993,14 @@ a {
   font-weight: 600;
 }
 
+.mention {
+  padding: 0 3px;
+  border-radius: 4px;
+  background: rgba(29, 155, 209, 0.18);
+  color: #4fb3e8;
+  font-weight: 500;
+}
+
 .message {
   display: flex;
   gap: 14px;
@@ -1485,6 +1493,14 @@ a {
   border-radius: 999px;
   color: var(--accent-text);
   font-size: 13px;
+  font-weight: 500;
+}
+
+.vocab-mention {
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: rgba(18, 100, 163, 0.1);
+  color: #1264a3;
   font-weight: 500;
 }
 
