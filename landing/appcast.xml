@@ -3,6 +3,21 @@
     <channel>
         <title>QuietSpeech</title>
         <item>
+            <title>0.3.2</title>
+            <pubDate>Tue, 27 Oct 2026 12:29:49 +0530</pubDate>
+            <sparkle:version>5</sparkle:version>
+            <sparkle:shortVersionString>0.3.2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <enclosure url="https://quietspeech.app/downloads/QuietSpeech-0.3.2.dmg" length="4213476" type="application/octet-stream" sparkle:edSignature="Ys2tbx7XNZJLH0iYnBkEwwnW+kP0/62HuDlqLoCDy8ADU5YyPN/9+4o/LkfA+Y6+H+qh/akM8OXXsVZZGg0HBQ=="/>
+            <sparkle:deltas>
+                <enclosure url="https://quietspeech.app/downloads/QuietSpeech5-4.delta" sparkle:deltaFrom="4" length="166546" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="87m7IlW54Ng210LPbDOTk9D2zPMekM8ghsNMR6lMSLtmej4er+0/xo9t1T57rODYEEtpmHPUon9GkK8AHRiSCg=="/>
+                <enclosure url="https://quietspeech.app/downloads/QuietSpeech5-3.delta" sparkle:deltaFrom="3" length="201166" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="gBFWkhXVUoSDcWM6JB/qlZMa7pf8PemSi7y69inRE+Q4fTONzaDdK0vXHLcbh6C/o00EbTIW+hsL3HWdwPogDQ=="/>
+                <enclosure url="https://quietspeech.app/downloads/QuietSpeech5-2.delta" sparkle:deltaFrom="2" length="328886" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="nDphj6cvPqWTy7Ckap6UMa5ETVCtwjCbncAaXtGXkjDOBZSl4SDpBwEvmBCDqPVwJWT6pbCqH/aMgEiDGH56Bg=="/>
+                <enclosure url="https://quietspeech.app/downloads/QuietSpeech5-1.delta" sparkle:deltaFrom="1" length="419166" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="5WFCbmaAoAV48c6EMLyNZ3i+ri3OzyLostKxST9FDCaf9iey+PLk/61BL1yfSvOeM1RRcM+17JnKG8qmG34OBQ=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>0.3.1</title>
             <pubDate>Mon, 26 Oct 2026 21:59:18 +0530</pubDate>
             <sparkle:version>4</sparkle:version>
@@ -27,18 +42,6 @@
             <sparkle:deltas>
                 <enclosure url="https://quietspeech.app/downloads/QuietSpeech3-2.delta" sparkle:deltaFrom="2" length="304982" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="6lfqhglv+ht1bY1QokN/DmQptkmUOPlqCeH8+H8D8ZkH2b6RXBiNi3qOwgc7MKwdcpNwcogrp60DDytIOeX0Dw=="/>
                 <enclosure url="https://quietspeech.app/downloads/QuietSpeech3-1.delta" sparkle:deltaFrom="1" length="408942" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="2EGHSepdjclAUn5ldTDquVUxROjIN7lxCVtjEWO/VoLLeooKFlZ6xheXjUtxRK0qqlvjX8UlCzqhHtK45wDMAg=="/>
-            </sparkle:deltas>
-        </item>
-        <item>
-            <title>0.2</title>
-            <pubDate>Sun, 25 Oct 2026 19:12:04 +0530</pubDate>
-            <sparkle:version>2</sparkle:version>
-            <sparkle:shortVersionString>0.2</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
-            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
-            <enclosure url="https://quietspeech.app/downloads/QuietSpeech-0.2.dmg" length="4213843" type="application/octet-stream" sparkle:edSignature="6OlmRKYqbihpSjxu3LvSNnnEzQs36r9SlKnbKP1kWGnnO2X7Fq4sKc3FqHlSra/hgVfnAQSMsHjfYXci8pRTAQ=="/>
-            <sparkle:deltas>
-                <enclosure url="https://quietspeech.app/downloads/QuietSpeech2-1.delta" sparkle:deltaFrom="1" length="311106" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="fgVI+nMdK+fBKTbuLRsPW4Jp+kr2LxXalg4Gd+t3yktDIGrz61Ga2gIGDkUF6kGQxs+XeBFYK86nbq5AlN5LBg=="/>
             </sparkle:deltas>
         </item>
     </channel>
