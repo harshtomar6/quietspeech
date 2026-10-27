@@ -1,0 +1,13 @@
+{
+  "composition_plan": {
+    "positive_global_styles": ["instrumental", "minimal modern product launch", "100 BPM", "warm felt piano", "soft plucked synth arpeggio", "clean light percussion", "subtle sub bass", "airy, optimistic, calm", "polished mix"],
+    "negative_global_styles": ["vocals", "choir", "heavy drums", "EDM drop", "distortion", "cinematic trailer hits", "fade out"],
+    "sections": [
+      {"section_name": "Intro", "positive_local_styles": ["sparse felt piano notes", "soft pad", "anticipation"], "negative_local_styles": ["drums"], "duration_ms": 6000, "lines": []},
+      {"section_name": "Lift", "positive_local_styles": ["beat and sub bass enter", "plucked arpeggio starts", "gentle lift"], "negative_local_styles": [], "duration_ms": 3000, "lines": []},
+      {"section_name": "Groove", "positive_local_styles": ["steady understated groove", "light rhythmic pulse", "piano motif over arpeggio", "consistent energy"], "negative_local_styles": ["breakdown", "silence"], "duration_ms": 19000, "lines": []},
+      {"section_name": "Bright", "positive_local_styles": ["brighter fuller section", "added shimmer", "confident"], "negative_local_styles": ["silence", "fade out"], "duration_ms": 6000, "lines": []},
+      {"section_name": "Resolve", "positive_local_styles": ["settles to warm sustained final chord", "piano and pad ring out", "still audible to the very end"], "negative_local_styles": ["silence", "abrupt cut"], "duration_ms": 5000, "lines": []}
+    ]
+  }
+}

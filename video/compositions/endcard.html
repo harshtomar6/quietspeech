@@ -1,0 +1,128 @@
+<template>
+  <link rel="stylesheet" href="assets/ui.css" />
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      background: #061520;
+      font-family: "Inter", sans-serif;
+    }
+
+    #ec-halo {
+      position: absolute;
+      left: 560px;
+      top: 70px;
+      width: 800px;
+      height: 800px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(92, 225, 230, 0.32) 0%, rgba(92, 225, 230, 0) 62%);
+      opacity: 0;
+    }
+
+    #ec-icon {
+      position: absolute;
+      left: 865px;
+      top: 300px;
+      width: 190px;
+      height: 190px;
+      opacity: 0;
+    }
+
+    #ec-word {
+      position: absolute;
+      left: 763px;
+      top: 330px;
+      color: #f5f7fa;
+      font-size: 112px;
+      font-weight: 700;
+      letter-spacing: -0.045em;
+      line-height: 1.1;
+      white-space: nowrap;
+      clip-path: inset(0 100% 0 0);
+    }
+
+    #ec-tag {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 600px;
+      color: rgba(233, 237, 243, 0.82);
+      font-size: 50px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      text-align: center;
+    }
+
+    #ec-tag span {
+      display: inline-block;
+      white-space: pre;
+      opacity: 0;
+    }
+
+    #ec-cta {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 720px;
+      display: flex;
+      justify-content: center;
+    }
+
+    #ec-cta span {
+      padding: 22px 48px;
+      border-radius: 999px;
+      background: #5ce1e6;
+      color: #052a33;
+      font-size: 42px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      opacity: 0;
+    }
+
+    /* Portrait: the lockup stacks, icon over name. */
+    html[data-qs="tall"] #ec-icon { left: 430px; top: 380px; width: 220px; height: 220px; }
+    html[data-qs="tall"] #ec-halo { left: 140px; top: 90px; }
+    html[data-qs="tall"] #ec-word { left: 0; right: 0; top: 650px; text-align: center; }
+    html[data-qs="tall"] #ec-tag { top: 860px; }
+    html[data-qs="tall"] #ec-cta { top: 970px; }
+    html[data-qs="feed"] #ec-icon { left: 430px; top: 230px; width: 220px; height: 220px; }
+    html[data-qs="feed"] #ec-halo { left: 140px; top: -60px; }
+    html[data-qs="feed"] #ec-word { left: 0; right: 0; top: 500px; text-align: center; }
+    html[data-qs="feed"] #ec-tag { top: 720px; }
+    html[data-qs="feed"] #ec-cta { top: 830px; }
+  </style>
+  <div id="root" data-composition-id="endcard" data-width="1920" data-height="1080">
+    <div class="wall"></div>
+    <svg id="ec-rib" class="ribbons" viewBox="0 0 1920 1080"></svg>
+    <div id="ec-halo"></div>
+    <img id="ec-icon" src="assets/icons/quietspeech-1024.png" alt="QuietSpeech" />
+    <div id="ec-word">QuietSpeech</div>
+    <div id="ec-tag"><span>Hold </span><span>fn. </span><span>Speak. </span><span>Let </span><span>go.</span></div>
+    <div id="ec-cta"><span>quietspeech.app</span></div>
+  </div>
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      QSWorld.ribbons(tl, document.getElementById("ec-rib"), 38, 5);
+
+      // The icon lands where the iris closed, then makes room for the name.
+      tl.fromTo("#ec-halo", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.8, ease: "expo.out" }, 0.25);
+      tl.fromTo("#ec-icon", { opacity: 0, scale: 0.35, filter: "blur(12px)" },
+        { opacity: 1, scale: 1, filter: "blur(0px)", duration: 0.6, ease: "back.out(1.5)" }, 0.3);
+      if ((window.QS_FORMAT || "wide") === "wide") {
+        tl.to(["#ec-icon", "#ec-halo"], { x: -338, duration: 0.6, ease: "power3.inOut" }, 1.05);
+        tl.to("#ec-word", { clipPath: "inset(0 0% 0 0)", duration: 0.55, ease: "power3.out" }, 1.58);
+      } else {
+        tl.to("#ec-word", { clipPath: "inset(0 0% 0 0)", duration: 0.55, ease: "power3.out" }, 1.0);
+      }
+
+      tl.fromTo("#ec-tag span", { opacity: 0, filter: "blur(6px)" },
+        { opacity: 1, filter: "blur(0px)", duration: 0.14, stagger: 0.1, ease: "power2.out" }, 1.95);
+      tl.fromTo("#ec-cta span", { opacity: 0, y: 16 },
+        { opacity: 1, y: 0, duration: 0.45, ease: "expo.out" }, 2.5);
+
+      window.__timelines["endcard"] = tl;
+    })();
+  </script>
+</template>

@@ -1,0 +1,293 @@
+/* Shared pieces: the QuietSpeech capsule overlay (sizes from
+   Sources/QuietSpeech/HUD.swift), the brand world (navy wallpaper with the
+   icon's cyan ribbons), the menu bar and light Mac windows. The capsule is
+   drawn at 1x; scenes enlarge it with `zoom`. */
+
+.cap {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 380px;
+  height: 54px;
+  padding: 0 16px 0 15px;
+  border-radius: 27px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.025) 55%),
+    rgba(30, 32, 38, 0.86);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 14px 34px rgba(0, 0, 0, 0.34),
+    0 2px 6px rgba(0, 0, 0, 0.18);
+  color: #f5f5f7;
+  font-family: "Inter", sans-serif;
+  backdrop-filter: blur(16px) saturate(190%);
+}
+
+.cap-icon {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+}
+
+.cap-status {
+  position: relative;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 24px;
+}
+
+.cap-wave,
+.cap-spin,
+.cap-check {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+}
+
+.cap-wave {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.cap-wave i {
+  display: block;
+  width: 2.5px;
+  height: 24px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #5ce1e6, #2bb8c9);
+}
+
+.cap-spin {
+  width: 15px;
+  height: 15px;
+  border: 1.6px solid rgba(255, 255, 255, 0.16);
+  border-top-color: rgba(255, 255, 255, 0.75);
+  border-radius: 50%;
+  opacity: 0;
+}
+
+.cap-check {
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: #30d158 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 6.2l2 2 4-4.4' fill='none' stroke='%23fff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 12px no-repeat;
+  opacity: 0;
+}
+
+/* Head truncation, as the app does: the newest words stay visible. */
+.cap-text {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  direction: rtl;
+  text-align: left;
+  white-space: nowrap;
+  font-size: 14.5px;
+  line-height: 1.4;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%);
+  mask-image: linear-gradient(90deg, transparent, #000 5%);
+}
+
+.cap-text .ph {
+  color: rgba(245, 245, 247, 0.5);
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.cap-text .live {
+  display: none;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.cap-text .w {
+  display: none;
+}
+
+.cap-time {
+  position: relative;
+  flex: 0 0 auto;
+  width: 24px;
+  height: 16px;
+  color: rgba(245, 245, 247, 0.55);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.cap-time span {
+  position: absolute;
+  right: 0;
+  top: 0;
+  opacity: 0;
+}
+
+.cap-time span:first-child {
+  opacity: 1;
+}
+
+.caret {
+  display: inline-block;
+  width: 3px;
+  height: 1.05em;
+  margin-left: 3px;
+  vertical-align: -0.14em;
+  background: #0e8fa3;
+}
+
+/* The brand world: the icon's navy squircle, opened up into a wallpaper. */
+.wall {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(110% 80% at 18% 108%, rgba(19, 128, 150, 0.85) 0%, rgba(19, 128, 150, 0) 58%),
+    radial-gradient(80% 70% at 92% -8%, rgba(34, 86, 140, 0.75) 0%, rgba(34, 86, 140, 0) 62%),
+    radial-gradient(140% 120% at 50% 40%, #0b2d3d 0%, #061520 78%);
+}
+
+.ribbons {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 1080px;
+  overflow: visible;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 18%, #000 82%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 18%, #000 82%, transparent 100%);
+}
+
+/* macOS menu bar over the wallpaper. */
+.mb {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  padding: 0 30px;
+  background: rgba(6, 20, 30, 0.34);
+  color: #f5f7fa;
+  font-family: "Inter", sans-serif;
+  font-size: 19px;
+  letter-spacing: -0.005em;
+  backdrop-filter: blur(24px) saturate(160%);
+}
+
+.mb b {
+  font-weight: 700;
+}
+
+.mb-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 26px;
+}
+
+/* The real menu bar template, tinted the way the app tints it. */
+.mb-qs {
+  width: 33px;
+  height: 22px;
+  background: #f5f7fa;
+  /* The mask image is set inline (assets/icons/menubar.png) so the path
+     resolves from the page, not from this file. */
+}
+
+/* Light Mac window. */
+.lw {
+  position: absolute;
+  overflow: hidden;
+  border-radius: 26px;
+  background: #fbfbfd;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 60px 140px rgba(0, 6, 14, 0.62),
+    0 14px 34px rgba(0, 6, 14, 0.34);
+  color: #151a21;
+  font-family: "Inter", sans-serif;
+}
+
+.lw-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 64px;
+  padding: 0 26px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  background: #f4f5f8;
+}
+
+.lw-lights {
+  display: flex;
+  gap: 11px;
+}
+
+.lw-lights i {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ff5f57;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+.lw-lights i:nth-child(2) {
+  background: #febc2e;
+}
+
+.lw-lights i:nth-child(3) {
+  background: #28c840;
+}
+
+.lw-title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: #3b414b;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.lw-side {
+  position: absolute;
+  left: 0;
+  top: 64px;
+  bottom: 0;
+  padding: 28px 18px;
+  border-right: 1px solid rgba(0, 0, 0, 0.07);
+  background: #f0f1f5;
+  font-size: 24px;
+  color: #3b414b;
+}
+
+.lw-side p {
+  padding: 10px 16px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+/* Formats. Entry files set <html data-qs="wide|feed|tall">; landscape is the
+   default. Line breaks marked .p only apply in portrait (feed and tall). */
+br.p {
+  display: none;
+}
+
+html[data-qs="feed"] br.p,
+html[data-qs="tall"] br.p {
+  display: inline;
+}
+
+html[data-qs="feed"] .mb > span:nth-of-type(n + 5),
+html[data-qs="tall"] .mb > span:nth-of-type(n + 5) {
+  display: none;
+}

@@ -15,3 +15,10 @@ landing/.vercel/
 
 # Polish bench results hold your own dictations
 polish-*.jsonl
+
+# HyperFrames video: renders and tool caches
+video/renders/
+video/.hyperframes/
+video/formats/*/
+video/.thumbnails/
+video/.waveform-cache/

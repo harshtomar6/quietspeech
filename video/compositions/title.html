@@ -1,0 +1,63 @@
+<template>
+  <link rel="stylesheet" href="assets/ui.css" />
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      background: #061520;
+      font-family: "Inter", sans-serif;
+    }
+
+    #ti-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 300px;
+      color: #f5f7fa;
+      font-size: 190px;
+      font-weight: 600;
+      letter-spacing: -0.05em;
+      line-height: 1.02;
+      text-align: center;
+    }
+
+    #ti-line span {
+      display: inline-block;
+      white-space: pre;
+      opacity: 0;
+    }
+
+    #ti-written {
+      color: #5ce1e6;
+    }
+
+    html[data-qs="tall"] #ti-line { top: 520px; font-size: 176px; }
+    html[data-qs="feed"] #ti-line { top: 330px; font-size: 168px; }
+  </style>
+  <div id="root" data-composition-id="title" data-width="1920" data-height="1080">
+    <div class="wall"></div>
+    <svg id="ti-rib" class="ribbons" viewBox="0 0 1920 1080"></svg>
+    <h1 id="ti-line"><span>Say </span><span>it,</span><br /><span>and </span><span>it’s </span><br class="p" /><span id="ti-written">written.</span></h1>
+  </div>
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      const rib = QSWorld.ribbons(tl, document.getElementById("ti-rib"), 6, 3);
+
+      // Words land on the lift; "written" lands on the next beat, in the accent.
+      const at = [0.1, 0.34, 0.7, 0.88, 1.2];
+      document.querySelectorAll("#ti-line span").forEach(function (w, i) {
+        tl.fromTo(w, { opacity: 0, filter: "blur(10px)" },
+          { opacity: 1, filter: "blur(0px)", duration: 0.16, ease: "power2.out" }, at[i]);
+      });
+      tl.fromTo("#ti-written", { scale: 1.12 }, { scale: 1, duration: 0.5, ease: "expo.out" }, 1.2);
+      tl.to(rib, { opacity: "+=0.18", duration: 0.5, ease: "power2.out" }, 1.2);
+
+      // Whip left into the demo.
+      tl.to("#ti-line", { x: -420, opacity: 0, filter: "blur(14px)", duration: 0.3, ease: "power3.in" }, 2.62);
+
+      window.__timelines["title"] = tl;
+    })();
+  </script>
+</template>

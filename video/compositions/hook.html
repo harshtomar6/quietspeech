@@ -1,0 +1,377 @@
+<template>
+  <link rel="stylesheet" href="assets/ui.css" />
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      background: #061520;
+      font-family: "Inter", sans-serif;
+    }
+
+    /* The camera: the desktop sits above the keyboard; a tilt up is one move. */
+    #hk-cam {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1920px;
+      height: 2160px;
+    }
+
+    #hk-desk,
+    #hk-kbd {
+      position: absolute;
+      left: 0;
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+    }
+
+    #hk-desk {
+      top: 0;
+    }
+
+    #hk-kbd {
+      top: 1080px;
+      background: radial-gradient(90% 90% at 30% 70%, #2a2e33 0%, #121417 70%, #0b0c0e 100%);
+    }
+
+    #hk-kbd-inner {
+      position: absolute;
+      inset: 0;
+      transform-origin: 420px 690px;
+    }
+
+    .key {
+      position: absolute;
+      width: 250px;
+      height: 250px;
+      border-radius: 30px;
+      background: linear-gradient(180deg, #303338 0%, #222429 100%);
+      box-shadow:
+        inset 0 1.5px 0 rgba(255, 255, 255, 0.09),
+        0 7px 0 #0a0b0d,
+        0 18px 40px rgba(0, 0, 0, 0.6);
+      color: #d4d7dc;
+    }
+
+    .key .g {
+      position: absolute;
+      font-size: 34px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+    }
+
+    .key .tr {
+      right: 30px;
+      top: 26px;
+      font-size: 44px;
+    }
+
+    .key .bl {
+      left: 30px;
+      bottom: 26px;
+    }
+
+    .key .br {
+      right: 30px;
+      bottom: 26px;
+    }
+
+    .key .c {
+      left: 0;
+      right: 0;
+      top: 82px;
+      text-align: center;
+      font-size: 72px;
+    }
+
+    #hk-fn-glow {
+      position: absolute;
+      left: 230px;
+      top: 500px;
+      width: 370px;
+      height: 370px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(92, 225, 230, 0.55) 0%, rgba(92, 225, 230, 0) 65%);
+      opacity: 0;
+    }
+
+    #hk-fn .g {
+      color: #e9edf3;
+    }
+
+    #hk-hold {
+      position: absolute;
+      left: 160px;
+      top: 120px;
+      color: #f5f7fa;
+      font-size: 132px;
+      font-weight: 600;
+      letter-spacing: -0.045em;
+    }
+
+    #hk-hold span {
+      display: inline-block;
+      white-space: pre;
+    }
+
+    #hk-hold .k {
+      color: #5ce1e6;
+    }
+
+    /* Desktop */
+    #hk-dim {
+      position: absolute;
+      inset: 0;
+    }
+
+    #hk-notes {
+      left: 210px;
+      top: 104px;
+      width: 1500px;
+      height: 740px;
+    }
+
+    #hk-notes .lw-side {
+      width: 380px;
+    }
+
+    #hk-notes .lw-side .on {
+      background: #fbe7a1;
+      color: #151a21;
+    }
+
+    #hk-date {
+      position: absolute;
+      left: 424px;
+      top: 112px;
+      color: #6e7480;
+      font-size: 22px;
+    }
+
+    #hk-ntitle {
+      position: absolute;
+      left: 424px;
+      top: 150px;
+      font-size: 52px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+
+    /* The heard sentence. It is drawn once at 112 px and carried, scaled, into
+       the note, so the words that were heard are the words that land. */
+    #hk-heard {
+      position: absolute;
+      left: 230px;
+      top: 300px;
+      color: #f5f7fa;
+      font-size: 112px;
+      font-weight: 500;
+      line-height: 1.12;
+      letter-spacing: -0.035em;
+      white-space: nowrap;
+      transform-origin: 0 0;
+    }
+
+    #hk-heard .hw {
+      display: inline-block;
+      white-space: pre;
+      opacity: 0;
+    }
+
+    #hk-um {
+      position: relative;
+      display: inline-block;
+      max-width: 300px;
+      overflow: hidden;
+      vertical-align: top;
+      white-space: pre;
+    }
+
+    #hk-um-strike {
+      position: absolute;
+      left: 0;
+      right: 0.28em;
+      top: 0.6em;
+      height: 8px;
+      border-radius: 4px;
+      background: #5ce1e6;
+      transform: scaleX(0);
+      transform-origin: 0 50%;
+    }
+
+    #hk-caret {
+      display: inline-block;
+      width: 0.07em;
+      height: 0.95em;
+      margin-left: 0.06em;
+      vertical-align: -0.12em;
+      background: #0e8fa3;
+      opacity: 0;
+    }
+
+    #hk-cap {
+      zoom: 2.2;
+      left: 246.4px;
+      top: 404px;
+      opacity: 0;
+    }
+
+    /* Portrait: one column; the keyboard is reframed on fn. */
+    html[data-qs="tall"] #hk-cam { width: 1080px; height: 3840px; }
+    html[data-qs="tall"] #hk-desk,
+    html[data-qs="tall"] #hk-kbd { width: 1080px; height: 1920px; }
+    html[data-qs="tall"] #hk-kbd { top: 1920px; }
+    html[data-qs="tall"] #hk-kbd-inner { left: 125px; top: 420px; }
+    html[data-qs="tall"] #hk-hold { left: -15px; top: -60px; }
+    html[data-qs="tall"] #hk-notes { left: 60px; top: 300px; width: 960px; height: 880px; }
+    html[data-qs="tall"] #hk-heard { left: 80px; top: 360px; font-size: 96px; }
+    html[data-qs="tall"] #hk-cap { left: 55.45px; top: 545.45px; }
+
+    html[data-qs="feed"] #hk-cam { width: 1080px; height: 2700px; }
+    html[data-qs="feed"] #hk-desk,
+    html[data-qs="feed"] #hk-kbd { width: 1080px; height: 1350px; }
+    html[data-qs="feed"] #hk-kbd { top: 1350px; }
+    html[data-qs="feed"] #hk-kbd-inner { left: 125px; top: 160px; }
+    html[data-qs="feed"] #hk-hold { left: -15px; top: -20px; }
+    html[data-qs="feed"] #hk-notes { left: 60px; top: 120px; width: 960px; height: 820px; }
+    html[data-qs="feed"] #hk-heard { left: 80px; top: 200px; font-size: 96px; }
+    html[data-qs="feed"] #hk-cap { zoom: 2; left: 80px; top: 572px; }
+
+    html[data-qs="feed"] #hk-notes .lw-side,
+    html[data-qs="tall"] #hk-notes .lw-side { display: none; }
+    html[data-qs="feed"] #hk-date,
+    html[data-qs="tall"] #hk-date,
+    html[data-qs="feed"] #hk-ntitle,
+    html[data-qs="tall"] #hk-ntitle { left: 56px; }
+  </style>
+  <div id="root" data-composition-id="hook" data-width="1920" data-height="1080">
+    <div id="hk-cam" data-layout-allow-overflow>
+      <div id="hk-desk">
+        <div class="wall"></div>
+        <svg id="hk-rib" class="ribbons" viewBox="0 0 1920 1080"></svg>
+        <div id="hk-dim" data-layout-ignore>
+          <div id="hk-notes" class="lw">
+            <div class="lw-bar">
+              <div class="lw-lights"><i></i><i></i><i></i></div>
+              <div class="lw-title">Notes</div>
+            </div>
+            <div class="lw-side">
+              <p class="on">Invoice follow-up</p>
+              <p>Launch notes</p>
+              <p>Pricing questions</p>
+              <p>Ideas</p>
+            </div>
+            <div id="hk-date">Today, 9:41 AM</div>
+            <div id="hk-ntitle">Invoice follow-up</div>
+          </div>
+        </div>
+        <div id="hk-mb" class="mb">
+          <b>Notes</b><span>File</span><span>Edit</span><span>Format</span><span>View</span><span>Window</span><span>Help</span>
+          <div class="mb-right">
+            <div id="hk-mbqs" class="mb-qs" style="-webkit-mask: url('assets/icons/menubar.png') center / contain no-repeat; mask: url('assets/icons/menubar.png') center / contain no-repeat"></div>
+            <span>Tue 9:41 AM</span>
+          </div>
+        </div>
+        <div id="hk-heard" data-layout-allow-overlap><span class="hw">Hi </span><span class="hw">Priya, </span><span id="hk-um"><span class="hw">um, </span><i id="hk-um-strike"></i></span><br class="p" /><span class="hw">the </span><span class="hw">invoice</span><br /><span class="hw">for </span><span class="hw">August </span><br class="p" /><span class="hw">is </span><span class="hw">ready.</span><i id="hk-caret"></i></div>
+        <div id="hk-cap" class="cap" data-layout-ignore>
+          <img class="cap-icon" src="assets/icons/notes.png" alt="" />
+          <div class="cap-status">
+            <div class="cap-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="cap-spin"></div>
+            <div class="cap-check"></div>
+          </div>
+          <div class="cap-text">
+            <span class="ph">Speak now…</span>
+            <span class="live" id="hk-raw"><span class="w">Hi </span><span class="w">Priya, </span><span class="w">um, </span><span class="w">the </span><span class="w">invoice </span><span class="w">for </span><span class="w">August </span><span class="w">is </span><span class="w">ready.</span></span>
+            <span class="live" id="hk-clean"><span class="w">Hi Priya, the invoice for August is ready.</span></span>
+          </div>
+          <div class="cap-time"><span>0:00</span><span>0:01</span></div>
+        </div>
+      </div>
+
+      <div id="hk-kbd">
+        <div id="hk-kbd-inner">
+          <div id="hk-hold"><span>Hold </span><span class="k">fn.</span></div>
+          <div class="key" style="left: 150px; top: 300px; width: 520px"><span class="g bl">shift</span><span class="g tr">⇧</span></div>
+          <div class="key" style="left: 690px; top: 300px"><span class="g c">Z</span></div>
+          <div class="key" style="left: 960px; top: 300px"><span class="g c">X</span></div>
+          <div class="key" style="left: 1230px; top: 300px"><span class="g c">C</span></div>
+          <div class="key" style="left: 1500px; top: 300px"><span class="g c">V</span></div>
+          <div id="hk-fn-glow"></div>
+          <div id="hk-fn" class="key" style="left: 290px; top: 570px">
+            <span class="g tr">fn</span>
+            <svg class="g bl" width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+              <circle cx="12" cy="12" r="9.2" /><ellipse cx="12" cy="12" rx="4.2" ry="9.2" /><path d="M3 12h18M4.6 7.4h14.8M4.6 16.6h14.8" />
+            </svg>
+          </div>
+          <div class="key" style="left: 560px; top: 570px"><span class="g tr">⌃</span><span class="g br">control</span></div>
+          <div class="key" style="left: 830px; top: 570px"><span class="g tr">⌥</span><span class="g br">option</span></div>
+          <div class="key" style="left: 1100px; top: 570px; width: 330px"><span class="g tr">⌘</span><span class="g br">command</span></div>
+          <div class="key" style="left: 1450px; top: 570px; width: 620px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const C = window.QSCapsule;
+      const tl = gsap.timeline({ paused: true });
+      const cap = document.getElementById("hk-cap");
+      const F = window.QS_FORMAT || "wide";
+      const H = window.QS_H || 1080;
+      // Where the heard line starts, and where it lands in the note.
+      const P = {
+        wide: { x0: 230, y0: 300, x1: 634, y1: 364, fs: 112 },
+        feed: { x0: 80, y0: 200, x1: 116, y1: 370, fs: 96 },
+        tall: { x0: 80, y0: 360, x1: 116, y1: 550, fs: 96 },
+      }[F];
+      C.setup(tl, cap);
+      QSWorld.ribbons(tl, document.getElementById("hk-rib"), 0, 6);
+
+      // Keyboard: the line, a slow push toward fn, the press on the music's first note.
+      tl.fromTo("#hk-kbd-inner", { scale: 1 }, { scale: 1.06, duration: 1.25, ease: "power1.inOut" }, 0);
+      tl.to("#hk-fn", { y: 9, boxShadow: "inset 0 1.5px 0 rgba(255,255,255,0.05), 0 1px 0 #0a0b0d, 0 6px 16px rgba(0,0,0,0.6)", duration: 0.08, ease: "power2.out" }, 1.0);
+      tl.to("#hk-fn .g", { color: "#5ce1e6", duration: 0.12 }, 1.0);
+      tl.fromTo("#hk-fn-glow", { opacity: 0 }, { opacity: 1, duration: 0.25, ease: "power2.out" }, 1.0);
+
+      // Tilt up from the key to the screen.
+      tl.fromTo("#hk-cam", { y: -H }, { y: 0, duration: 0.5, ease: "power3.inOut" }, 1.25);
+
+      // Listening: the menu bar mark turns red, the capsule springs in, the desk dims.
+      tl.to("#hk-mbqs", { backgroundColor: "#ff453a", duration: 0.15 }, 1.55);
+      C.enter(tl, cap, 1.6);
+      C.wave(tl, cap, 1.7, 3.3, 7);
+      tl.fromTo("#hk-dim", { filter: "blur(0px) brightness(1)" },
+        { filter: "blur(14px) brightness(0.3)", duration: 0.5, ease: "power2.inOut" }, 1.7);
+      C.words(tl, cap, "#hk-raw", 1.9, 0.16);
+      document.querySelectorAll("#hk-heard .hw").forEach(function (w, i) {
+        tl.fromTo(w, { opacity: 0, filter: "blur(8px)" },
+          { opacity: 1, filter: "blur(0px)", duration: 0.16, ease: "power2.out" }, 1.9 + i * 0.16);
+      });
+      C.timer(tl, cap, [2.6]);
+
+      // Let go: "um," is struck and drops out, then the check.
+      tl.to("#hk-mbqs", { backgroundColor: "#f5f7fa", duration: 0.15 }, 3.3);
+      C.processing(tl, cap, 3.3);
+      tl.fromTo("#hk-um-strike", { scaleX: 0 }, { scaleX: 1, duration: 0.2, ease: "power2.out" }, 3.35);
+      tl.to("#hk-um .hw", { color: "rgba(245,247,250,0.38)", duration: 0.15 }, 3.35);
+      tl.to("#hk-um", { maxWidth: 0, opacity: 0, filter: "blur(6px)", duration: 0.42, ease: "power3.inOut" }, 3.62);
+      C.swapLive(tl, cap, "#hk-raw", "#hk-clean", 3.62);
+      C.done(tl, cap, 3.95);
+      C.leave(tl, cap, 4.25);
+
+      // Carry: the sentence shrinks into the note as the desk comes back.
+      tl.to("#hk-dim", { filter: "blur(0px) brightness(1)", duration: 0.55, ease: "power2.inOut" }, 4.1);
+      tl.to("#hk-heard", { x: P.x1 - P.x0, y: P.y1 - P.y0, scale: 44 / P.fs, color: "#151a21", duration: 0.65, ease: "power3.inOut" }, 4.1);
+      tl.to("#hk-caret", { opacity: 1, duration: 0.1 }, 4.75);
+
+      // Out: the window falls away; the wallpaper carries into the title.
+      tl.to(["#hk-notes", "#hk-heard"], { y: "+=70", opacity: 0, filter: "blur(10px)", duration: 0.38, ease: "power3.in" }, 5.55);
+      tl.to("#hk-mb", { opacity: 0, duration: 0.3, ease: "power2.in" }, 5.6);
+
+      window.__timelines["hook"] = tl;
+    })();
+  </script>
+</template>

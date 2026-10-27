@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>QuietSpeech launch film</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <script src="assets/capsule.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0a0c10;
+        -webkit-font-smoothing: antialiased;
+      }
+    </style>
+  </head>
+  <body>
+    <div data-hf-id="hf-8436"
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="43"
+      data-motion-blur="on"
+      data-width="1920"
+      data-height="1080"
+    >
+      <div data-hf-id="hf-wcvu" id="hook" data-composition-id="hook" data-composition-src="compositions/hook.html"
+        data-start="0" data-duration="6" data-track-index="1" data-track-kind="graphics"
+        data-width="1920" data-height="1080"></div>
+      <div data-hf-id="hf-yzo5" id="title" data-composition-id="title" data-composition-src="compositions/title.html"
+        data-start="6" data-duration="3" data-track-index="1" data-track-kind="graphics"
+        data-width="1920" data-height="1080"></div>
+      <div data-hf-id="hf-jydv" id="demo" data-composition-id="demo" data-composition-src="compositions/demo.html"
+        data-start="9" data-duration="19" data-track-index="1" data-track-kind="graphics"
+        data-width="1920" data-height="1080"></div>
+      <div data-hf-id="hf-tu9z" id="claim" data-composition-id="claim" data-composition-src="compositions/claim.html"
+        data-start="28" data-duration="10" data-track-index="1" data-track-kind="graphics"
+        data-width="1920" data-height="1080"></div>
+      <div data-hf-id="hf-fb0s" id="endcard" data-composition-id="endcard" data-composition-src="compositions/endcard.html"
+        data-start="38" data-duration="5" data-track-index="1" data-track-kind="graphics"
+        data-width="1920" data-height="1080"></div>
+
+      <!-- Music bed: ElevenLabs Music, sections cut to the film (assets/music/plan.json). -->
+      <audio id="music-bed" class="clip" src="assets/music/bed.mp3" data-start="0" data-duration="43" data-track-index="4" data-volume="0.6" data-fade-out="1" data-automation='{"version":1,"lanes":[{"target":"volume","points":[{"t":0,"v":1},{"t":3.78,"v":1},{"t":3.85,"v":0.55},{"t":4.28,"v":0.55},{"t":4.63,"v":1},{"t":4.63,"v":1},{"t":4.7,"v":0.55},{"t":5.13,"v":0.55},{"t":5.48,"v":1},{"t":12.12,"v":1},{"t":12.19,"v":0.55},{"t":12.62,"v":0.55},{"t":12.97,"v":1},{"t":18.37,"v":1},{"t":18.44,"v":0.55},{"t":18.87,"v":0.55},{"t":19.22,"v":1},{"t":24.22,"v":1},{"t":24.29,"v":0.55},{"t":24.72,"v":0.55},{"t":25.07,"v":1},{"t":38.15,"v":1},{"t":38.22,"v":0.55},{"t":38.65,"v":0.55},{"t":39.0,"v":1}]}]}'></audio>
+
+      <!-- Sound on visible actions only: fn press, moves, text landing, the mark. -->
+      <audio id="sfx-fn" class="clip" src="assets/sfx/click-soft.mp3" data-start="0.93" data-duration="0.37" data-track-index="2" data-volume="0.67"></audio>
+      <audio id="sfx-tilt" class="clip" src="assets/sfx/whoosh-short.mp3" data-start="1.27" data-duration="0.57" data-track-index="3" data-volume="0.53"></audio>
+      <audio id="sfx-done-1" class="clip" src="assets/sfx/pop.mp3" data-start="3.83" data-duration="0.72" data-track-index="2" data-volume="0.4"></audio>
+      <audio id="sfx-land-1" class="clip" src="assets/sfx/key-press.mp3" data-start="4.68" data-duration="0.4" data-track-index="3" data-volume="0.8"></audio>
+      <audio id="sfx-whip-1" class="clip" src="assets/sfx/whoosh-short.mp3" data-start="8.55" data-duration="0.57" data-track-index="2" data-volume="0.47"></audio>
+      <audio id="sfx-land-2" class="clip" src="assets/sfx/key-press.mp3" data-start="12.17" data-duration="0.4" data-track-index="3" data-volume="0.93"></audio>
+      <audio id="sfx-whip-2" class="clip" src="assets/sfx/whoosh-short.mp3" data-start="14.62" data-duration="0.57" data-track-index="2" data-volume="0.47"></audio>
+      <audio id="sfx-select" class="clip" src="assets/sfx/click-soft.mp3" data-start="15.78" data-duration="0.37" data-track-index="3" data-volume="0.6"></audio>
+      <audio id="sfx-land-3" class="clip" src="assets/sfx/key-press.mp3" data-start="18.42" data-duration="0.4" data-track-index="2" data-volume="0.93"></audio>
+      <audio id="sfx-window" class="clip" src="assets/sfx/whoosh.mp3" data-start="21.0" data-duration="0.57" data-track-index="3" data-volume="0.33"></audio>
+      <audio id="sfx-land-4" class="clip" src="assets/sfx/key-press.mp3" data-start="24.27" data-duration="0.4" data-track-index="2" data-volume="0.93"></audio>
+      <audio id="sfx-whip-3" class="clip" src="assets/sfx/whoosh-short.mp3" data-start="27.25" data-duration="0.57" data-track-index="3" data-volume="0.47"></audio>
+      <audio id="sfx-strike" class="clip" src="assets/sfx/click-soft.mp3" data-start="28.2" data-duration="0.37" data-track-index="2" data-volume="0.6"></audio>
+      <audio id="sfx-price" class="clip" src="assets/sfx/whoosh-short.mp3" data-start="34.85" data-duration="0.57" data-track-index="2" data-volume="0.47"></audio>
+      <audio id="sfx-mark" class="clip" src="assets/sfx/pop.mp3" data-start="38.2" data-duration="0.72" data-track-index="3" data-volume="0.47"></audio>
+    </div>
+    <script>
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = gsap.timeline({ paused: true });
+    </script>
+  </body>
+</html>

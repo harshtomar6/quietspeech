@@ -1,0 +1,100 @@
+{
+ "composition_plan": {
+  "positive_global_styles": [
+   "instrumental",
+   "catchy upbeat tech product launch",
+   "120 BPM",
+   "memorable bright plucked synth hook melody",
+   "punchy four-on-the-floor kick",
+   "crisp claps and snaps",
+   "groovy bouncy bassline",
+   "feel-good, confident, modern pop electronic",
+   "polished loud mix"
+  ],
+  "negative_global_styles": [
+   "vocals",
+   "choir",
+   "ambient",
+   "sleepy",
+   "slow piano ballad",
+   "cinematic trailer",
+   "heavy dubstep drop",
+   "silence",
+   "fade out"
+  ],
+  "sections": [
+   {
+    "section_name": "Intro tease",
+    "positive_local_styles": [
+     "starts immediately on the first beat",
+     "filtered hook melody with muted kick",
+     "rising anticipation",
+     "riser into the drop"
+    ],
+    "negative_local_styles": [
+     "silence",
+     "slow fade in"
+    ],
+    "duration_ms": 6000,
+    "lines": []
+   },
+   {
+    "section_name": "Drop",
+    "positive_local_styles": [
+     "full drums hit on the first beat",
+     "hook melody unfiltered",
+     "energetic"
+    ],
+    "negative_local_styles": [],
+    "duration_ms": 3000,
+    "lines": []
+   },
+   {
+    "section_name": "Groove",
+    "positive_local_styles": [
+     "driving catchy groove",
+     "hook melody repeats with variations",
+     "claps on two and four",
+     "bouncy bass"
+    ],
+    "negative_local_styles": [
+     "breakdown",
+     "silence"
+    ],
+    "duration_ms": 19000,
+    "lines": []
+   },
+   {
+    "section_name": "Peak",
+    "positive_local_styles": [
+     "biggest section",
+     "hook melody doubled an octave up",
+     "extra percussion",
+     "euphoric"
+    ],
+    "negative_local_styles": [
+     "silence",
+     "fade out"
+    ],
+    "duration_ms": 6000,
+    "lines": []
+   },
+   {
+    "section_name": "Outro tag",
+    "positive_local_styles": [
+     "hook melody keeps playing at full energy",
+     "loud through the whole section",
+     "final chord rings out only at the very end"
+    ],
+    "negative_local_styles": [
+     "silence",
+     "early ending",
+     "fade out",
+     "abrupt cut"
+    ],
+    "duration_ms": 9000,
+    "lines": []
+   }
+  ]
+ }
+}

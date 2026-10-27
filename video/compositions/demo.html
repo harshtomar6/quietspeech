@@ -1,0 +1,593 @@
+<template>
+  <link rel="stylesheet" href="assets/ui.css" />
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      background: #061520;
+      font-family: "Inter", sans-serif;
+    }
+
+    #dm-stage {
+      position: absolute;
+      inset: 0;
+    }
+
+    /* Menu bar app name, one per act. */
+    #dm-mb .app {
+      position: relative;
+      display: inline-block;
+      width: 70px;
+      height: 24px;
+    }
+
+    #dm-mb .app b {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+    }
+
+    #dm-mb .app b:first-child {
+      opacity: 1;
+    }
+
+    /* Left column: what was said, large. */
+    .left {
+      position: absolute;
+      left: 120px;
+      top: 230px;
+      width: 540px;
+      opacity: 0;
+    }
+
+    .kick {
+      color: rgba(233, 237, 243, 0.62);
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+    }
+
+    .kick em {
+      margin-right: 14px;
+      color: #5ce1e6;
+      font-style: normal;
+    }
+
+    .pre {
+      margin-top: 30px;
+      color: #a2acba;
+      font-size: 34px;
+      font-weight: 500;
+      letter-spacing: -0.015em;
+    }
+
+    .said {
+      margin-top: 22px;
+      color: #f5f7fa;
+      font-size: 56px;
+      font-weight: 600;
+      letter-spacing: -0.035em;
+      line-height: 1.12;
+    }
+
+    .said.big {
+      font-size: 84px;
+    }
+
+    .said .sw {
+      display: inline-block;
+      white-space: pre;
+      opacity: 0;
+    }
+
+    .slot {
+      display: inline-block;
+      height: 1.12em;
+      overflow: hidden;
+      vertical-align: bottom;
+    }
+
+    .slot-in {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slot-in span {
+      height: 1.12em;
+      white-space: pre;
+    }
+
+    .slot-in .m {
+      color: #5ce1e6;
+    }
+
+    .cap-line {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 40px;
+      color: #a2acba;
+      font-size: 32px;
+      font-weight: 500;
+      letter-spacing: -0.015em;
+      opacity: 0;
+    }
+
+    .cap-line i {
+      width: 30px;
+      height: 4px;
+      border-radius: 2px;
+      background: #5ce1e6;
+    }
+
+    /* Windows */
+    .dwin {
+      left: 700px;
+      top: 100px;
+      width: 1140px;
+      height: 750px;
+      opacity: 0;
+    }
+
+    .dwin .lw-side {
+      width: 300px;
+    }
+
+    .dwin .lw-side .on {
+      background: #dfe6ee;
+      color: #151a21;
+      font-weight: 600;
+    }
+
+    .dwin .ws {
+      margin: 0 16px 18px;
+      color: #151a21;
+      font-size: 26px;
+      font-weight: 700;
+    }
+
+    /* Chat */
+    #dm-a-head {
+      position: absolute;
+      left: 340px;
+      top: 92px;
+      font-size: 30px;
+      font-weight: 700;
+    }
+
+    #dm-a-msg {
+      position: absolute;
+      left: 340px;
+      top: 170px;
+      right: 40px;
+      display: flex;
+      gap: 20px;
+    }
+
+    .avatar {
+      flex: 0 0 auto;
+      width: 60px;
+      height: 60px;
+      border-radius: 14px;
+      background: #7c5cff;
+      color: #fff;
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 60px;
+      text-align: center;
+    }
+
+    .msg-name {
+      font-size: 26px;
+      font-weight: 700;
+    }
+
+    .msg-name span {
+      margin-left: 12px;
+      color: #6e7480;
+      font-size: 20px;
+      font-weight: 500;
+    }
+
+    .msg-text {
+      margin-top: 6px;
+      color: #2b313a;
+      font-size: 28px;
+      line-height: 1.35;
+    }
+
+    #dm-a-box {
+      position: absolute;
+      left: 330px;
+      right: 30px;
+      bottom: 30px;
+      height: 168px;
+      padding: 22px 26px;
+      border: 1.5px solid #c9ced6;
+      border-radius: 16px;
+      background: #fff;
+      font-size: 28px;
+      line-height: 1.38;
+    }
+
+    .ph-text {
+      position: absolute;
+      left: 26px;
+      top: 22px;
+      color: #848b97;
+    }
+
+    /* Inserted text flashes the accent once as it lands. */
+    .ins {
+      padding: 2px 0;
+      border-radius: 6px;
+      background-color: rgba(92, 225, 230, 0);
+      opacity: 0;
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
+    }
+
+    .mention {
+      padding: 0 5px;
+      border-radius: 6px;
+      background: rgba(14, 143, 163, 0.14);
+      color: #0a7182;
+      font-weight: 600;
+    }
+
+    .dcaret {
+      display: inline-block;
+      width: 3px;
+      height: 1.05em;
+      margin-left: 2px;
+      vertical-align: -0.16em;
+      background: #0e8fa3;
+    }
+
+    /* Notes */
+    #dm-b-win .lw-side .on {
+      background: #fbe7a1;
+      font-weight: 500;
+    }
+
+    .n-date {
+      position: absolute;
+      left: 356px;
+      top: 104px;
+      color: #6e7480;
+      font-size: 22px;
+    }
+
+    .n-title {
+      position: absolute;
+      left: 356px;
+      top: 140px;
+      font-size: 50px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+
+    .n-body {
+      position: absolute;
+      left: 356px;
+      top: 236px;
+      width: 720px;
+      color: #2b313a;
+      font-size: 34px;
+      line-height: 1.45;
+    }
+
+    .ln {
+      position: relative;
+      z-index: 0;
+      isolation: isolate;
+      display: inline-block;
+    }
+
+    .hl {
+      position: absolute;
+      inset: 1px -4px;
+      z-index: -1;
+      border-radius: 5px;
+      background: #b4d8fd;
+      transform: scaleX(0);
+      transform-origin: 0 50%;
+    }
+
+    #dm-b-new {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+    }
+
+    /* Mail */
+    .m-row {
+      position: absolute;
+      left: 44px;
+      right: 44px;
+      height: 72px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      font-size: 26px;
+      line-height: 72px;
+    }
+
+    .m-row span {
+      margin-right: 16px;
+      color: #6e7480;
+    }
+
+    #dm-c-body {
+      position: absolute;
+      left: 44px;
+      right: 60px;
+      top: 244px;
+      color: #2b313a;
+      font-size: 32px;
+      line-height: 1.42;
+    }
+
+    .quote {
+      margin-top: 30px;
+      padding-left: 22px;
+      border-left: 4px solid #c9ced6;
+      color: #5f6773;
+      font-size: 26px;
+    }
+
+    .dcap {
+      zoom: 1.9;
+      left: 478.42px;
+      top: 473.68px;
+      opacity: 0;
+    }
+
+    /* Portrait: what was said on top, the app below, the capsule under it. */
+    html[data-qs="feed"] .left,
+    html[data-qs="tall"] .left { left: 50px; width: 980px; }
+    html[data-qs="tall"] .left { top: 230px; }
+    html[data-qs="feed"] .left { top: 96px; }
+    html[data-qs="feed"] .said.big,
+    html[data-qs="tall"] .said.big { font-size: 72px; }
+    html[data-qs="feed"] .cap-line,
+    html[data-qs="tall"] .cap-line { margin-top: 26px; }
+    html[data-qs="feed"] .dwin,
+    html[data-qs="tall"] .dwin { left: 50px; width: 980px; }
+    html[data-qs="tall"] .dwin { top: 600px; height: 600px; }
+    html[data-qs="feed"] .dwin { top: 420px; height: 560px; }
+    html[data-qs="feed"] .dwin .lw-side,
+    html[data-qs="tall"] .dwin .lw-side { display: none; }
+    html[data-qs="feed"] #dm-a-head,
+    html[data-qs="tall"] #dm-a-head,
+    html[data-qs="feed"] #dm-a-msg,
+    html[data-qs="tall"] #dm-a-msg { left: 40px; }
+    html[data-qs="feed"] #dm-a-box,
+    html[data-qs="tall"] #dm-a-box { left: 30px; }
+    html[data-qs="feed"] .n-date,
+    html[data-qs="tall"] .n-date,
+    html[data-qs="feed"] .n-title,
+    html[data-qs="tall"] .n-title,
+    html[data-qs="feed"] .n-body,
+    html[data-qs="tall"] .n-body { left: 56px; }
+    html[data-qs="feed"] .n-body,
+    html[data-qs="tall"] .n-body { width: 860px; }
+    html[data-qs="feed"] .dcap,
+    html[data-qs="tall"] .dcap { zoom: 1.7; left: 127.65px; }
+    html[data-qs="tall"] .dcap { top: 720.6px; }
+    html[data-qs="feed"] .dcap { top: 594.1px; }
+  </style>
+  <div id="root" data-composition-id="demo" data-width="1920" data-height="1080">
+    <div class="wall"></div>
+    <svg id="dm-rib" class="ribbons" viewBox="0 0 1920 1080"></svg>
+    <div id="dm-stage">
+      <!-- 01 Chat -->
+      <div id="dm-a-left" class="left">
+        <div class="kick"><em>01</em>MENTIONS</div>
+        <div class="said"><span class="sw slot" data-i="0"><span class="slot-in"><span>At Priya, </span><span class="m">@Priya, </span></span></span><span class="sw" data-i="2">looks </span><span class="sw" data-i="3">good </span><span class="sw" data-i="4">to </span><span class="sw" data-i="5">me. </span><span class="sw" data-i="6">I </span><span class="sw" data-i="7">pushed </span><span class="sw" data-i="8">the </span><span class="sw" data-i="9">update </span><span class="sw" data-i="10">this </span><span class="sw" data-i="11">morning.</span></div>
+        <div class="cap-line"><i></i>Lands as a real @mention.</div>
+      </div>
+      <div id="dm-a-win" class="lw dwin">
+        <div class="lw-bar"><div class="lw-lights"><i></i><i></i><i></i></div><div class="lw-title">Slack</div></div>
+        <div class="lw-side">
+          <p class="ws">Northwind</p>
+          <p># general</p>
+          <p class="on"># design</p>
+          <p># launch</p>
+          <p># support</p>
+        </div>
+        <div id="dm-a-head"># design</div>
+        <div id="dm-a-msg">
+          <div class="avatar">P</div>
+          <div>
+            <div class="msg-name">Priya<span>10:42 AM</span></div>
+            <div class="msg-text">The new onboarding copy is live. Can you take a look?</div>
+          </div>
+        </div>
+        <div id="dm-a-box">
+          <span class="ph-text" id="dm-a-ph">Message #design</span>
+          <span class="ins" id="dm-a-ins"><span class="mention">@Priya</span>, looks good to me. I pushed the update this morning.</span><i class="dcaret"></i>
+        </div>
+      </div>
+
+      <!-- 02 Edit -->
+      <div id="dm-b-left" class="left">
+        <div class="kick"><em>02</em>EDIT</div>
+        <div class="pre">Select text, then say</div>
+        <div class="said big"><span class="sw" data-i="0">“Make </span><span class="sw" data-i="1">it </span><span class="sw" data-i="2">shorter.”</span></div>
+        <div class="cap-line"><i></i>Rewritten by Apple Intelligence.</div>
+      </div>
+      <div id="dm-b-win" class="lw dwin">
+        <div class="lw-bar"><div class="lw-lights"><i></i><i></i><i></i></div><div class="lw-title">Notes</div></div>
+        <div class="lw-side">
+          <p class="on">Launch notes</p>
+          <p>Pricing questions</p>
+          <p>Support replies</p>
+          <p>Ideas</p>
+        </div>
+        <div class="n-date">Today, 2:16 PM</div>
+        <div class="n-title">Launch notes</div>
+        <div class="n-body">
+          <div id="dm-b-old"><span class="ln">The release is ready, and the notes<i class="hl"></i></span><br /><span class="ln">are written, and the support docs<i class="hl"></i></span><br /><span class="ln">are updated.<i class="hl"></i></span></div>
+          <div id="dm-b-new">The release is ready, and the docs are updated.<i class="dcaret"></i></div>
+        </div>
+      </div>
+
+      <!-- 03 Generate -->
+      <div id="dm-c-left" class="left">
+        <div class="kick"><em>03</em>GENERATE</div>
+        <div class="said big"><span class="sw" data-i="0">“Generate </span><span class="sw" data-i="1">a </span><span class="sw" data-i="2">reply </span><span class="sw" data-i="3">to </span><span class="sw" data-i="4">Priya.”</span></div>
+        <div class="cap-line"><i></i>Drafted by Apple Intelligence.</div>
+      </div>
+      <div id="dm-c-win" class="lw dwin">
+        <div class="lw-bar"><div class="lw-lights"><i></i><i></i><i></i></div><div class="lw-title">Re: Invoice for August</div></div>
+        <div class="m-row" style="top: 64px"><span>To:</span>Priya Shah</div>
+        <div class="m-row" style="top: 136px"><span>Subject:</span>Re: Invoice for August</div>
+        <div id="dm-c-body">
+          <div><span class="ins" id="dm-c-ins">Thanks Priya. The invoice is ready, and I will send the final copy this afternoon.</span><i class="dcaret"></i></div>
+          <div class="quote">Priya wrote: Can you send the final invoice when it is ready?</div>
+        </div>
+      </div>
+
+      <!-- Capsules, one per act -->
+      <div id="dm-a-cap" class="cap dcap" data-layout-ignore>
+        <img class="cap-icon" src="assets/icons/slack.png" alt="" />
+        <div class="cap-status"><div class="cap-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="cap-spin"></div><div class="cap-check"></div></div>
+        <div class="cap-text"><span class="ph">Speak now…</span><span class="live" id="dm-a-live"><span class="w">At </span><span class="w">Priya, </span><span class="w">looks </span><span class="w">good </span><span class="w">to </span><span class="w">me. </span><span class="w">I </span><span class="w">pushed </span><span class="w">the </span><span class="w">update </span><span class="w">this </span><span class="w">morning.</span></span></div>
+        <div class="cap-time"><span>0:00</span><span>0:01</span></div>
+      </div>
+      <div id="dm-b-cap" class="cap dcap" data-layout-ignore>
+        <img class="cap-icon" src="assets/icons/notes.png" alt="" />
+        <div class="cap-status"><div class="cap-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="cap-spin"></div><div class="cap-check"></div></div>
+        <div class="cap-text"><span class="ph">Say how to change it…</span><span class="live" id="dm-b-live"><span class="w">Make </span><span class="w">it </span><span class="w">shorter.</span></span></div>
+        <div class="cap-time"><span>0:00</span><span>0:01</span></div>
+      </div>
+      <div id="dm-c-cap" class="cap dcap" data-layout-ignore>
+        <img class="cap-icon" src="assets/icons/mail.png" alt="" />
+        <div class="cap-status"><div class="cap-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="cap-spin"></div><div class="cap-check"></div></div>
+        <div class="cap-text"><span class="ph">Speak now…</span><span class="live" id="dm-c-live"><span class="w">Generate </span><span class="w">a </span><span class="w">reply </span><span class="w">to </span><span class="w">Priya.</span></span></div>
+        <div class="cap-time"><span>0:00</span><span>0:01</span></div>
+      </div>
+    </div>
+    <div id="dm-mb" class="mb">
+      <span class="app"><b>Slack</b><b>Notes</b><b>Mail</b></span><span>File</span><span>Edit</span><span>View</span><span>Window</span><span>Help</span>
+      <div class="mb-right">
+        <div id="dm-mbqs" class="mb-qs" style="-webkit-mask: url('assets/icons/menubar.png') center / contain no-repeat; mask: url('assets/icons/menubar.png') center / contain no-repeat"></div>
+        <span>Tue 9:42 AM</span>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const C = window.QSCapsule;
+      const tl = gsap.timeline({ paused: true });
+      QSWorld.ribbons(tl, document.getElementById("dm-rib"), 9, 19);
+      const apps = document.querySelectorAll("#dm-mb .app b");
+      const red = "#ff453a";
+      const white = "#f5f7fa";
+
+      function arrive(win, left, t) {
+        tl.fromTo(win, { x: 720, opacity: 0, filter: "blur(18px)" },
+          { x: 0, opacity: 1, filter: "blur(0px)", duration: 0.6, ease: "expo.out" }, t);
+        tl.fromTo(left, { x: 360, opacity: 0, filter: "blur(12px)" },
+          { x: 0, opacity: 1, filter: "blur(0px)", duration: 0.6, ease: "expo.out" }, t + 0.06);
+      }
+
+      function saidWords(left, t0, step) {
+        left.querySelectorAll(".sw").forEach(function (w) {
+          const t = t0 + Number(w.dataset.i) * step;
+          tl.fromTo(w, { opacity: 0, filter: "blur(8px)" },
+            { opacity: 1, filter: "blur(0px)", duration: 0.15, ease: "power2.out" }, t);
+        });
+      }
+
+      function app(i, t) {
+        apps.forEach(function (b, j) { tl.set(b, { opacity: j === i ? 1 : 0 }, t); });
+      }
+
+      function land(ins, t) {
+        tl.to(ins, { opacity: 1, duration: 0.18, ease: "power2.out" }, t);
+        tl.fromTo(ins, { backgroundColor: "rgba(92,225,230,0)" }, { backgroundColor: "rgba(92,225,230,0.34)", duration: 0.15 }, t);
+        tl.to(ins, { backgroundColor: "rgba(92,225,230,0)", duration: 0.9, ease: "power2.inOut" }, t + 0.45);
+      }
+
+      function caption(left, t) {
+        tl.fromTo(left.querySelector(".cap-line"), { opacity: 0, filter: "blur(8px)" },
+          { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power2.out" }, t);
+      }
+
+      // 01 Chat: "at Priya" becomes a real @mention.
+      const aCap = document.getElementById("dm-a-cap");
+      const aLeft = document.getElementById("dm-a-left");
+      C.setup(tl, aCap);
+      arrive("#dm-a-win", aLeft, 0);
+      tl.to("#dm-mbqs", { backgroundColor: red, duration: 0.15 }, 0.55);
+      C.enter(tl, aCap, 0.6);
+      C.wave(tl, aCap, 0.7, 2.75, 11);
+      C.words(tl, aCap, "#dm-a-live", 0.85, 0.15);
+      saidWords(aLeft, 0.85, 0.15);
+      C.timer(tl, aCap, [1.6]);
+      tl.to("#dm-mbqs", { backgroundColor: white, duration: 0.15 }, 2.75);
+      C.processing(tl, aCap, 2.75);
+      C.done(tl, aCap, 3.25);
+      tl.set("#dm-a-ph", { opacity: 0 }, 3.25);
+      land(document.getElementById("dm-a-ins"), 3.25);
+      tl.to("#dm-a-left .slot-in", { y: "-1.12em", duration: 0.32, ease: "power3.inOut" }, 3.35);
+      C.leave(tl, aCap, 3.55);
+      caption(aLeft, 3.9);
+      tl.to(["#dm-a-win", aLeft], { x: -760, opacity: 0, filter: "blur(18px)", duration: 0.32, ease: "power3.in" }, 5.75);
+
+      // 02 Edit: select, say "make it shorter", the selection is rewritten.
+      const bCap = document.getElementById("dm-b-cap");
+      const bLeft = document.getElementById("dm-b-left");
+      C.setup(tl, bCap);
+      app(1, 6.0);
+      arrive("#dm-b-win", bLeft, 6.07);
+      tl.fromTo("#dm-b-old .hl", { scaleX: 0 }, { scaleX: 1, duration: 0.16, stagger: 0.14, ease: "power2.inOut" }, 6.85);
+      tl.to("#dm-mbqs", { backgroundColor: red, duration: 0.15 }, 7.3);
+      C.enter(tl, bCap, 7.35);
+      C.wave(tl, bCap, 7.45, 8.6, 23);
+      C.words(tl, bCap, "#dm-b-live", 7.7, 0.2);
+      saidWords(bLeft, 7.7, 0.2);
+      C.timer(tl, bCap, [8.35]);
+      tl.to("#dm-mbqs", { backgroundColor: white, duration: 0.15 }, 8.6);
+      C.processing(tl, bCap, 8.6);
+      C.done(tl, bCap, 9.5);
+      tl.to("#dm-b-old", { opacity: 0, filter: "blur(8px)", duration: 0.2, ease: "power2.in" }, 9.5);
+      tl.fromTo("#dm-b-new", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.25, ease: "power2.out" }, 9.62);
+      C.leave(tl, bCap, 9.8);
+      caption(bLeft, 10.1);
+
+      // 03 Generate: a reply window opens over Notes.
+      const cCap = document.getElementById("dm-c-cap");
+      const cLeft = document.getElementById("dm-c-left");
+      C.setup(tl, cCap);
+      tl.to(bLeft, { opacity: 0, filter: "blur(10px)", duration: 0.2, ease: "power2.in" }, 12.0);
+      tl.to("#dm-b-win", { scale: 0.95, filter: "brightness(0.6) blur(4px)", duration: 0.5, ease: "power2.inOut" }, 12.05);
+      tl.to("#dm-b-win", { opacity: 0, duration: 0.18, ease: "power2.in" }, 12.12);
+      app(2, 12.1);
+      tl.fromTo("#dm-c-win", { y: 70, scale: 0.92, opacity: 0 },
+        { y: 0, scale: 1, opacity: 1, duration: 0.6, ease: "expo.out" }, 12.1);
+      tl.fromTo(cLeft, { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.25, ease: "power2.out" }, 12.4);
+      tl.to("#dm-mbqs", { backgroundColor: red, duration: 0.15 }, 12.85);
+      C.enter(tl, cCap, 12.9);
+      C.wave(tl, cCap, 13.0, 14.25, 37);
+      C.words(tl, cCap, "#dm-c-live", 13.15, 0.2);
+      saidWords(cLeft, 13.15, 0.2);
+      C.timer(tl, cCap, [13.9]);
+      tl.to("#dm-mbqs", { backgroundColor: white, duration: 0.15 }, 14.25);
+      C.processing(tl, cCap, 14.25);
+      C.done(tl, cCap, 15.35);
+      land(document.getElementById("dm-c-ins"), 15.35);
+      C.leave(tl, cCap, 15.65);
+      caption(cLeft, 15.95);
+
+      // Out: everything whips down; the wallpaper carries into the claim.
+      tl.to(["#dm-c-win", cLeft], { y: 220, opacity: 0, filter: "blur(16px)", duration: 0.36, ease: "power3.in" }, 18.35);
+      tl.to("#dm-mb", { opacity: 0, duration: 0.3, ease: "power2.in" }, 18.4);
+
+      window.__timelines["demo"] = tl;
+    })();
+  </script>
+</template>

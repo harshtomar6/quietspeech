@@ -1,0 +1,243 @@
+<template>
+  <link rel="stylesheet" href="assets/ui.css" />
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      background: #061520;
+      font-family: "Inter", sans-serif;
+    }
+
+    /* One slate per claim, hard-cut on the beat. Navy slates show the shared
+       wallpaper; bright slates are the accent world. */
+    .slate {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      opacity: 0;
+    }
+
+    .slate.bright {
+      background: radial-gradient(120% 120% at 50% 45%, #8ef0f3 0%, #5ce1e6 45%, #2bb8c9 100%);
+      color: #052a33;
+    }
+
+    .slate.navy {
+      color: #f5f7fa;
+    }
+
+    .hero {
+      font-size: 200px;
+      font-weight: 700;
+      letter-spacing: -0.055em;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .hero.md {
+      font-size: 160px;
+      line-height: 1.04;
+    }
+
+    .hero .k {
+      color: #5ce1e6;
+    }
+
+    .sub {
+      margin-top: 46px;
+      font-size: 50px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      opacity: 0;
+    }
+
+    .navy .sub {
+      color: #a2acba;
+    }
+
+    .bright .sub {
+      color: #0b3a46;
+    }
+
+    /* 01: "API key" is struck, then "No API key." */
+    #cl-key {
+      position: relative;
+      display: inline-block;
+    }
+
+    #cl-key-strike {
+      position: absolute;
+      left: -0.04em;
+      right: -0.04em;
+      top: 0.52em;
+      height: 14px;
+      border-radius: 7px;
+      background: #5ce1e6;
+      transform: scaleX(0);
+      transform-origin: 0 50%;
+    }
+
+    #cl-no {
+      display: inline-block;
+      overflow: hidden;
+      max-width: 0;
+      vertical-align: top;
+      white-space: pre;
+      color: #5ce1e6;
+    }
+
+    /* 03: offline glyph */
+    #cl-wifi {
+      width: 190px;
+      height: 190px;
+      margin-bottom: 34px;
+    }
+
+    /* 04: the number rolls into place. */
+    .roll {
+      display: inline-block;
+      height: 1em;
+      overflow: hidden;
+      vertical-align: top;
+    }
+
+    .roll-in {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .roll-in span {
+      height: 1em;
+    }
+
+    #cl-price {
+      font-size: 270px;
+    }
+
+    #cl-price span {
+      display: inline-block;
+      white-space: pre;
+      opacity: 0;
+    }
+
+    #cl-chips {
+      display: flex;
+      gap: 24px;
+      margin-top: 70px;
+    }
+
+    #cl-chips span {
+      padding: 20px 38px;
+      border-radius: 999px;
+      background: #052a33;
+      color: #e9fbfc;
+      font-size: 50px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      opacity: 0;
+    }
+
+    .hero.xl {
+      font-size: 300px;
+    }
+
+    /* Portrait: larger relative type, broken onto more lines, centred in the
+       reading band. */
+    html[data-qs="tall"] .slate { padding-bottom: 480px; }
+    html[data-qs="feed"] .hero,
+    html[data-qs="tall"] .hero { font-size: 150px; }
+    html[data-qs="feed"] .hero.md,
+    html[data-qs="tall"] .hero.md { font-size: 132px; }
+    html[data-qs="feed"] .hero.xl,
+    html[data-qs="tall"] .hero.xl { font-size: 280px; }
+    html[data-qs="feed"] #cl-price,
+    html[data-qs="tall"] #cl-price { font-size: 240px; }
+    html[data-qs="feed"] #cl-chips,
+    html[data-qs="tall"] #cl-chips { flex-wrap: wrap; justify-content: center; width: 1000px; margin-top: 56px; }
+
+    #cl-pricebg {
+      clip-path: circle(0% at 50% 50%);
+      opacity: 1;
+    }
+  </style>
+  <div id="root" data-composition-id="claim" data-width="1920" data-height="1080">
+    <div class="wall"></div>
+    <svg id="cl-rib" class="ribbons" viewBox="0 0 1920 1080"></svg>
+
+    <div id="cl-s1" class="slate navy">
+      <div class="hero"><span id="cl-no">No </span><span id="cl-key">API key<i id="cl-key-strike"></i></span><span id="cl-dot">.</span></div>
+      <div class="sub">Nothing to set up.</div>
+    </div>
+    <div id="cl-s2" class="slate bright">
+      <div class="hero md">Apple <br class="p" />Intelligence,<br />built in.</div>
+      <div class="sub">Runs on your Mac.</div>
+    </div>
+    <div id="cl-s3" class="slate navy">
+      <svg id="cl-wifi" viewBox="0 0 24 24" fill="none" stroke="#5ce1e6" stroke-width="1.9" stroke-linecap="round">
+        <path d="M2.5 9a14 14 0 0 1 19 0" /><path d="M5.8 12.4a9.3 9.3 0 0 1 12.4 0" /><path d="M9.1 15.8a4.6 4.6 0 0 1 5.8 0" />
+        <circle cx="12" cy="19.2" r="0.9" fill="#5ce1e6" /><path d="M3.5 3.5l17 17" stroke="#f5f7fa" />
+      </svg>
+      <div class="hero">Works <br class="p" />offline.</div>
+      <div class="sub">On-device by default.</div>
+    </div>
+    <div id="cl-s4" class="slate bright">
+      <div class="hero">Under <span class="roll" data-layout-ignore><span class="roll-in" id="cl-r1"><span>1</span><span>8</span><span>3</span><span>9</span><span>4</span><span>6</span></span></span><span class="roll" data-layout-ignore><span class="roll-in" id="cl-r2"><span>7</span><span>2</span><span>5</span><span>1</span><span>8</span><span>0</span></span></span> MB</div>
+      <div class="sub">of memory.</div>
+    </div>
+    <div id="cl-s5" class="slate navy">
+      <div class="hero xl">Fast<span class="k">.</span></div>
+    </div>
+    <div id="cl-pricebg" class="slate bright">
+      <div class="hero" id="cl-price"><span>$</span><span>2</span><span>9</span><span>,</span><br class="p" /><span>o</span><span>n</span><span>c</span><span>e</span><span>.</span></div>
+      <div id="cl-chips"><span>One payment.</span><span>Two Macs.</span><span>No account.</span></div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const tl = gsap.timeline({ paused: true });
+      QSWorld.ribbons(tl, document.getElementById("cl-rib"), 28, 10);
+
+      // Hard cuts on the 120 BPM grid (every 0.5 s); each slate holds 1-1.5 s.
+      const cuts = [["#cl-s1", 0, 2.0], ["#cl-s2", 2.0, 3.5], ["#cl-s3", 3.5, 5.0], ["#cl-s4", 5.0, 6.0], ["#cl-s5", 6.0, 7.0]];
+      cuts.forEach(function (c) {
+        const el = document.querySelector(c[0]);
+        tl.set(el, { opacity: 1 }, c[1]);
+        tl.set(el, { opacity: 0 }, c[2]);
+        if (c[0] !== "#cl-s1") {
+          tl.fromTo(el.querySelector(".hero"), { scale: 1.16, opacity: 0, filter: "blur(14px)" },
+            { scale: 1, opacity: 1, filter: "blur(0px)", duration: 0.3, ease: "expo.out" }, c[1]);
+        }
+        if (el.querySelector(".sub")) tl.fromTo(el.querySelector(".sub"), { opacity: 0, filter: "blur(8px)" },
+          { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power2.out" }, c[1] + (c[0] === "#cl-s1" ? 0.75 : 0.2));
+      });
+
+      // 01: "API key" lands, is struck through, and becomes "No API key."
+      tl.fromTo("#cl-s1 .hero", { scale: 1.16, opacity: 0, filter: "blur(14px)" },
+        { scale: 1, opacity: 1, filter: "blur(0px)", duration: 0.3, ease: "expo.out" }, 0);
+      tl.fromTo("#cl-key-strike", { scaleX: 0 }, { scaleX: 1, duration: 0.18, ease: "power2.out" }, 0.25);
+      tl.to("#cl-key-strike", { opacity: 0, duration: 0.15 }, 0.5);
+      tl.to("#cl-no", { maxWidth: 400, duration: 0.3, ease: "power3.out" }, 0.5);
+
+      // 04: the digits roll to 60.
+      tl.fromTo("#cl-r1", { y: 0 }, { y: "-5em", duration: 0.45, ease: "power3.out" }, 5.05);
+      tl.fromTo("#cl-r2", { y: 0 }, { y: "-5em", duration: 0.55, ease: "power3.out" }, 5.05);
+
+      // Price: the accent opens from the centre, per letter, then the terms on the beat.
+      tl.to("#cl-pricebg", { clipPath: "circle(75% at 50% 50%)", duration: 0.45, ease: "power2.inOut" }, 7.0);
+      tl.fromTo("#cl-price span", { opacity: 0, filter: "blur(10px)", y: 30 },
+        { opacity: 1, filter: "blur(0px)", y: 0, duration: 0.3, stagger: 0.045, ease: "expo.out" }, 7.2);
+      tl.fromTo("#cl-chips span", { opacity: 0, scale: 0.85 },
+        { opacity: 1, scale: 1, duration: 0.35, stagger: 0.25, ease: "back.out(1.6)" }, 8.0);
+
+      // Iris closes to the centre, where the icon will land.
+      tl.to("#cl-pricebg", { clipPath: "circle(0% at 50% 50%)", duration: 0.4, ease: "power3.in" }, 9.6);
+
+      window.__timelines["claim"] = tl;
+    })();
+  </script>
+</template>
