@@ -712,6 +712,75 @@ a {
 
 /* Proof strip */
 
+/* Launch film: the hero link opens it in a dialog. Nothing loads until then. */
+.film-play {
+  width: 19px;
+  height: 19px;
+}
+
+.film-length {
+  color: var(--text-3);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.film {
+  width: min(1120px, calc(100vw - 32px));
+  max-width: none;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 20px;
+  background: #000;
+  box-shadow: 0 40px 120px rgba(0, 0, 0, 0.55);
+}
+
+.film::backdrop {
+  background: rgba(4, 8, 12, 0.84);
+  backdrop-filter: blur(8px);
+}
+
+.film video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 20px;
+  background: #000;
+}
+
+.film.is-tall {
+  width: min(560px, calc(100vw - 32px), calc((100dvh - 120px) * 0.8));
+}
+
+.film.is-tall video {
+  aspect-ratio: 4 / 5;
+}
+
+.film-close {
+  position: absolute;
+  top: -52px;
+  right: 0;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.film-close:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.film-close svg {
+  width: 18px;
+  height: 18px;
+}
+
 .proof {
   padding: 44px 0;
   border-bottom: 1px solid var(--line);
@@ -720,7 +789,7 @@ a {
 
 .proof-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
 }
 
 .proof-grid p {
@@ -729,6 +798,15 @@ a {
   color: var(--text-2);
   font-size: 15px;
   line-height: 1.45;
+}
+
+.proof-grid strong {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .proof-grid p:first-child {
@@ -1942,6 +2020,16 @@ a {
 /* Responsive */
 
 @media (max-width: 1080px) {
+  .proof-grid {
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 28px;
+  }
+
+  .proof-grid p:nth-child(3) {
+    padding-left: 0;
+    border-left: 0;
+  }
+
   .steps {
     grid-template-columns: repeat(2, 1fr);
     gap: 44px 36px;

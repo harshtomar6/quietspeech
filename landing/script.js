@@ -459,3 +459,33 @@ if (demoSteps.length) {
     });
   });
 }
+
+/* Launch film. The link works on its own (it opens the MP4); with a dialog it
+   plays in place, with sound, and phones in portrait get the 4:5 cut. */
+const film = document.getElementById("film");
+const filmVideo = document.getElementById("film-video");
+const filmOpen = document.querySelector("[data-film-open]");
+if (film && filmVideo && filmOpen && typeof film.showModal === "function") {
+  const portrait = window.matchMedia("(max-width: 720px) and (orientation: portrait)");
+  const closeFilm = () => {
+    filmVideo.pause();
+    if (film.open) film.close();
+  };
+  filmOpen.addEventListener("click", (event) => {
+    event.preventDefault();
+    const tall = portrait.matches;
+    const src = tall ? "assets/film/quietspeech-film-feed.mp4" : "assets/film/quietspeech-film-720.mp4";
+    film.classList.toggle("is-tall", tall);
+    if (!filmVideo.src.endsWith(src)) {
+      filmVideo.poster = tall ? "assets/film/poster-feed.jpg" : "assets/film/poster-720.jpg";
+      filmVideo.src = src;
+    }
+    film.showModal();
+    filmVideo.play().catch(() => {});
+  });
+  film.querySelector("[data-film-close]").addEventListener("click", closeFilm);
+  film.addEventListener("click", (event) => {
+    if (event.target === film) closeFilm();
+  });
+  film.addEventListener("close", () => filmVideo.pause());
+}
