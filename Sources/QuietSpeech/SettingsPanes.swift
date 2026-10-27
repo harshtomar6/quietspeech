@@ -466,7 +466,7 @@ struct TranscriptionPane: View {
             SettingsGroup(
                 "Context",
                 icon: "app.badge",
-                note: "Code and Terminal skip capitalization and the final period, and accept spoken symbols like “open brace”, “pipe”, or “double equals”. Detection happens locally when dictation starts."
+                note: "Code and Terminal skip capitalization and the final period, and accept spoken symbols like “open brace”, “pipe”, or “double equals”. In Slack and other chat apps, “at Priya” becomes @Priya when Priya is on screen or in your vocabulary. Detection happens locally when dictation starts."
             ) {
                 SettingsRow("Mode", subtitle: "Auto looks at the frontmost app, and the tab title in browsers.") {
                     Picker("", selection: $model.contextMode) {

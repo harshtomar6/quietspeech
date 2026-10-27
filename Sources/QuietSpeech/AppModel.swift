@@ -191,6 +191,9 @@ final class AppModel {
     private var pendingContext: String?
     private var remoteTranscriptionThisSession = false
     private var savesClipThisSession = false
+    /// Names that a spoken "at <name>" may mention in this dictation: the
+    /// user's vocabulary and the names read from the screen.
+    private var mentionNames: [String] = []
 
     /// Fn released sooner than this after being pressed is a tap, not
     /// dictation: the session is dropped without showing the overlay.
@@ -410,7 +413,9 @@ final class AppModel {
         }
 
         let onScreen = await screenText?.value
-        engine.contextualStrings = customVocabulary + screenTerms(from: onScreen)
+        let onScreenTerms = screenTerms(from: onScreen)
+        engine.contextualStrings = customVocabulary + onScreenTerms
+        mentionNames = customVocabulary + onScreenTerms
         remoteTranscriptionThisSession = providerTranscriptionActive
         savesClipThisSession = saveAudioClips && Self.developerToolsEnabled
         engine.recordsAudio = remoteTranscriptionThisSession || savesClipThisSession
@@ -572,6 +577,8 @@ final class AppModel {
     }
 
     private func finishDictation(cleaned: String, raw: String) {
+        // Again after AI polish, which may have rewritten "@Priya" back to words.
+        let cleaned = withMentions(cleaned)
         cleanedText = cleaned
         aiProcessing = nil
         captureDictation(raw: raw, cleaned: cleaned)
@@ -784,20 +791,22 @@ final class AppModel {
             // Replacements are the user's own mapping, not a cleanup guess, so
             // they still apply when the rule pass is switched off.
             let replaced = RuleCleaner.applyReplacements(rawText, wordReplacements)
-            return RuleCleaner.applySpokenFormatting(replaced, profile: activeProfile)
+            return withMentions(RuleCleaner.applySpokenFormatting(replaced, profile: activeProfile))
         case .rules:
-            return RuleCleaner.clean(rawText, replacements: wordReplacements, profile: activeProfile)
+            return withMentions(RuleCleaner.clean(rawText, replacements: wordReplacements, profile: activeProfile))
         }
     }
 
     func refreshCleaned() {
-        switch cleanMode {
-        case .off:
-            let replaced = RuleCleaner.applyReplacements(rawText, wordReplacements)
-            cleanedText = RuleCleaner.applySpokenFormatting(replaced, profile: activeProfile)
-        case .rules:
-            cleanedText = RuleCleaner.clean(rawText, replacements: wordReplacements, profile: activeProfile)
-        }
+        cleanedText = cleanedTextForCurrentMode()
+    }
+
+    /// In chat apps with @-mentions, "at Priya" becomes "@Priya", which Slack
+    /// turns into a real mention when pasted. Messages has no @-mentions.
+    private func withMentions(_ text: String) -> String {
+        guard activeProfile == .chat,
+              targetApp?.bundleIdentifier != "com.apple.MobileSMS" else { return text }
+        return Mentions.apply(to: text, names: mentionNames)
     }
 
     // MARK: - Context

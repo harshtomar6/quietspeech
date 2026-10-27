@@ -143,3 +143,58 @@ final class CorrectionTallyTests: XCTestCase {
         XCTAssertEqual(second.map { tally.record($0) }, [.init(terms: ["LLM", "API"], replacement: false)])
     }
 }
+
+final class MentionsTests: XCTestCase {
+    private let names = ["Priya", "Rahul Mehta", "Sam", "LLM", "Google"]
+
+    private func mention(_ text: String) -> String {
+        Mentions.apply(to: text, names: names)
+    }
+
+    func testAtTheStartBecomesAMention() {
+        XCTAssertEqual(mention("At Priya, can you check the build?"), "@Priya, can you check the build?")
+        XCTAssertEqual(mention("at priya can you check"), "@Priya can you check")
+    }
+
+    func testAfterACueOrClause() {
+        XCTAssertEqual(mention("Hey at Priya, the build passed."), "Hey @Priya, the build passed.")
+        XCTAssertEqual(mention("The build passed, at Sam."), "The build passed, @Sam.")
+        XCTAssertEqual(mention("Thanks at Sam"), "Thanks @Sam")
+        XCTAssertEqual(mention("Shipped. At Priya please review"), "Shipped. @Priya please review")
+    }
+
+    func testFullNamesWinOverFirstNames() {
+        XCTAssertEqual(mention("At Rahul Mehta, please review"), "@Rahul Mehta, please review")
+    }
+
+    func testOrdinaryAtIsLeftAlone() {
+        XCTAssertEqual(mention("Let's meet at Google tomorrow."), "Let's meet at Google tomorrow.")
+        XCTAssertEqual(mention("Can you look at Priya's PR?"), "Can you look at Priya's PR?")
+        XCTAssertEqual(mention("We met at Sam's place."), "We met at Sam's place.")
+        XCTAssertEqual(mention("At Priyanka, hi"), "At Priyanka, hi")
+        XCTAssertEqual(mention("At noon we ship."), "At noon we ship.")
+    }
+
+    func testAcronymsAreNeverMentions() {
+        XCTAssertEqual(mention("At LLM, nothing"), "At LLM, nothing")
+    }
+
+    func testExplicitForms() {
+        XCTAssertEqual(mention("cc at sign Arjun for the numbers"), "cc @Arjun for the numbers")
+        XCTAssertEqual(mention("please ask at the rate Priya"), "please ask @Priya")
+        XCTAssertEqual(mention("ping at the rate Kavya today"), "ping @Kavya today")
+        XCTAssertEqual(mention("it grows at the rate of five percent"), "it grows at the rate of five percent")
+        XCTAssertEqual(mention("prices rise at the rate inflation allows"), "prices rise at the rate inflation allows")
+    }
+
+    func testWithoutNamesOnlyExplicitFormsApply() {
+        XCTAssertEqual(Mentions.apply(to: "At Priya, hi", names: []), "At Priya, hi")
+        XCTAssertEqual(Mentions.apply(to: "at sign Priya hi", names: []), "@Priya hi")
+    }
+
+    func testRunningTwiceChangesNothing() {
+        let once = mention("At Priya, cc at sign Sam")
+        XCTAssertEqual(once, "@Priya, cc @Sam")
+        XCTAssertEqual(mention(once), once)
+    }
+}

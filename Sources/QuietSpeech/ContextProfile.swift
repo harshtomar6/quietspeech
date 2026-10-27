@@ -26,7 +26,7 @@ enum ContextProfile: String, CaseIterable, Identifiable, Sendable {
         case .code: return "No auto-capitalization or final period, plus spoken code symbols."
         case .terminal: return "Shell-friendly: no capitalization, code symbols and flags."
         case .email: return "Normal sentences, plus “name at domain dot com” addresses."
-        case .chat: return "Keeps chat text close to how you spoke it."
+        case .chat: return "Keeps chat text close to how you spoke it, and “at Priya” becomes @Priya."
         case .document: return "Paragraphs and lists for notes and documents."
         }
     }

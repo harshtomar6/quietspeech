@@ -10,6 +10,7 @@ Repository review: 2026-10-26. “Implemented” means supported by repository c
 | Edit selected text | Select text, speak an instruction such as “make it shorter,” and replace the selection with a rewrite. Requires an available AI provider. | [README](../README.md), [app model](../Sources/QuietSpeech/AppModel.swift) |
 | Generate | Say “generate” followed by a request to insert a new draft. Requires an available AI provider. | [README](../README.md), [site](../landing/index.html) |
 | Code and terminal dictation | Context detection applies code- or shell-friendly formatting and skips AI polish in these contexts. | [README](../README.md), [context profiles](../Sources/QuietSpeech/ContextProfile.swift) |
+| Chat mentions | In chat apps (Slack, Discord, WhatsApp, Telegram; not Messages), “at Priya” becomes @Priya when the name is on screen or in the vocabulary and the “at” opens a sentence or clause or follows a cue such as “hey” or “cc”. “at sign X” and “at the rate X” always make a mention. Verified live in Slack on 2026-10-27. | [mentions](../Sources/Learning/Mentions.swift), [app model](../Sources/QuietSpeech/AppModel.swift) |
 
 ## Personalization and output
 
