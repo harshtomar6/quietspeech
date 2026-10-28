@@ -1866,7 +1866,8 @@ a {
   margin-top: 6px;
 }
 
-.price-fine a {
+.price-fine a,
+.why-reqs p a {
   color: var(--accent-text);
   text-decoration: underline;
   text-underline-offset: 3px;
