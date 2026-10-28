@@ -7,12 +7,12 @@ QuietSpeech is a macOS menu-bar dictation app for people who do not want to pay 
 ## At a glance
 
 - **Platform:** Apple silicon Macs on macOS 26 or later. Microphone and Accessibility permissions are needed.
-- **Stage:** Just publicly launched, confirmed by the owner on 2026-10-26. The site offers version 0.2 and a $29 checkout.
+- **Stage:** Just publicly launched, confirmed by the owner on 2026-10-26. The site offers version 0.3.3 (published 2026-10-28) and a $29 checkout.
 - **Primary audience:** Mac users who want a dictation app without monthly payments.
 - **Core workflows:** hold a shortcut and dictate; select text and speak an edit instruction; say “generate” and request a draft.
 - **Differentiator presented on the site:** on-device transcription and cleanup by default, no account, and a one-time license. Optional external providers change where selected audio or text is processed.
 - **Commercial offer:** $29 one-time license for two Macs, with a 14-day refund policy, shown on the site; the owner confirmed the product is live.
-- **Release evidence:** the repository has a 0.2 appcast entry and a 2026-10-25 commit titled “Publish 0.2 on the site and Sparkle feed.”
+- **Release evidence:** `landing/appcast.xml` lists 0.3.3 (build 6) as the newest Sparkle entry, published on 2026-10-28.
 
 ## Where to look
 

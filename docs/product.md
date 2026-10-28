@@ -28,7 +28,7 @@ Repository review: 2026-10-26. “Implemented” means supported by repository c
 ## Requirements and commercial behavior
 
 - Apple silicon, macOS 26 or later, Microphone and Accessibility permissions. Apple Intelligence is needed for local AI polish, editing, and generation; basic dictation still works without it. See [README](../README.md).
-- The publicly launched site presents a $29 one-time license for two Macs, no account, a 14-day refund, and a downloadable 0.2 build. The owner confirmed launch and sales status on 2026-10-26. License checks have a configured 14-day offline grace period. See [site](../landing/index.html) and [license configuration](../Sources/Licensing/LicenseConfiguration.swift).
+- The publicly launched site presents a $29 one-time license for two Macs, no account, a 14-day refund, and a downloadable build, 0.3.3 since 2026-10-28. The owner confirmed launch and sales status on 2026-10-26. License checks have a configured 14-day offline grace period. See [site](../landing/index.html) and [license configuration](../Sources/Licensing/LicenseConfiguration.swift).
 - Sparkle handles app updates through the site appcast. See [appcast](../landing/appcast.xml) and [update controller](../Sources/QuietSpeech/UpdateController.swift).
 
 ## Status and limits
