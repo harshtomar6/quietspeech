@@ -18,7 +18,7 @@
 
 ### Week 2 · List everywhere · Nov 9–15
 - [ ] Directory submissions: MacMenuBar, Mac Apps Library, UdonBoost, MacUpdate, AlternativeTo
-- [ ] Awesome Mac pull request (needs GitHub repo link on the site first)
+- [ ] Awesome Mac pull request (needs GitHub repo link on the site first) — PR #3976 opened 2026-10-28, awaiting merge
 - [ ] Peerlist Launchpad, Mon Nov 9
 - [ ] Send next 25 free licenses; first seeded posts go live
 
@@ -47,7 +47,7 @@
 | --- | --- | --- |
 | 4 real screenshots showing the app in the macOS menu bar | Mac Apps Library, MacMenuBar, all directories | Done 2026-10-28 (design/screenshots/menubar-1 to 4; skip 5) |
 | Email on the app's domain (not Gmail) | MacMenuBar | Open |
-| Sign up: AlternativeTo, UdonBoost, MacUpdate | Those listings | Open |
+| Sign up: AlternativeTo, UdonBoost, MacUpdate | Those listings | Done 2026-10-28 (AlternativeTo, UdonBoost, MacUpdate) |
 | GitHub repo link on quietspeech.app | Awesome Mac PR, Show HN | Done 2026-10-28 (live: requirements line + footer) |
 | "14-day refund" under hero button and in FAQ "Is there a trial?" | All listings (no trial) | Done 2026-10-28 (live: hero note; FAQ already had it) |
 | Decide Black Friday price | Week 3 deal submissions | Open |
@@ -61,12 +61,18 @@ Tracked link format: `https://quietspeech.app/?utm_campaign=launch&utm_source=<t
 | Site | Planned | Tag | Status | Listing URL / notes |
 | --- | --- | --- | --- | --- |
 | Uneed | Book now, launch wk 4 | uneed | Paused | Browser couldn't open site on Oct 28 |
-| Mac Apps Library | Wk 2 | macappslibrary | In progress | Form filled to step 3 of 4 on Oct 28; screenshots ready Oct 28, needs you to upload and finish. Next free launch Dec 4 |
+| Mac Apps Library | Wk 2 | macappslibrary | Submitted 2026-10-28 | Free tier, contact support@momentumapps.in. Site says it goes live around Dec 5 (111 apps in free queue); they email either way. Verify live listing before marking Live |
 | MacMenuBar | Wk 2 | macmenubar | Blocked | Screenshots ready Oct 28; still needs domain email, CAPTCHA |
-| AlternativeTo | Wk 2 | alternativeto | Blocked | Needs sign-in |
-| UdonBoost | Wk 2 | udonboost | Blocked | Needs account + ownership check |
-| MacUpdate | Wk 2 | macupdate | Blocked | Needs developer account |
-| Awesome Mac (GitHub) | Wk 2 | awesomemac | Not started | Needs repo link on site |
+| AlternativeTo | Wk 2 | alternativeto | Submitted 2026-10-28 | Free queue (several thousand apps; may take very long; paid priority offered, not bought). Plain URL (UTM not allowed). Author "Momentum Apps" created. Suggested as alternative to Wispr Flow, Superwhisper, MacWhisper, VoiceInk, Spokenly (pending). Draft page alternativeto.net/software/quietspeech/ (pending review, not Live). Track under My submissions |
+| UdonBoost | Wk 2 | udonboost | Submitted 2026-10-28 | Draft app 5ee68b44-d981-4987-b9c9-8488040c7e3f, ownership verified by file (landing/udonboost-verification.txt; keep permanently). Paid, Productivity, macOS 26, refund in description. Under editorial review; private until approved. Track under My Apps |
+| MacUpdate | Wk 2 | macupdate | Submitted 2026-10-28 | Account harshtomar6. Tracked product URL, DMG download URL, Polar purchase URL, $29, v0.3.2, menubar-1, 3, 4, 2. Requirements and refund in description. They review and reply by email within 10 days (by Nov 7). Verify live listing before marking Live |
+| Awesome Mac (GitHub) | Wk 2 | awesomemac | Submitted 2026-10-28 | PR https://github.com/jaywcjlove/awesome-mac/pull/3976 (Voice-to-Text, all 4 READMEs; plain URL, no UTM). Live when merged |
+| open-source-mac-os-apps (GitHub) | Wk 2 | osmacapps | Not started | serhii-londar list; PR editing applications.json, one app per PR. About 8 dictation apps listed. License requirement met (GitHub detects GPL-3.0) |
+| NativeShelf | Wk 2 | nativeshelf | Not started | Free listing needs NativeShelf badge on the site (website change, needs approval), or €9 Premium with no badge. Human review, native apps only |
+| awesome-native-macosx-apps (GitHub) | Wk 2 | awesomenative | Not started | PR or issue; paid apps allowed. Low reach (0 stars); companion to MacNative.io |
+| FindMacApps | Wk 2 | findmacapps | Not started | Small curated list (101 apps) that includes Superwhisper and VoiceInk. Submit terms not yet checked |
+| SaaSHub | Wk 2 | saashub | Not started | Free with account (you sign up). Links nofollow |
+| AppleVis | Wk 2 | applevis | Not started | Mac directory for blind and low-vision users; needs accessibility notes (check VoiceOver first). Submission route unconfirmed |
 | Peerlist Launchpad | Mon Nov 9 | peerlist | Not started | |
 | Show HN | Tue Nov 17 | hn | Not started | |
 | r/macapps | Wk 3 | reddit | Not started | |
@@ -94,3 +100,10 @@ Tracked link format: `https://quietspeech.app/?utm_campaign=launch&utm_source=<t
 - 2026-10-28: Screenshots approved. Use menubar-1 to 4 in listings; skip menubar-5 (rewrite barely changed the text). Screenshot blocker closed.
 - 2026-10-28: On request, added "14-day refund." to the hero note and a GitHub source link (requirements line + footer, goal `github_click`) in landing/. Not deployed; blockers close once live on quietspeech.app.
 - 2026-10-28: Deployed to quietspeech.app; verified both changes live. Refund and GitHub-link blockers closed.
+- 2026-10-28: Submitted Mac Apps Library (free tier, maker, support@momentumapps.in) with menubar-1, 3, 4, 2 screenshots and tracked link. Confirmation page: "You're in the queue", live around Dec 5.
+- 2026-10-28: Opened Awesome Mac PR #3976 (you ran the script). Entry uses plain quietspeech.app URL per list style; refund and macOS 26 stated in PR body. Sign-ups for AlternativeTo, UdonBoost, MacUpdate left to you (I can't create accounts).
+- 2026-10-28: You signed up to AlternativeTo; submitted QuietSpeech (Commercial, $29 one-time, GPL-3.0, Mac, 4 screenshots, developer disclosed in note). First submit failed on icon; re-added icon by URL and resubmitted.
+- 2026-10-28: AlternativeTo: suggested 5 alternatives (Wispr Flow, Superwhisper, MacWhisper, VoiceInk, Spokenly; Apple Dictation not listed there). Declined $5/$15 paid review.
+- 2026-10-28: You signed up to UdonBoost; created QuietSpeech draft (v0.3.2, bundle dev.harsh.quietspeech, Paid, Productivity/Writing/Accessibility, no banner). Deployed udonboost-verification.txt to quietspeech.app (must stay); file check passed, page now says "Your App Is Under Review".
+- 2026-10-28: You signed in to MacUpdate; submitted QuietSpeech via Add App (no category field, so Productivity / Dictation suggested in the review note; support URL left empty). Confirmation: "Your app has been submitted!", email reply within 10 days.
+- 2026-10-28: Researched more Mac directories; added open-source-mac-os-apps, NativeShelf, awesome-native-macosx-apps, FindMacApps, SaaSHub, AppleVis. Skipped Softpedia, Mac Informer (PAD/scraped), Indie App Catalog (stale); OpenAlternative not added (free tier unconfirmed). GitHub license check: API now reports GPL-3.0 for harshtomar6/quietspeech, so no fix needed.
