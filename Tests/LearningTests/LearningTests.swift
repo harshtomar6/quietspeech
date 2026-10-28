@@ -187,6 +187,29 @@ final class MentionsTests: XCTestCase {
         XCTAssertEqual(mention("prices rise at the rate inflation allows"), "prices rise at the rate inflation allows")
     }
 
+    func testAtHeardAsAdd() {
+        XCTAssertEqual(mention("Add Priya, can you check the build?"), "@Priya, can you check the build?")
+        XCTAssertEqual(mention("Hey add Sam the build passed"), "Hey @Sam the build passed")
+        XCTAssertEqual(mention("Shipped. Ad Priya please review"), "Shipped. @Priya please review")
+        XCTAssertEqual(mention("Add Rahul Mehta."), "@Rahul Mehta.")
+        XCTAssertEqual(mention("cc add sign Arjun"), "cc @Arjun")
+        XCTAssertEqual(mention("ping add the rate Priya"), "ping @Priya")
+    }
+
+    func testAddAsAVerbIsLeftAlone() {
+        XCTAssertEqual(mention("Add Priya to the channel."), "Add Priya to the channel.")
+        XCTAssertEqual(mention("Add Sam and Priya as reviewers"), "Add Sam and Priya as reviewers")
+        XCTAssertEqual(mention("Can you add Priya?"), "Can you add Priya?")
+        XCTAssertEqual(mention("Add sign in with Google"), "Add sign in with Google")
+        XCTAssertEqual(mention("Add Priya's notes"), "Add Priya's notes")
+    }
+
+    func testDetachedAtSignJoinsAKnownName() {
+        XCTAssertEqual(mention("@ Priya can you check"), "@Priya can you check")
+        XCTAssertEqual(mention("cc @ rahul mehta"), "cc @Rahul Mehta")
+        XCTAssertEqual(mention("email me @ Arjun"), "email me @ Arjun")
+    }
+
     func testWithoutNamesOnlyExplicitFormsApply() {
         XCTAssertEqual(Mentions.apply(to: "At Priya, hi", names: []), "At Priya, hi")
         XCTAssertEqual(Mentions.apply(to: "at sign Priya hi", names: []), "@Priya hi")

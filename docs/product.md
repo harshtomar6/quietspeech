@@ -10,7 +10,7 @@ Repository review: 2026-10-26. “Implemented” means supported by repository c
 | Edit selected text | Select text, speak an instruction such as “make it shorter,” and replace the selection with a rewrite. Requires an available AI provider. | [README](../README.md), [app model](../Sources/QuietSpeech/AppModel.swift) |
 | Generate | Say “generate” followed by a request to insert a new draft. Requires an available AI provider. | [README](../README.md), [site](../landing/index.html) |
 | Code and terminal dictation | Context detection applies code- or shell-friendly formatting and skips AI polish in these contexts. | [README](../README.md), [context profiles](../Sources/QuietSpeech/ContextProfile.swift) |
-| Chat mentions | In chat apps (Slack, Discord, WhatsApp, Telegram; not Messages), “at Priya” becomes @Priya when the name is on screen or in the vocabulary and the “at” opens a sentence or clause or follows a cue such as “hey” or “cc”. “at sign X” and “at the rate X” always make a mention. Verified live in Slack on 2026-10-27. | [mentions](../Sources/Learning/Mentions.swift), [app model](../Sources/QuietSpeech/AppModel.swift) |
+| Chat mentions | In chat apps (Slack, Discord, WhatsApp, Telegram; not Messages), “at Priya” becomes @Priya when the name is on screen or in the vocabulary and the “at” opens a sentence or clause or follows a cue such as “hey” or “cc”. “at sign X” and “at the rate X” always make a mention. Because the recognizer often hears “at” as “add” or “ad”, those count too, unless “add” is the verb (“Add Priya to the channel”). A detached “@ Priya” is joined to @Priya for known names. Verified live in Slack on 2026-10-27; the “add” handling is unit-tested only. | [mentions](../Sources/Learning/Mentions.swift), [app model](../Sources/QuietSpeech/AppModel.swift) |
 
 ## Personalization and output
 
@@ -28,7 +28,7 @@ Repository review: 2026-10-26. “Implemented” means supported by repository c
 ## Requirements and commercial behavior
 
 - Apple silicon, macOS 26 or later, Microphone and Accessibility permissions. Apple Intelligence is needed for local AI polish, editing, and generation; basic dictation still works without it. See [README](../README.md).
-- The publicly launched site presents a $29 one-time license for two Macs, no account, a 14-day refund, and a downloadable 0.2 build. The owner confirmed launch and sales status on 2026-10-26. License checks have a configured 14-day offline grace period. See [site](../landing/index.html) and [license configuration](../Sources/Licensing/LicenseConfiguration.swift).
+- The publicly launched site presents a $29 one-time license for two Macs, no account, a 14-day refund, and a downloadable build, 0.3.3 since 2026-10-28. The owner confirmed launch and sales status on 2026-10-26. License checks have a configured 14-day offline grace period. See [site](../landing/index.html) and [license configuration](../Sources/Licensing/LicenseConfiguration.swift).
 - Sparkle handles app updates through the site appcast. See [appcast](../landing/appcast.xml) and [update controller](../Sources/QuietSpeech/UpdateController.swift).
 
 ## Status and limits
