@@ -51,7 +51,7 @@
 | GitHub repo link on quietspeech.app | Awesome Mac PR, Show HN | Done 2026-10-28 (live: requirements line + footer) |
 | "14-day refund" under hero button and in FAQ "Is there a trial?" | All listings (no trial) | Done 2026-10-28 (live: hero note; FAQ already had it) |
 | Decide Black Friday price | Week 3 deal submissions | Open |
-| Polar affiliate support check | Seeding | Open |
+| Polar affiliate support check | Seeding | Checked 2026-11-02: no built-in affiliates in Polar. Options: per-creator discount codes + tracked links (free, manual payouts) or Affonso/Sled/Referly (paid add-on, script on site). Your decision open |
 | One-line "why I built it" for Show HN | Show HN | Open |
 | Vertical 9:16 captioned cut of the film + YouTube upload + "$29 once" on end card | Social posts, Product Hunt gallery | Open |
 
@@ -73,6 +73,9 @@ Tracked link format: `https://quietspeech.app/?utm_campaign=launch&utm_source=<t
 | FindMacApps | Wk 2 | findmacapps | Submitted 2026-10-28 | Tally form, free (no badge or account asked). Productivity, Paid one-time "$29 one-time for two Macs, 14-day refund", macOS 26 + Apple silicon in description, tracked link, icon URL (no screenshot field). Related: Superwhisper, VoiceInk, MacWhisper. Contact support@momentumapps.in; they reply after review. Verify live listing before marking Live |
 | SaaSHub | Wk 2 | saashub | Not started | Free with account (you sign up). Links nofollow |
 | AppleVis | Wk 2 | applevis | Not started | Mac directory for blind and low-vision users; needs accessibility notes (check VoiceOver first). Submission route unconfirmed |
+| CodeHype | Wk 1 (Week 45, Nov 2–8) | codehype | Submitted (logged 2026-11-05) | You submitted on the Pro plan ($25). Dashboard showed "In review", scheduled Week 45. Public page codehype.ai/product/quietspeech returned 404 at last check. Verify live page before marking Live |
+| TinyLaunch | Mon Dec 7 | tinylaunch | Submitted (launch scheduled 2026-12-07) | Free Standard launch, goes live Dec 7 at midnight PT: https://www.tinylaunch.com/launch/29965-quietspeech (entry created Nov 3, tagline "Type with your voice in any Mac app, offline, no API key"; description has refund + macOS 26 / Apple silicon). Backlink only if top 3 and badge embedded. Duplicate entry 33308 created 2026-11-05 by me, unscheduled, pending your OK to delete. Declined Premium $39 and add-ons |
+| PeerPush | Now (free queue) | peerpush | Submitted 2026-11-05 | Free queue, position #10209, est. wait ~3 months 13 days. https://peerpush.com/p/quietspeech (hidden from public until it launches). Tracked link, Writing & Documentation + Productivity & Notes, One-time $29, logo + site OG image + menubar-1, 3, 4, 2. First comment left empty. Paid options: $39 Standard (live now), $89/7d, $229/30d; declined 40% off upsell. Verify live before marking Live |
 | Peerlist Launchpad | Mon Nov 9 | peerlist | Not started | |
 | Show HN | Tue Nov 17 | hn | Not started | |
 | r/macapps | Wk 3 | reddit | Not started | |
@@ -85,7 +88,8 @@ Tracked link format: `https://quietspeech.app/?utm_campaign=launch&utm_source=<t
 | DevHunt | Wk 4 | devhunt | Not started | $19 for weekly launch |
 | Product Hunt | Tue Dec 1 | producthunt | Not started | Only after 15+ public posts |
 
-## Seeding tracker (cap: 50 free licenses)
+## Seeding tracker (cap: 25 free licenses, decided 2026-11-05)
+Codes (Polar, 100% off, QuietSpeech only, 1 per customer, end Dec 31, 2026; DM only, never posted publicly): QSMACAPPS (10, r/macapps giveaway), QSCOMMUNITY (5, people who ask in threads). 10 per-person codes for creators still to create. Polar codes must be letters and numbers only (no hyphens).
 | Name | Platform | Code sent (date) | Followed up | Posted (link) | Affiliate sales |
 | --- | --- | --- | --- | --- | --- |
 
@@ -111,3 +115,11 @@ Tracked link format: `https://quietspeech.app/?utm_campaign=launch&utm_source=<t
 - 2026-10-28: Submitted FindMacApps (Tally form, developer, support@momentumapps.in). Confirmation: "Thank you for submitting the app. We'll review the app and get back to you shortly".
 - 2026-10-28: UdonBoost listing published. You flagged it; My Apps shows PUBLISHED and the public page loads logged out with requirements and refund. First listing marked Live.
 - 2026-11-02: Status check. open-source-mac-os-apps PR #1833 merged Oct 29, entry in README: Live. AlternativeTo page public with no pending notice: Live. Awesome Mac #3976 and awesome-native-macosx-apps #1 still open, no comments. MacUpdate: no listing yet (reply due by Nov 7). FindMacApps: not on site yet. UdonBoost still up (200). Mac Apps Library not checked live (due around Dec 5). Email replies to support@momentumapps.in not checked (no inbox access).
+- 2026-11-02: Polar affiliate check (docs only, nothing changed). No native affiliate program; Polar docs point to Affonso integration. Native pieces: discount codes (optional code, total and per-customer max redemptions, start/end dates, product limit), checkout link params discount_code, reference_id, utm_*; link metadata carries to the order. 100% discounts not confirmed in docs.
+- 2026-11-05: Decided (you): submit all chosen listings at once instead of week by week; launch platforms like Product Hunt keep their dates. Free licenses go out as 100% Polar discount codes to interested users (still #gifted disclosure, 50 cap). X build-in-public series about the launch numbers.
+- 2026-11-05: CodeHype submitted by you on Pro ($25), in review for Week 45.
+- 2026-11-05: TinyLaunch: you OK'd the pledge; startup created (id 33308). First free launch slot is Mon Dec 7 (Nov 9 to Nov 30 free full).
+- 2026-11-05: TinyLaunch: picked Dec 7, free Standard, no add-ons. Dashboard then showed an older QuietSpeech entry (created Nov 3, launch 29965) scheduled for Dec 7; the new 33308 entry is unscheduled, so it's a duplicate. Not deleted yet.
+- 2026-11-05: Submitted PeerPush, free queue (you chose free over $39). Queue #10209, est. ~3 months 13 days; you can upgrade to Standard later.
+- 2026-11-05: You decided 25 free licenses (was 50). Created Polar discounts QSMACAPPS (10) and QSCOMMUNITY (5): 100%, QuietSpeech only, 1 per customer, end Dec 31. Opened checkout with QSMACAPPS (not submitted): total $0, email only, "Get for free" button, no card form. Old TEST discount OH2540QA (expired Jul 22) left as is.
+- 2026-11-05: Site tracking: script.js copies utm_* and the Minilytics visitor id (reference_id) onto Polar links; new /thanks page fires Minilytics goal `purchase`. Tested on preview, then deployed to production with your SEO edits (title, meta, canonical, JSON-LD, cleanUrls, robots.txt, sitemap.xml). Verified live: /, /thanks, appcast, DMG, UdonBoost file all 200; Minilytics event accepted (202); Buy links carry UTM. Then set the Polar checkout link success URL to https://quietspeech.app/thanks?checkout_id={CHECKOUT_ID} (saved, confirmed after reload). One test pageview with utm_source=deploy-check is in Minilytics.
