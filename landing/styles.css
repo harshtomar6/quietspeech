@@ -1997,6 +1997,18 @@ a {
   color: var(--text);
 }
 
+.footer-badges {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.footer-badges img {
+  display: block;
+}
+
 .footer-fine {
   grid-column: 1 / -1;
   padding-top: 22px;
