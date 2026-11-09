@@ -480,7 +480,10 @@ final class HUDController {
         panel.ignoresMouseEvents = true
         panel.isMovableByWindowBackground = false
         panel.becomesKeyOnlyIfNeeded = true
-        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]
+        // Floating overlays must join the focused app's set as well as its
+        // Space; canJoinAllSpaces alone can leave them off-screen in native
+        // document apps and full-screen workspaces.
+        panel.collectionBehavior = [.canJoinAllSpaces, .canJoinAllApplications, .fullScreenAuxiliary, .stationary, .ignoresCycle]
         return panel
     }
 
