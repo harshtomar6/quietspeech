@@ -178,17 +178,16 @@ struct ShortcutMatcher {
     // MARK: - Consume decisions
 
     private func modifierDownDecision(for keyCode: UInt16) -> ConsumeDecision {
-        // While a binding is doing its job, its modifiers belong to us.
-        if holdIsActive || toggleIsActive || copyAgainIsActive { return .consume }
-
-        // A modifier-key binding swallows its own key from the first press, so
-        // Fn never reaches the system and cannot open the emoji picker on the
-        // way to the shortcut. A modifier that only decorates a *key* binding
-        // (Cmd in Cmd+Space) is deliberately left alone — swallowing Cmd would
-        // break every other shortcut on the machine.
+        // Reserve Fn when it belongs to a modifier chord so it cannot open
+        // the emoji picker before the remaining keys arrive. Other modifiers
+        // must reach macOS until the complete bound chord is actually down.
+        // In particular, recording Fn+Command with Command as the primary key
+        // must not swallow ordinary Command-Tab or its Command release.
         for binding in [configuration.hold, configuration.activeToggleBinding, configuration.copyAgain]
-        where binding.kind == .modifierKey && binding.keyCode == keyCode {
-            return .consume
+        where binding.kind == .modifierKey && binding.references(keyCode: keyCode) {
+            if keyCode == ModifierKeyEventState.fnKeyCode || isActive(binding) {
+                return .consume
+            }
         }
         return .passthrough
     }

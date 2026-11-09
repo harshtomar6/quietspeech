@@ -3,6 +3,29 @@
     <channel>
         <title>QuietSpeech</title>
         <item>
+            <title>0.3.5</title>
+            <pubDate>Mon, 09 Nov 2026 12:30:14 +0530</pubDate>
+            <sparkle:version>8</sparkle:version>
+            <sparkle:shortVersionString>0.3.5</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[<h2>QuietSpeech 0.3.5</h2>
+<ul>
+<li>Fix Command-Tab app switching when Fn+Command is assigned to Tap to Toggle.</li>
+<li>Keep unrelated Command shortcuts available while holding a dictation key.</li>
+<li>Preserve Fn+Command activation in either press order.</li>
+</ul>
+]]></description>
+            <enclosure url="https://quietspeech.app/downloads/QuietSpeech-0.3.5.dmg" length="4257464" type="application/octet-stream" sparkle:edSignature="nuQ9wk2ECE8qK7W/G9RCeg4qcPHwj5siAZRxxDUIX4vbdBylGUxVaFRjvgDmpS2li0CSSmWiAeQssV3a/z/VBQ=="/>
+            <sparkle:deltas>
+                <enclosure url="https://quietspeech.app/downloads/QuietSpeech8-7.delta" sparkle:deltaFrom="7" length="118882" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="jTEW2/itDDkRfgBFM9SF/fjAWmll29n0hWGBHfX4D0/bZRdt1NpPt1Ms5kTTAuOUC5bgneTMOGPYOZg01VYrAg=="/>
+                <enclosure url="https://quietspeech.app/downloads/QuietSpeech8-6.delta" sparkle:deltaFrom="6" length="308218" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="T/Mrwk+XmOM0mJdNsxDV4KmawU9/Or59Xb/aqH0bgaIYlvfKY69C0uiFfPTjPVUak1BdmOQx8y2ifMI+KI4yDQ=="/>
+                <enclosure url="https://quietspeech.app/downloads/QuietSpeech8-5.delta" sparkle:deltaFrom="5" length="308598" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="Rmq2W3zmOwepfkzlLARM1bZ+g4w4DKzEn3kinglR0214UJHu6K6W68aS7hxfoCmhO5u/18mrg+RzWMIrLpYICA=="/>
+                <enclosure url="https://quietspeech.app/downloads/QuietSpeech8-4.delta" sparkle:deltaFrom="4" length="324126" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="BZurNp7XcOhjltPJtvlcdxz2HPMrtpE68U9l5etIO5t+vRg69xkXUrnZnibqtxbzky5ms/5u4iJKHcyiEu9hDw=="/>
+                <enclosure url="https://quietspeech.app/downloads/QuietSpeech8-3.delta" sparkle:deltaFrom="3" length="331958" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="xkvNLf00xY6AdkSbkS6YwtRulBt9u5MG2BUrcHipKuWkWyiUzDRqjt5U5wOP4Pa9fRUxHoadHlB574LBX3rLAA=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>0.3.4</title>
             <pubDate>Mon, 09 Nov 2026 11:47:35 +0530</pubDate>
             <sparkle:version>7</sparkle:version>
@@ -40,21 +63,6 @@
                 <enclosure url="https://quietspeech.app/downloads/QuietSpeech6-3.delta" sparkle:deltaFrom="3" length="201238" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="2dBCGpdMCkRrRhj9De6WCCaulahDyZ28OhdqD0Hc9duG+i7HSStEdOMAGabaXsNSMaq8xabenBtHxwd5SB/MAA=="/>
                 <enclosure url="https://quietspeech.app/downloads/QuietSpeech6-2.delta" sparkle:deltaFrom="2" length="325766" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="EiHPlEX9m3lXq2n/sAS4Pk8plD78u77ZBi9S5CYESee4r3aShagHRnc+qdUdADz4JC7QXMzLsGrE7NwkJ/lMBg=="/>
                 <enclosure url="https://quietspeech.app/downloads/QuietSpeech6-1.delta" sparkle:deltaFrom="1" length="426078" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="gN1E+oi20UJH3iNShqIMnOxQLccfkywqAVroPz8erynAXTCfdqnWQkPDM+N9dhmx3EoWZEeqABethh6KHWTxDA=="/>
-            </sparkle:deltas>
-        </item>
-        <item>
-            <title>0.3.2</title>
-            <pubDate>Tue, 27 Oct 2026 12:29:49 +0530</pubDate>
-            <sparkle:version>5</sparkle:version>
-            <sparkle:shortVersionString>0.3.2</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
-            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
-            <enclosure url="https://quietspeech.app/downloads/QuietSpeech-0.3.2.dmg" length="4213476" type="application/octet-stream" sparkle:edSignature="Ys2tbx7XNZJLH0iYnBkEwwnW+kP0/62HuDlqLoCDy8ADU5YyPN/9+4o/LkfA+Y6+H+qh/akM8OXXsVZZGg0HBQ=="/>
-            <sparkle:deltas>
-                <enclosure url="https://quietspeech.app/downloads/QuietSpeech5-4.delta" sparkle:deltaFrom="4" length="166546" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="87m7IlW54Ng210LPbDOTk9D2zPMekM8ghsNMR6lMSLtmej4er+0/xo9t1T57rODYEEtpmHPUon9GkK8AHRiSCg=="/>
-                <enclosure url="https://quietspeech.app/downloads/QuietSpeech5-3.delta" sparkle:deltaFrom="3" length="201166" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="gBFWkhXVUoSDcWM6JB/qlZMa7pf8PemSi7y69inRE+Q4fTONzaDdK0vXHLcbh6C/o00EbTIW+hsL3HWdwPogDQ=="/>
-                <enclosure url="https://quietspeech.app/downloads/QuietSpeech5-2.delta" sparkle:deltaFrom="2" length="328886" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="nDphj6cvPqWTy7Ckap6UMa5ETVCtwjCbncAaXtGXkjDOBZSl4SDpBwEvmBCDqPVwJWT6pbCqH/aMgEiDGH56Bg=="/>
-                <enclosure url="https://quietspeech.app/downloads/QuietSpeech5-1.delta" sparkle:deltaFrom="1" length="419166" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="5WFCbmaAoAV48c6EMLyNZ3i+ri3OzyLostKxST9FDCaf9iey+PLk/61BL1yfSvOeM1RRcM+17JnKG8qmG34OBQ=="/>
             </sparkle:deltas>
         </item>
     </channel>
