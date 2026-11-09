@@ -229,7 +229,7 @@ struct OverviewPane: View {
     private var activationKeys: some View {
         HStack(spacing: 8) {
             if model.shortcutConfiguration.hold.isDisabled,
-               model.shortcutConfiguration.toggle.isDisabled {
+               !model.shortcutConfiguration.toggleModeEnabled {
                 Text("Off")
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
@@ -237,7 +237,10 @@ struct OverviewPane: View {
                 if !model.shortcutConfiguration.hold.isDisabled {
                     keycaps(model.shortcutConfiguration.hold.displayName)
                 }
-                if !model.shortcutConfiguration.toggle.isDisabled {
+                if model.shortcutConfiguration.toggleActivationMethod == .doubleTapHold,
+                   model.shortcutConfiguration.toggleModeEnabled {
+                    keycaps("2× " + model.shortcutConfiguration.hold.displayName)
+                } else if !model.shortcutConfiguration.activeToggleBinding.isDisabled {
                     keycaps(model.shortcutConfiguration.toggle.displayName)
                 }
             }
@@ -350,7 +353,10 @@ struct OverviewPane: View {
 
     private var activationDetail: String {
         let hold = model.shortcutConfiguration.hold
-        let toggle = model.shortcutConfiguration.toggle
+        let toggle = model.shortcutConfiguration.activeToggleBinding
+        if model.shortcutConfiguration.toggleActivationMethod == .doubleTapHold, !hold.isDisabled {
+            return "Hold \(hold.displayName) to talk, or double-tap it to toggle"
+        }
         if hold.isDisabled && toggle.isDisabled { return "No shortcut set" }
         if hold.isDisabled { return "Tap \(toggle.displayName) to toggle" }
         if toggle.isDisabled { return "Hold \(hold.displayName) to talk" }
@@ -373,7 +379,7 @@ struct ActivationPane: View {
             SettingsGroup("Shortcuts", icon: "command", note: activationNote) {
                 shortcutRow(.hold)
                 SettingsDivider()
-                shortcutRow(.toggle)
+                ToggleActivationSettings(model: model)
                 SettingsDivider()
                 shortcutRow(.copyAgain)
             }

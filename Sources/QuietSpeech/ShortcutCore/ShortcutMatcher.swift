@@ -131,7 +131,7 @@ struct ShortcutMatcher {
 
     private mutating func refreshEdges() {
         let nowHold = isActive(configuration.hold)
-        let nowToggle = isActive(configuration.toggle)
+        let nowToggle = isActive(configuration.activeToggleBinding)
         let nowCopyAgain = isActive(configuration.copyAgain)
 
         if nowHold != holdIsActive {
@@ -186,7 +186,7 @@ struct ShortcutMatcher {
         // way to the shortcut. A modifier that only decorates a *key* binding
         // (Cmd in Cmd+Space) is deliberately left alone — swallowing Cmd would
         // break every other shortcut on the machine.
-        for binding in [configuration.hold, configuration.toggle, configuration.copyAgain]
+        for binding in [configuration.hold, configuration.activeToggleBinding, configuration.copyAgain]
         where binding.kind == .modifierKey && binding.keyCode == keyCode {
             return .consume
         }
@@ -194,7 +194,7 @@ struct ShortcutMatcher {
     }
 
     private func keyConsumeDecision(for keyCode: UInt16) -> ConsumeDecision {
-        for binding in [configuration.hold, configuration.toggle, configuration.copyAgain] {
+        for binding in [configuration.hold, configuration.activeToggleBinding, configuration.copyAgain] {
             guard binding.kind == .key, binding.keyCode == keyCode else { continue }
             if isActive(binding) { return .consume }
         }

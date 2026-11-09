@@ -11,7 +11,7 @@ struct ShortcutRecorder: View {
     var onCapture: () -> Void
 
     @State private var isRecording = false
-    @State private var pressedModifierKeyCodes: [UInt16] = []
+    @State private var captureState = ShortcutCaptureState()
     @State private var needsModifier = false
     @State private var monitors: [Any] = []
 
@@ -42,7 +42,7 @@ struct ShortcutRecorder: View {
         guard !isRecording else { return }
         isRecording = true
         needsModifier = false
-        pressedModifierKeyCodes = []
+        captureState.reset()
         onCaptureStateChanged(true)
 
         if let monitor = NSEvent.addLocalMonitorForEvents(
@@ -63,7 +63,7 @@ struct ShortcutRecorder: View {
         guard isRecording else { return }
         isRecording = false
         needsModifier = false
-        pressedModifierKeyCodes = []
+        captureState.reset()
         for monitor in monitors { NSEvent.removeMonitor(monitor) }
         monitors = []
         onCaptureStateChanged(false)
@@ -75,17 +75,8 @@ struct ShortcutRecorder: View {
 
         let flag = ModifierKeyEventState.mappedFlag(for: keyCode) ?? .maskSecondaryFn
         let isDown = UInt64(event.modifierFlags.rawValue) & flag.rawValue != 0
-        if isDown {
-            if !pressedModifierKeyCodes.contains(keyCode) {
-                pressedModifierKeyCodes.append(keyCode)
-            }
-        } else {
-            pressedModifierKeyCodes.removeAll { $0 == keyCode }
-            // All modifiers released without a key in between: bind the
-            // modifier itself (or the modifier chord) on its own.
-            if pressedModifierKeyCodes.isEmpty {
-                commit(modifierOnlyBinding())
-            }
+        if let binding = captureState.modifierChanged(keyCode: keyCode, isDown: isDown) {
+            commit(binding)
         }
         return nil
     }
@@ -97,52 +88,18 @@ struct ShortcutRecorder: View {
             return nil
         }
 
-        let modifiers = logicalModifiers(for: pressedModifierKeyCodes)
-        // A bare letter would swallow typing everywhere, so a no-modifier
-        // binding is only allowed for function keys.
-        guard !modifiers.isEmpty || Self.isFunctionKey(event.keyCode) else {
+        guard let binding = captureState.keyBinding(for: event.keyCode) else {
             needsModifier = true
             return nil
         }
 
-        commit(ShortcutBinding(
-            keyCode: event.keyCode,
-            keyDisplay: ShortcutKeyNames.name(forKeyCode: event.keyCode),
-            modifiers: modifiers,
-            kind: .key,
-            preset: nil,
-            exactModifierKeyCodes: pressedModifierKeyCodes.isEmpty ? nil : Set(pressedModifierKeyCodes)
-        ))
+        commit(binding)
         return nil
-    }
-
-    /// The first modifier pressed is the key; any others become its modifiers.
-    /// Fn then Cmd therefore reads as "Fn with Cmd", matching the default
-    /// latch so the recorded binding displays the way it behaves.
-    private func modifierOnlyBinding() -> ShortcutBinding {
-        let primary = pressedModifierKeyCodes.first ?? ShortcutPreset.fnKey.binding.keyCode
-        let others = pressedModifierKeyCodes.dropFirst()
-        return ShortcutBinding(
-            keyCode: primary,
-            keyDisplay: ShortcutKeyNames.name(forKeyCode: primary),
-            modifiers: logicalModifiers(for: Array(others)),
-            kind: .modifierKey,
-            preset: ShortcutPreset.matching(keyCode: primary),
-            exactModifierKeyCodes: Set(pressedModifierKeyCodes)
-        )
-    }
-
-    private func logicalModifiers(for keyCodes: [UInt16]) -> ShortcutModifiers {
-        ShortcutBinding.modifiers(for: Set(keyCodes))
     }
 
     private func commit(_ newBinding: ShortcutBinding) {
         stop()
         binding = newBinding
         onCapture()
-    }
-
-    private static func isFunctionKey(_ keyCode: UInt16) -> Bool {
-        (96...111).contains(Int(keyCode))
     }
 }

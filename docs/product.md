@@ -6,7 +6,7 @@ Repository review: 2026-10-26. “Implemented” means supported by repository c
 
 | Workflow | Current behavior | Evidence |
 | --- | --- | --- |
-| Dictate | Hold the configured shortcut (Fn by default), speak, and release. A live overlay shows transcription, and the finished text is inserted into the focused app. A tap-to-toggle shortcut can also be configured. | [README](../README.md), [shortcut models](../Sources/QuietSpeech/ShortcutCore/ShortcutModels.swift) |
+| Dictate | Hold the configured shortcut (Fn by default), speak, and release. A live overlay shows transcription, and the finished text is inserted into the focused app. Tap to Toggle offers a separate shortcut or double-tapping the Hold to Talk key. | [README](../README.md), [shortcut models](../Sources/QuietSpeech/ShortcutCore/ShortcutModels.swift) |
 | Edit selected text | Select text, speak an instruction such as “make it shorter,” and replace the selection with a rewrite. Requires an available AI provider. | [README](../README.md), [app model](../Sources/QuietSpeech/AppModel.swift) |
 | Generate | Say “generate” followed by a request to insert a new draft. Requires an available AI provider. | [README](../README.md), [site](../landing/index.html) |
 | Code and terminal dictation | Context detection applies code- or shell-friendly formatting and skips AI polish in these contexts. | [README](../README.md), [context profiles](../Sources/QuietSpeech/ContextProfile.swift) |
@@ -14,6 +14,8 @@ Repository review: 2026-10-26. “Implemented” means supported by repository c
 
 ## Personalization and output
 
+- **Published in 0.3.4:** Dictionary checks for screen vocabulary and correction learning use the asynchronous spell checker with a 200 ms response budget. If it is unavailable, dictation proceeds without optional screen hints and that correction is not learned. Startup rejects overlapping launch requests. See [dictionary checks](../Sources/QuietSpeech/LearningService.swift), [response deadline](../Sources/QuietSpeech/TimedCallback.swift), and [app model](../Sources/QuietSpeech/AppModel.swift).
+- **Published in 0.3.4:** Settings › Activation and onboarding offer “Double-tap hold key” and “Different shortcut” for Tap to Toggle. Double-tap starts hands-free dictation and a single tap stops it. Two quick presses must be within 350 ms of the first release; an isolated quick tap does nothing. In this mode a sustained hold starts after 300 ms to distinguish it from a tap. Existing preferences keep their separate shortcut, which is remembered while double-tap is selected. See [session controller](../Sources/QuietSpeech/ShortcutCore/DictationShortcutSessionController.swift), [shared settings](../Sources/QuietSpeech/ToggleActivationSettings.swift), and [regression tests](../Tests/QuietSpeechTests/ToggleActivationTests.swift). Published on 2026-11-09; see the [Sparkle feed](../landing/appcast.xml).
 - Users can add custom vocabulary and word replacements. The app can read names from the focused window and learn suitable corrections where the target field can be read. See [personalization settings](../Sources/QuietSpeech/SettingsPanes.swift) and [learning service](../Sources/QuietSpeech/LearningService.swift).
 - Output tries Accessibility insertion, then synthetic typing, with a clipboard paste fallback in apps that need it. See [output settings](../Sources/QuietSpeech/SettingsPanes.swift).
 - A local, optional text history keeps up to 200 finished dictations. It does not store audio. See [history code](../Sources/QuietSpeech/AppModel.swift) and [history settings](../Sources/QuietSpeech/SettingsPanes.swift).
@@ -28,7 +30,7 @@ Repository review: 2026-10-26. “Implemented” means supported by repository c
 ## Requirements and commercial behavior
 
 - Apple silicon, macOS 26 or later, Microphone and Accessibility permissions. Apple Intelligence is needed for local AI polish, editing, and generation; basic dictation still works without it. See [README](../README.md).
-- The publicly launched site presents a $29 one-time license for two Macs, no account, a 14-day refund, and a downloadable build, 0.3.3 since 2026-10-28. The owner confirmed launch and sales status on 2026-10-26. License checks have a configured 14-day offline grace period. See [site](../landing/index.html) and [license configuration](../Sources/Licensing/LicenseConfiguration.swift).
+- The publicly launched site presents a $29 one-time license for two Macs, no account, a 14-day refund, and a downloadable build, 0.3.4 since 2026-11-09. The owner confirmed launch and sales status on 2026-10-26. License checks have a configured 14-day offline grace period. See [site](../landing/index.html) and [license configuration](../Sources/Licensing/LicenseConfiguration.swift).
 - Sparkle handles app updates through the site appcast. See [appcast](../landing/appcast.xml) and [update controller](../Sources/QuietSpeech/UpdateController.swift).
 
 ## Status and limits

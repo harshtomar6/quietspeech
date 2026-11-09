@@ -4,6 +4,8 @@ Dictate, edit, and generate text in any Mac app. On-device by default.
 
 Hold <kbd>Fn</kbd>, speak, and let go. The cleaned-up text appears wherever your cursor is.
 
+In Settings › Activation, Tap to Toggle can use a double-tap of your Hold to Talk key or a separate shortcut. With double-tap, tap twice to start hands-free dictation and once to stop.
+
 **[quietspeech.app](https://quietspeech.app)** has the notarized download and license keys.
 
 ## What it does

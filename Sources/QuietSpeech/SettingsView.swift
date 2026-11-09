@@ -68,7 +68,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
         switch self {
         case .overview: return "home summary status ready dashboard"
         case .license: return "license key purchase buy activate deactivate polar payment"
-        case .activation: return "shortcut hotkey hold fn tap key binding paste again"
+        case .activation: return "shortcut hotkey hold fn tap double toggle key binding paste again"
         case .transcription: return "language cleanup context profile formatting code terminal email chat document"
         case .personalization: return "vocabulary replacements names jargon spelling learning corrections screen"
         case .ai: return "polish edit generate trigger transcription whisper audio provider apple intelligence foundation models endpoint model key groq openai ollama local connection"

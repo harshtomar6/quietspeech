@@ -101,22 +101,58 @@ enum ShortcutEvent: Equatable {
     case copyAgainTriggered
 }
 
+enum ToggleActivationMethod: String, CaseIterable, Codable {
+    case doubleTapHold
+    case shortcut
+
+    var title: String {
+        switch self {
+        case .doubleTapHold: return "Double-tap hold key"
+        case .shortcut: return "Different shortcut"
+        }
+    }
+}
+
 struct ShortcutConfiguration: Equatable, Codable {
     let hold: ShortcutBinding
     let toggle: ShortcutBinding
     let copyAgain: ShortcutBinding
     let permittedAdditionalExactMatchModifiers: ShortcutModifiers
+    let toggleActivationMethod: ToggleActivationMethod
 
     init(
         hold: ShortcutBinding,
         toggle: ShortcutBinding,
         copyAgain: ShortcutBinding = .disabled,
-        permittedAdditionalExactMatchModifiers: ShortcutModifiers = []
+        permittedAdditionalExactMatchModifiers: ShortcutModifiers = [],
+        toggleActivationMethod: ToggleActivationMethod = .shortcut
     ) {
         self.hold = hold
         self.toggle = toggle
         self.copyAgain = copyAgain
         self.permittedAdditionalExactMatchModifiers = permittedAdditionalExactMatchModifiers
+        self.toggleActivationMethod = toggleActivationMethod
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case hold, toggle, copyAgain, permittedAdditionalExactMatchModifiers, toggleActivationMethod
+    }
+
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        self.init(
+            hold: try values.decode(ShortcutBinding.self, forKey: .hold),
+            toggle: try values.decode(ShortcutBinding.self, forKey: .toggle),
+            copyAgain: try values.decodeIfPresent(ShortcutBinding.self, forKey: .copyAgain) ?? .disabled,
+            permittedAdditionalExactMatchModifiers: try values.decodeIfPresent(ShortcutModifiers.self, forKey: .permittedAdditionalExactMatchModifiers) ?? [],
+            toggleActivationMethod: try values.decodeIfPresent(ToggleActivationMethod.self, forKey: .toggleActivationMethod) ?? .shortcut
+        )
+    }
+
+    /// Keep the separate shortcut saved when double-tap is selected, but do
+    /// not match it or report conflicts with it while it is inactive.
+    var activeToggleBinding: ShortcutBinding {
+        toggleActivationMethod == .shortcut ? toggle : .disabled
     }
 
     static let disabled = ShortcutConfiguration(hold: .disabled, toggle: .disabled, copyAgain: .disabled)
@@ -129,7 +165,7 @@ struct ShortcutConfiguration: Equatable, Codable {
     )
 
     var isDisabled: Bool {
-        hold.isDisabled && toggle.isDisabled && copyAgain.isDisabled
+        hold.isDisabled && activeToggleBinding.isDisabled && copyAgain.isDisabled
     }
 
     func binding(for role: ShortcutRole) -> ShortcutBinding {
@@ -145,7 +181,16 @@ struct ShortcutConfiguration: Equatable, Codable {
             hold: role == .hold ? binding : hold,
             toggle: role == .toggle ? binding : toggle,
             copyAgain: role == .copyAgain ? binding : copyAgain,
-            permittedAdditionalExactMatchModifiers: permittedAdditionalExactMatchModifiers
+            permittedAdditionalExactMatchModifiers: permittedAdditionalExactMatchModifiers,
+            toggleActivationMethod: toggleActivationMethod
+        )
+    }
+
+    func usingToggleActivation(_ method: ToggleActivationMethod) -> ShortcutConfiguration {
+        ShortcutConfiguration(
+            hold: hold, toggle: toggle, copyAgain: copyAgain,
+            permittedAdditionalExactMatchModifiers: permittedAdditionalExactMatchModifiers,
+            toggleActivationMethod: method
         )
     }
 
@@ -155,7 +200,9 @@ struct ShortcutConfiguration: Equatable, Codable {
         let roles = ShortcutRole.allCases
         for (index, role) in roles.enumerated() {
             for other in roles[(index + 1)...] {
-                if binding(for: role).conflicts(with: binding(for: other)) {
+                let first = role == .toggle ? activeToggleBinding : binding(for: role)
+                let second = other == .toggle ? activeToggleBinding : binding(for: other)
+                if first.conflicts(with: second) {
                     found.append((role, other))
                 }
             }
@@ -169,13 +216,19 @@ extension ShortcutConfiguration {
     var summary: String {
         var parts: [String] = []
         if !hold.isDisabled { parts.append("Hold \(hold.displayName)") }
-        if !toggle.isDisabled { parts.append("Tap \(toggle.displayName)") }
+        if toggleActivationMethod == .doubleTapHold, !hold.isDisabled {
+            parts.append("Double-tap \(hold.displayName)")
+        } else if !activeToggleBinding.isDisabled {
+            parts.append("Tap \(toggle.displayName)")
+        }
         if !copyAgain.isDisabled { parts.append("Again \(copyAgain.displayName)") }
         return parts.isEmpty ? "Disabled" : parts.joined(separator: " \u{00b7} ")
     }
 
     var holdModeEnabled: Bool { !hold.isDisabled }
-    var toggleModeEnabled: Bool { !toggle.isDisabled }
+    var toggleModeEnabled: Bool {
+        toggleActivationMethod == .doubleTapHold ? !hold.isDisabled : !toggle.isDisabled
+    }
 }
 
 /// Names for the physical keys a binding can use.
@@ -190,8 +243,10 @@ enum ShortcutKeyNames {
     private static let table: [UInt16: String] = [
         49: "Space", 36: "Return", 48: "Tab", 53: "Esc", 51: "Delete",
         123: "Left", 124: "Right", 125: "Down", 126: "Up",
+        122: "F1", 120: "F2", 99: "F3", 118: "F4",
         96: "F5", 97: "F6", 98: "F7", 100: "F8", 101: "F9", 109: "F10",
-        103: "F11", 111: "F12",
+        103: "F11", 111: "F12", 105: "F13", 107: "F14", 113: "F15",
+        106: "F16", 64: "F17", 79: "F18", 80: "F19", 90: "F20",
         0: "A", 11: "B", 8: "C", 2: "D", 14: "E", 3: "F", 5: "G", 4: "H",
         34: "I", 38: "J", 40: "K", 37: "L", 46: "M", 45: "N", 31: "O",
         35: "P", 12: "Q", 15: "R", 1: "S", 17: "T", 32: "U", 9: "V",

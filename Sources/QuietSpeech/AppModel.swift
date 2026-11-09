@@ -187,6 +187,8 @@ final class AppModel {
     private(set) var targetApp: NSRunningApplication?
     /// Turns matcher edges into start/stop/switchedToToggle.
     private var shortcutSession = DictationShortcutSessionController()
+    private var shortcutHoldTask: Task<Void, Never>?
+    private var appliedShortcutConfiguration: ShortcutConfiguration?
     private var pendingSelection: SelectionSnapshot?
     private var pendingContext: String?
     private var remoteTranscriptionThisSession = false
@@ -197,7 +199,7 @@ final class AppModel {
 
     /// Fn released sooner than this after being pressed is a tap, not
     /// dictation: the session is dropped without showing the overlay.
-    private static let tapThreshold: TimeInterval = 0.3
+    private static let tapThreshold = DictationShortcutSessionController.holdThreshold
     /// When the hold binding (Fn) started the current session; nil for the
     /// toggle binding and the menu, which show the overlay at once.
     private var holdPressedAt: Date?
@@ -299,7 +301,7 @@ final class AppModel {
         history = Self.loadHistory()
         refreshCaptureStatus()
         wireShortcuts()
-        shortcuts.apply(configuration: shortcutConfiguration)
+        applyActivation()
         refreshPermissions()
 
         Task { [weak self] in
@@ -324,7 +326,7 @@ final class AppModel {
     }
 
     func start() async {
-        guard !isRecording else { return }
+        guard !isRecording, !isStartingDictation else { return }
         guard license.canUseApp else {
             status = "Activate QuietSpeech"
             errorMessage = license.blockingMessage
@@ -332,14 +334,16 @@ final class AppModel {
             LicenseWindowController.shared.present(model: self)
             return
         }
+        isStartingDictation = true
+        defer { isStartingDictation = false }
+        let startupBeganAt = Date()
+        shortcutLog.notice("startup: preparing context")
         errorMessage = nil
         // Captured before any await: did the shortcut session ask for this?
         let startedByShortcut = shortcutSession.isActive
         // The last dictation's field is judged before this one changes things,
         // quietly: the overlay is about to show the new dictation.
-        isStartingDictation = true
         correctionWatcher.finish()
-        isStartingDictation = false
         learningNotice = nil
 
         // Read the screen while the microphone and model get ready.
@@ -363,6 +367,7 @@ final class AppModel {
         // Remember where to type the result back into.
         targetApp = NSWorkspace.shared.frontmostApplication
         resolveContextProfile(for: targetApp)
+        shortcutLog.notice("startup: reading selection at \(Date().timeIntervalSince(startupBeganAt), privacy: .public)s")
 
         pendingSelection = nil
         pendingContext = nil
@@ -383,6 +388,7 @@ final class AppModel {
            app != NSRunningApplication.current {
             pendingContext = SelectionService.contextText()
         }
+        shortcutLog.notice("startup: selection ready at \(Date().timeIntervalSince(startupBeganAt), privacy: .public)s")
 
         finalizedText = ""
         volatileText = ""
@@ -413,14 +419,23 @@ final class AppModel {
         }
 
         let onScreen = await screenText?.value
-        let onScreenTerms = screenTerms(from: onScreen)
+        shortcutLog.notice("startup: screen text ready at \(Date().timeIntervalSince(startupBeganAt), privacy: .public)s")
+        let onScreenTerms = await screenTerms(from: onScreen)
+        shortcutLog.notice("startup: vocabulary ready at \(Date().timeIntervalSince(startupBeganAt), privacy: .public)s")
         engine.contextualStrings = customVocabulary + onScreenTerms
         mentionNames = customVocabulary + onScreenTerms
         remoteTranscriptionThisSession = providerTranscriptionActive
         savesClipThisSession = saveAudioClips && Self.developerToolsEnabled
         engine.recordsAudio = remoteTranscriptionThisSession || savesClipThisSession
 
+        // A release during preparation must not start the microphone later.
+        guard !startedByShortcut || shortcutSession.isActive else {
+            shortcutLog.notice("startup: shortcut released during preparation")
+            return
+        }
+
         do {
+            shortcutLog.notice("startup: starting audio at \(Date().timeIntervalSince(startupBeganAt), privacy: .public)s")
             try await engine.start(locale: language.locale)
             isRecording = true
             status = "Listening…"
@@ -986,17 +1001,22 @@ final class AppModel {
         language != .japanese && language != .chineseSimplified
     }
 
-    private func isKnownWord(_ word: String) -> Bool {
-        SpellingDictionary.knows(word, language: language.transcriptionCode)
-    }
-
     /// Names from the screen that aren't already in the vocabulary. They are
     /// hints for the on-device recognizer only and are never sent to a
     /// transcription provider.
-    private func screenTerms(from text: String?) -> [String] {
+    private func screenTerms(from text: String?) async -> [String] {
         guard let text, learningSupported else { return [] }
+        var queries: Set<String> = []
+        _ = ScreenTerms.extract(from: text, isKnownWord: { word in
+            queries.insert(word)
+            return true
+        })
+        guard let dictionary = await SpellingDictionary.lookup(queries, language: language.transcriptionCode) else {
+            contextLog.notice("screen vocabulary: spell checker unavailable; skipping optional hints")
+            return []
+        }
         let known = Set(customVocabulary.map { $0.lowercased() })
-        let terms = ScreenTerms.extract(from: text, isKnownWord: isKnownWord)
+        let terms = ScreenTerms.extract(from: text, isKnownWord: { dictionary[$0] ?? true })
             .filter { !known.contains($0.lowercased()) }
         if !terms.isEmpty {
             contextLog.notice("screen terms: \(terms.count, privacy: .public)")
@@ -1011,9 +1031,22 @@ final class AppModel {
         correctionWatcher.begin(inserted: inserted, pid: pid)
     }
 
-    private func correctionsObserved(inserted: String, edited: String) {
+    private func correctionsObserved(inserted: String, edited: String) async {
         guard learnFromCorrections else { return }
-        let corrections = CorrectionDetector.corrections(original: inserted, edited: edited, isKnownWord: isKnownWord)
+        var queries: Set<String> = []
+        // Collect both branches before consulting the dictionary, so uncertain
+        // words can never become automatic replacements after a timeout.
+        for assumedKnown in [true, false] {
+            _ = CorrectionDetector.corrections(original: inserted, edited: edited, isKnownWord: { word in
+                queries.insert(word)
+                return assumedKnown
+            })
+        }
+        guard let dictionary = await SpellingDictionary.lookup(queries, language: language.transcriptionCode),
+              learnFromCorrections else { return }
+        let corrections = CorrectionDetector.corrections(
+            original: inserted, edited: edited, isKnownWord: { dictionary[$0] ?? true }
+        )
         guard !corrections.isEmpty else { return }
 
         var learned: [String] = []
@@ -1442,7 +1475,7 @@ final class AppModel {
         // reflect it. We deliberately do NOT paste here — that's what caused
         // doubled insertions. Just point the user at Copy.
         correctionWatcher.onEdited = { [weak self] inserted, edited in
-            self?.correctionsObserved(inserted: inserted, edited: edited)
+            Task { await self?.correctionsObserved(inserted: inserted, edited: edited) }
         }
         AXInsertService.onUnverifiedInsert = { [weak self] in
             self?.errorMessage = "Text may not have reached the app — it's in the transcript above if you need Copy."
@@ -1456,12 +1489,29 @@ final class AppModel {
             return
         }
 
-        let actions = shortcutSession.handle(event)
+        shortcutHoldTask?.cancel()
+        shortcutHoldTask = nil
+        let actions = shortcutSession.handle(event, at: time)
         shortcutLog.notice("""
         event \(String(describing: event), privacy: .public) -> \
         \(actions.map { String(describing: $0) }.joined(separator: ", "), privacy: .public)
         """)
 
+        performShortcutActions(actions, at: time)
+
+        if let deadline = shortcutSession.pendingHoldDeadline,
+           let pressed = shortcutSession.pendingHoldStartedAt {
+            shortcutHoldTask = Task { [weak self] in
+                try? await Task.sleep(for: .seconds(max(0, deadline.timeIntervalSinceNow)))
+                guard let self, !Task.isCancelled else { return }
+                self.shortcutHoldTask = nil
+                let actions = self.shortcutSession.advanceTime(to: Date())
+                self.performShortcutActions(actions, at: pressed)
+            }
+        }
+    }
+
+    private func performShortcutActions(_ actions: [DictationShortcutAction], at time: Date) {
         for action in actions {
             switch action {
             case .start(let mode):
@@ -1493,7 +1543,22 @@ final class AppModel {
     }
 
     func applyActivation() {
+        if appliedShortcutConfiguration != shortcutConfiguration {
+            let wasActive = shortcutSession.isActive
+            shortcutHoldTask?.cancel()
+            shortcutHoldTask = nil
+            shortcutSession.reset()
+            shortcutSession.toggleActivationMethod = shortcutConfiguration.toggleActivationMethod
+            appliedShortcutConfiguration = shortcutConfiguration
+            if wasActive, isRecording { Task { await self.stop() } }
+        }
         shortcuts.apply(configuration: shortcutConfiguration)
+    }
+
+    func setToggleActivationMethod(_ method: ToggleActivationMethod) {
+        shortcutConfiguration = shortcutConfiguration.usingToggleActivation(method)
+        applyActivation()
+        persistPreferences()
     }
 
     /// Assigns one of the three bindings and re-arms the tap. Conflicts are
@@ -1508,6 +1573,13 @@ final class AppModel {
     /// While the settings recorder is listening for keys, the global tap must
     /// stop reacting to them — otherwise recording "Fn" would start a dictation.
     func setShortcutCapture(_ capturing: Bool) {
+        if capturing {
+            shortcutHoldTask?.cancel()
+            shortcutHoldTask = nil
+            let wasActive = shortcutSession.isActive
+            shortcutSession.reset()
+            if wasActive, isRecording { Task { await self.stop() } }
+        }
         shortcuts.setCaptureMode(capturing)
     }
 

@@ -38,5 +38,10 @@ let package = Package(
             dependencies: ["Learning"],
             path: "Tests/LearningTests"
         ),
+        .testTarget(
+            name: "QuietSpeechTests",
+            dependencies: ["QuietSpeech"],
+            path: "Tests/QuietSpeechTests"
+        ),
     ]
 )

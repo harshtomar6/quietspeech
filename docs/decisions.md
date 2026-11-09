@@ -34,6 +34,13 @@ Repository review: 2026-10-26. Existing commits establish the actions below. The
 - **Status:** A QuietSpeech Missions project is linked to `harshtomar6/quietspeech`. The previous standalone Cloudflare memory endpoint returns HTTP 410 with the replacement URL.
 - **Evidence:** [Unified MCP implementation](https://github.com/harshtomar6/harshtomar/tree/main/src/lib/mcp), [Missions](https://harshtomar.com/admin/missions), and the live OAuth/tool smoke test on 2026-10-26.
 
+## 2026-11-09 — Offer double-tap or a separate shortcut for hands-free dictation
+
+- **Decision:** Give Tap to Toggle two activation choices: double-tap the current Hold to Talk key, or record a separate shortcut. In double-tap mode, a single tap stops hands-free dictation and holding still supports push-to-talk. Keep existing installations on their separate shortcut and remember it when switching modes.
+- **Why:** The owner requested both choices. Distinguishing a tap from a sustained hold before starting avoids launching and canceling microphone sessions for the two taps. Timing and implemented behavior are recorded in [product](product.md#personalization-and-output).
+- **Evidence:** Owner request in this conversation; [session controller](../Sources/QuietSpeech/ShortcutCore/DictationShortcutSessionController.swift), [settings](../Sources/QuietSpeech/ToggleActivationSettings.swift), and [tests](../Tests/QuietSpeechTests/ToggleActivationTests.swift). Published in 0.3.4 on 2026-11-09; see the [Sparkle feed](../landing/appcast.xml).
+
+
 ## Future entries
 
 Add an entry when a decision changes product behavior, audience focus, positioning, pricing, architecture, or a major marketing direction. Record the decision, reason, alternatives, evidence, owner, date, and what would cause a revisit. If superseded, link the new decision instead of silently rewriting history.

@@ -19,6 +19,16 @@ enum DictationShortcutAction: Equatable {
 }
 
 struct DictationShortcutSessionController {
+    static let holdThreshold: TimeInterval = 0.3
+    static let doubleTapInterval: TimeInterval = 0.35
+
+    var toggleActivationMethod: ToggleActivationMethod = .shortcut
+    private(set) var pendingHoldStartedAt: Date?
+    private var lastTapReleasedAt: Date?
+
+    var pendingHoldDeadline: Date? {
+        pendingHoldStartedAt?.addingTimeInterval(Self.holdThreshold)
+    }
     /// How the current session was started, or nil when idle.
     private(set) var activeMode: RecordingTriggerMode?
 
@@ -26,14 +36,29 @@ struct DictationShortcutSessionController {
 
     mutating func reset() {
         activeMode = nil
+        pendingHoldStartedAt = nil
+        lastTapReleasedAt = nil
     }
 
     /// The session ended somewhere else (menu item, overlay button, error).
     mutating func sessionDidStopExternally() {
-        activeMode = nil
+        reset()
     }
 
-    mutating func handle(_ event: ShortcutEvent) -> [DictationShortcutAction] {
+    /// In double-tap mode the first press gets a short chance to become a tap.
+    /// Only a sustained hold starts the microphone; isolated taps do nothing.
+    mutating func advanceTime(to time: Date) -> [DictationShortcutAction] {
+        guard activeMode == nil, let deadline = pendingHoldDeadline, time >= deadline else { return [] }
+        pendingHoldStartedAt = nil
+        lastTapReleasedAt = nil
+        activeMode = .hold
+        return [.start(.hold)]
+    }
+
+    mutating func handle(_ event: ShortcutEvent, at time: Date = Date()) -> [DictationShortcutAction] {
+        if toggleActivationMethod == .doubleTapHold {
+            return handleDoubleTap(event, at: time)
+        }
         switch event {
         case .holdActivated:
             guard activeMode == nil else { return [] }
@@ -62,6 +87,41 @@ struct DictationShortcutSessionController {
             return []
 
         case .copyAgainTriggered:
+            return []
+        }
+    }
+
+    private mutating func handleDoubleTap(_ event: ShortcutEvent, at time: Date) -> [DictationShortcutAction] {
+        switch event {
+        case .holdActivated:
+            if activeMode == .toggle {
+                reset()
+                return [.stop]
+            }
+            guard activeMode == nil, pendingHoldStartedAt == nil else { return [] }
+            if let released = lastTapReleasedAt,
+               time >= released, time.timeIntervalSince(released) <= Self.doubleTapInterval {
+                lastTapReleasedAt = nil
+                activeMode = .toggle
+                return [.start(.toggle)]
+            }
+            lastTapReleasedAt = nil
+            pendingHoldStartedAt = time
+            return []
+
+        case .holdDeactivated:
+            if activeMode == .hold {
+                reset()
+                return [.stop]
+            }
+            if let pressed = pendingHoldStartedAt {
+                let duration = time.timeIntervalSince(pressed)
+                lastTapReleasedAt = duration >= 0 && duration < Self.holdThreshold ? time : nil
+                pendingHoldStartedAt = nil
+            }
+            return []
+
+        case .toggleActivated, .toggleDeactivated, .copyAgainTriggered:
             return []
         }
     }

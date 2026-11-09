@@ -267,14 +267,10 @@ struct OnboardingView: View {
                     binding: holdBinding
                 )
                 SettingsDivider()
-                shortcutRow(
-                    title: "Tap to toggle",
-                    detail: "Press once to start, again to stop.",
-                    binding: toggleBinding
-                )
+                ToggleActivationSettings(model: model)
             }
 
-            if model.shortcutConfiguration.hold.usesFnKey || model.shortcutConfiguration.toggle.usesFnKey {
+            if model.shortcutConfiguration.hold.usesFnKey || model.shortcutConfiguration.activeToggleBinding.usesFnKey {
                 SettingsNote("If Fn opens the emoji picker, set “Press 🌐 key to” to “Do nothing” in System Settings › Keyboard.")
                     .padding(.horizontal, 2)
             }
@@ -431,6 +427,9 @@ struct OnboardingView: View {
         if configuration.isDisabled {
             return "Activation is off — start dictation from the menu bar."
         }
+        if configuration.toggleActivationMethod == .doubleTapHold, !configuration.hold.isDisabled {
+            return "Double-tap \(configuration.hold.displayName) to start; tap once to stop."
+        }
         if !configuration.hold.isDisabled {
             return "Hold \(configuration.hold.displayName) to try it."
         }
@@ -444,12 +443,6 @@ struct OnboardingView: View {
         )
     }
 
-    private var toggleBinding: Binding<ShortcutBinding> {
-        Binding(
-            get: { model.shortcutConfiguration.toggle },
-            set: { model.setBinding($0, for: .toggle) }
-        )
-    }
 }
 
 // MARK: - Pieces

@@ -216,14 +216,39 @@ final class CorrectionWatcher {
 
 @MainActor
 enum SpellingDictionary {
-    /// Whether the system spell checker knows `word` in `language`. Names the
-    /// user has taught it count as known.
-    static func knows(_ word: String, language: String) -> Bool {
-        let range = NSSpellChecker.shared.checkSpelling(
-            of: word, startingAt: 0, language: language,
-            wrap: false, inSpellDocumentWithTag: 0, wordCount: nil
-        )
-        return range.location == NSNotFound
+    /// Batch dictionary checks through AppKit's asynchronous API. A stalled
+    /// spell server must never stop the main queue or hold up the microphone.
+    /// Nil means unavailable, not that the words are unknown.
+    static func lookup(_ words: Set<String>, language: String) async -> [String: Bool]? {
+        let ordered = words.sorted()
+        guard !ordered.isEmpty else { return [:] }
+        let text = ordered.joined(separator: "\n")
+        let results: [NSTextCheckingResult]? = await TimedCallback.run(timeout: 0.2, fallback: nil) { finish in
+            NSSpellChecker.shared.requestChecking(
+                of: text,
+                range: NSRange(location: 0, length: (text as NSString).length),
+                types: NSTextCheckingResult.CheckingType.spelling.rawValue,
+                options: [.orthography: NSOrthography.defaultOrthography(forLanguage: language)],
+                inSpellDocumentWithTag: 0
+            ) { _, results, _, _ in
+                finish(results)
+            }
+        }
+        guard let results else { return nil }
+        return knowledge(for: ordered, results: results)
+    }
+
+    static func knowledge(for words: [String], results: [NSTextCheckingResult]) -> [String: Bool] {
+        var offset = 0
+        var known: [String: Bool] = [:]
+        for word in words {
+            let range = NSRange(location: offset, length: (word as NSString).length)
+            known[word] = !results.contains {
+                $0.resultType == .spelling && NSIntersectionRange(range, $0.range).length > 0
+            }
+            offset += range.length + 1
+        }
+        return known
     }
 }
 
