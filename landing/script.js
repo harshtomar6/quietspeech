@@ -460,24 +460,21 @@ if (demoSteps.length) {
   });
 }
 
-/* Launch film. The link works on its own (it opens the MP4); with a dialog it
-   plays in place, with sound, and phones in portrait get the 4:5 cut. */
+/* Demo dialog. The poster link works on its own (it opens the MP4); with a
+   dialog it plays in place, with controls. */
 const film = document.getElementById("film");
 const filmVideo = document.getElementById("film-video");
 const filmOpen = document.querySelector("[data-film-open]");
 if (film && filmVideo && filmOpen && typeof film.showModal === "function") {
-  const portrait = window.matchMedia("(max-width: 720px) and (orientation: portrait)");
   const closeFilm = () => {
     filmVideo.pause();
     if (film.open) film.close();
   };
   filmOpen.addEventListener("click", (event) => {
     event.preventDefault();
-    const tall = portrait.matches;
-    const src = tall ? "assets/film/quietspeech-film-feed.mp4" : "assets/film/quietspeech-film-720.mp4";
-    film.classList.toggle("is-tall", tall);
+    const src = "assets/demo/quietspeech-demo.mp4";
     if (!filmVideo.src.endsWith(src)) {
-      filmVideo.poster = tall ? "assets/film/poster-feed.jpg" : "assets/film/poster-720.jpg";
+      filmVideo.poster = "assets/demo/quietspeech-demo-poster.jpg";
       filmVideo.src = src;
     }
     film.showModal();
@@ -489,3 +486,59 @@ if (film && filmVideo && filmOpen && typeof film.showModal === "function") {
   });
   film.addEventListener("close", () => filmVideo.pause());
 }
+
+/* Checkout attribution. Remember the utm_* tags a visitor arrived with
+   (last touch, kept 30 days) and copy them onto every Polar checkout link,
+   so each Polar order records which listing or post the sale came from.
+   The Minilytics visitor id goes along as reference_id, which lets an
+   order be matched to its Minilytics visit. */
+(() => {
+  const KEY = "qs_utm";
+  const MAX_AGE = 30 * 24 * 60 * 60 * 1000;
+  const UTM = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"];
+
+  let stored = null;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const fresh = {};
+    UTM.forEach((key) => {
+      const value = params.get(key);
+      if (value) fresh[key] = value.slice(0, 100);
+    });
+    if (Object.keys(fresh).length) {
+      stored = { tags: fresh, at: Date.now() };
+      localStorage.setItem(KEY, JSON.stringify(stored));
+    } else {
+      stored = JSON.parse(localStorage.getItem(KEY) || "null");
+      if (stored && Date.now() - stored.at > MAX_AGE) {
+        localStorage.removeItem(KEY);
+        stored = null;
+      }
+    }
+  } catch (error) {
+    stored = null;
+  }
+
+  const tagLink = (link) => {
+    try {
+      const url = new URL(link.href);
+      if (url.hostname !== "buy.polar.sh") return;
+      if (stored) {
+        Object.entries(stored.tags).forEach(([key, value]) => url.searchParams.set(key, value));
+      }
+      const attribution = window.minilytics && window.minilytics.attribution ? window.minilytics.attribution() : {};
+      if (attribution.ml_visitor_id) url.searchParams.set("reference_id", attribution.ml_visitor_id);
+      link.href = url.toString();
+    } catch (error) {
+      /* Leave the link as it is. */
+    }
+  };
+
+  /* Tag on load for anyone who hovers or copies the link, and again on click,
+     after Minilytics has loaded and can report the visitor id. */
+  document.querySelectorAll('a[href^="https://buy.polar.sh/"]').forEach(tagLink);
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest && event.target.closest('a[href^="https://buy.polar.sh/"]');
+    if (link) tagLink(link);
+  }, true);
+})();

@@ -1,8 +1,15 @@
 {
+  "cleanUrls": true,
+  "trailingSlash": false,
   "redirects": [
     {
       "source": "/(.*)",
-      "has": [{ "type": "host", "value": "www.quietspeech.app" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "www.quietspeech.app"
+        }
+      ],
       "destination": "https://quietspeech.app/$1",
       "permanent": true
     }
