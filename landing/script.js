@@ -460,25 +460,32 @@ if (demoSteps.length) {
   });
 }
 
-/* Demo dialog. The poster link works on its own (it opens the MP4); with a
-   dialog it plays in place, with controls. */
+/* Video dialog. Each [data-film-open] link works on its own (it opens the
+   MP4); with a dialog it plays in place, with controls. A link can name its
+   own source and poster, plus a 4:5 cut for narrow screens. */
 const film = document.getElementById("film");
 const filmVideo = document.getElementById("film-video");
-const filmOpen = document.querySelector("[data-film-open]");
-if (film && filmVideo && filmOpen && typeof film.showModal === "function") {
+const filmOpeners = document.querySelectorAll("[data-film-open]");
+if (film && filmVideo && filmOpeners.length && typeof film.showModal === "function") {
   const closeFilm = () => {
     filmVideo.pause();
     if (film.open) film.close();
   };
-  filmOpen.addEventListener("click", (event) => {
-    event.preventDefault();
-    const src = "assets/demo/quietspeech-demo.mp4";
-    if (!filmVideo.src.endsWith(src)) {
-      filmVideo.poster = "assets/demo/quietspeech-demo-poster.jpg";
-      filmVideo.src = src;
-    }
-    film.showModal();
-    filmVideo.play().catch(() => {});
+  const narrow = window.matchMedia("(max-width: 700px)");
+  filmOpeners.forEach((opener) => {
+    opener.addEventListener("click", (event) => {
+      event.preventDefault();
+      const tall = narrow.matches && opener.dataset.filmTallSrc;
+      const src = tall ? opener.dataset.filmTallSrc : (opener.dataset.filmSrc || opener.getAttribute("href"));
+      const poster = tall ? opener.dataset.filmTallPoster : opener.dataset.filmPoster;
+      film.classList.toggle("is-tall", Boolean(tall));
+      if (!filmVideo.src.endsWith(src)) {
+        filmVideo.poster = poster || "";
+        filmVideo.src = src;
+      }
+      film.showModal();
+      filmVideo.play().catch(() => {});
+    });
   });
   film.querySelector("[data-film-close]").addEventListener("click", closeFilm);
   film.addEventListener("click", (event) => {

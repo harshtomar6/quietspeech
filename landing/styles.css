@@ -2750,3 +2750,157 @@ a {
     transform: none;
   }
 }
+
+/* Refund reassurance under purchase buttons */
+
+.refund-line {
+  margin-top: 12px;
+  color: var(--text-3);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.hero .refund-line,
+.final-inner .refund-line {
+  text-align: center;
+}
+
+.price-card .refund-line {
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* Founder */
+
+.founder-section {
+  padding: 8px 0 104px;
+  background: var(--paper-2);
+}
+
+.founder-card {
+  display: grid;
+  grid-template-columns: 112px 1fr;
+  gap: 36px;
+  align-items: start;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.founder-avatar {
+  display: grid;
+  place-items: center;
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-deep));
+  color: #fff;
+  font-size: 36px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  object-fit: cover;
+}
+
+.founder-copy h2 {
+  margin: 6px 0 14px;
+  font-size: clamp(26px, 3vw, 34px);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
+}
+
+.founder-copy p {
+  max-width: 600px;
+  color: var(--text-2);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.founder-copy p + p {
+  margin-top: 12px;
+}
+
+.founder-copy .eyebrow {
+  margin: 0;
+}
+
+.founder-links a {
+  color: var(--accent-text);
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 700px) {
+  .founder-card {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 28px 22px;
+  }
+
+  .founder-avatar {
+    width: 80px;
+    height: 80px;
+    font-size: 26px;
+  }
+}
+
+/* Launch film section */
+
+.film-section {
+  padding: 104px 0 96px;
+  background: var(--paper);
+}
+
+.film-section .section-note {
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.film-card-wrap {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.film-card {
+  box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.35);
+}
+
+.film-card-compare {
+  max-width: none;
+  margin: 40px 0 48px;
+}
+
+.film-card .hero-demo-play {
+  top: auto;
+  bottom: 24px;
+  left: 24px;
+  transform: none;
+}
+
+.film-card:hover .hero-demo-play,
+.film-card:focus-visible .hero-demo-play {
+  transform: scale(1.04);
+}
+
+@media (max-width: 700px) {
+  .film-card .hero-demo-play {
+    bottom: 14px;
+    left: 14px;
+  }
+}
+
+.film-card-compare .hero-demo {
+  max-width: none;
+}
+
+.founder-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+}
