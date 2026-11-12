@@ -384,6 +384,17 @@ struct ActivationPane: View {
                 shortcutRow(.copyAgain)
             }
 
+            SettingsGroup("While dictating", icon: "pause.circle") {
+                SettingsRow(
+                    "Pause media when dictation starts",
+                    subtitle: "Pause the current media player if it supports system controls. Media stays paused when you finish."
+                ) {
+                    SettingsToggle(isOn: $model.pauseMediaOnDictation) { _ in
+                        model.persistPreferences()
+                    }
+                }
+            }
+
             SettingsGroup("Fn key", icon: "key") {
                 SettingsRow(
                     "Emoji picker takes over Fn",

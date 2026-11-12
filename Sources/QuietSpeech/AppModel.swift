@@ -145,6 +145,7 @@ final class AppModel {
     /// Insert at the caret via the Accessibility API, falling back to paste.
     var useDirectInsertion = true
     var overlayStyle: OverlayStyle = .capsule
+    var pauseMediaOnDictation = true
 
     /// First run shows the guided setup window instead of settings.
     var onboardingCompleted = false
@@ -181,6 +182,7 @@ final class AppModel {
     private let engine = SpeechEngine()
     private let shortcuts = ShortcutBackend()
     private let hud = HUDController()
+    private let mediaPlayback = MediaPlaybackController()
     private let correctionWatcher = CorrectionWatcher()
     private var correctionTally = CorrectionTally()
     private var isStartingDictation = false
@@ -436,6 +438,9 @@ final class AppModel {
         }
 
         do {
+            await mediaPlayback.pauseIfEnabled(pauseMediaOnDictation)
+            // The trigger can be released while the media request is pending.
+            guard !startedByShortcut || shortcutSession.isActive else { return }
             shortcutLog.notice("startup: starting audio at \(Date().timeIntervalSince(startupBeganAt), privacy: .public)s")
             try await engine.start(locale: language.locale)
             isRecording = true
@@ -1639,6 +1644,7 @@ final class AppModel {
         defaults.set(autoInsert, forKey: "autoInsert")
         defaults.set(useDirectInsertion, forKey: "useDirectInsertion")
         defaults.set(overlayStyle.rawValue, forKey: "overlayStyle")
+        defaults.set(pauseMediaOnDictation, forKey: "pauseMediaOnDictation")
         defaults.set(captureDictations, forKey: "captureDictations")
         defaults.set(saveAudioClips, forKey: "saveAudioClips")
         defaults.set(onboardingCompleted, forKey: "onboardingCompleted")
@@ -1695,6 +1701,9 @@ final class AppModel {
         }
         if defaults.object(forKey: "useDirectInsertion") != nil {
             useDirectInsertion = defaults.bool(forKey: "useDirectInsertion")
+        }
+        if defaults.object(forKey: "pauseMediaOnDictation") != nil {
+            pauseMediaOnDictation = defaults.bool(forKey: "pauseMediaOnDictation")
         }
         if let raw = defaults.string(forKey: "overlayStyle"),
            let value = OverlayStyle(rawValue: raw) {

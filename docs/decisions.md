@@ -41,6 +41,13 @@ Repository review: 2026-10-26. Existing commits establish the actions below. The
 - **Evidence:** Owner request in this conversation; [session controller](../Sources/QuietSpeech/ShortcutCore/DictationShortcutSessionController.swift), [settings](../Sources/QuietSpeech/ToggleActivationSettings.swift), and [tests](../Tests/QuietSpeechTests/ToggleActivationTests.swift). Published in 0.3.4 on 2026-11-09; see the [Sparkle feed](../landing/appcast.xml).
 
 
+## 2026-11-12 — Pause current media at dictation startup
+
+- **Decision:** Add an enabled-by-default, persistent Activation setting that sends a pause-only command before microphone startup. Leave media paused afterward; automatic resume was not requested. Apply it to hold, toggle and menu starts through the shared startup path.
+- **Why:** The owner requested automatically pausing playing media when dictation is activated. Avoid a play/pause key event, which can start paused media. Bound the request to 150 ms and continue dictation if unavailable.
+- **Implementation and limits:** Dynamically resolve the private system MediaRemote pause sender; missing symbols are a no-op. It targets macOS’s current media player, so unsupported players or simultaneous sources are not guaranteed. No metadata lookup, Automation prompt or additional dependency is introduced. See [media controller](../Sources/QuietSpeech/MediaPlaybackController.swift) and [tests](../Tests/QuietSpeechTests/MediaPlaybackControllerTests.swift).
+- **Revisit:** If macOS changes this private API or live player compatibility fails, revise the sender while retaining pause-only behavior and responsive startup. No public release is claimed by this entry.
+
 ## Future entries
 
 Add an entry when a decision changes product behavior, audience focus, positioning, pricing, architecture, or a major marketing direction. Record the decision, reason, alternatives, evidence, owner, date, and what would cause a revisit. If superseded, link the new decision instead of silently rewriting history.

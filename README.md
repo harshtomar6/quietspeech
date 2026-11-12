@@ -6,6 +6,8 @@ Hold <kbd>Fn</kbd>, speak, and let go. The cleaned-up text appears wherever your
 
 In Settings › Activation, Tap to Toggle can use a double-tap of your Hold to Talk key or a separate shortcut. With double-tap, tap twice to start hands-free dictation and once to stop.
 
+Settings › Activation can pause the current media player when dictation starts. This is on by default; media stays paused afterward. Players must support macOS media controls.
+
 **[quietspeech.app](https://quietspeech.app)** has the notarized download and license keys.
 
 ## What it does
