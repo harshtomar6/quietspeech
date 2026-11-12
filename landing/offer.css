@@ -1,0 +1,61 @@
+/* Seasonal offer, scoped to the home and paid-search landing pages. */
+html { scroll-padding-top: 120px; }
+.black-friday { padding-top: 40px; }
+.black-friday .nav { top: 40px; }
+.offer-banner {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 101;
+  height: 40px;
+  background: #f4d58b;
+  color: #211b10;
+  font-size: 13px;
+}
+.offer-banner a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  height: 100%;
+  padding: 0 16px;
+  color: inherit;
+  text-decoration: none;
+}
+.offer-banner strong { font-weight: 750; }
+.offer-banner-link { text-decoration: underline; text-underline-offset: 3px; }
+.offer-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 12px;
+  margin: 0 0 22px;
+  border: 1px solid #f4d58b66;
+  border-radius: 999px;
+  background: #f4d58b0c;
+  color: #f4d58b;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.offer-future {
+  margin: 0 0 24px;
+  color: #b6bec9;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.offer-future strong { color: #f4d58b; font-weight: 600; }
+.hero .offer-future { max-width: 520px; margin: 0 auto 24px; }
+.black-friday .price-card { border-color: #c49a48; box-shadow: 0 24px 70px #b5892c18; }
+.price-offer-label { margin-top: 12px; color: #795313; font-size: 13px; font-weight: 650; }
+.offer-future-card { margin: 20px 0 0; color: #62626b; }
+.offer-future-card strong { color: #795313; }
+.offer-future-inline { font-size: 14px; color: #b6bec9; }
+@media (max-width: 680px) {
+  .offer-banner { font-size: 12px; }
+  .offer-banner a { gap: 12px; }
+  .offer-banner-link { display: none; }
+  .black-friday .hero-icon { margin-bottom: 20px; }
+  .black-friday .hero-icon img { width: 72px; height: 72px; }
+  .black-friday .hero .offer-badge { margin-bottom: 16px; }
+  .black-friday .btn-primary:not(.btn-small) { padding-inline: 20px; font-size: 15px; }
+}

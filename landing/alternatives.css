@@ -1,0 +1,25 @@
+.alternative-page{background:#0a0a0c;color:#f3f5f7}
+.alternative-hero{padding:130px 0 64px;background:radial-gradient(ellipse at 80% 15%,#10394675,transparent 52%)}
+.alternative-back{display:inline-block;font-size:13px;color:#b5c0cc;margin-bottom:44px}
+.alternative-hero h1{font-size:clamp(42px,6.5vw,88px);line-height:1.06;letter-spacing:-.055em;margin:20px 0 26px;max-width:1060px}
+.alternative-hero h1 span{color:#78e5e3}
+.alternative-lead{font-size:clamp(18px,2vw,22px);line-height:1.65;max-width:780px;color:#b9c4d1}
+.alternative-fine{font-size:14px;line-height:1.8;color:#a4afbd;margin-top:22px;max-width:950px}
+.alternative-shot{margin:52px 0 0;max-width:1000px}.alternative-shot img{width:100%;height:auto;display:block;border:1px solid #344149;border-radius:16px}
+.alternative-shot figcaption{font-size:13px;line-height:1.7;color:#a4afbd;margin-top:14px;max-width:780px}
+.alternative-section{padding:80px 0;border-top:1px solid #ffffff14;scroll-margin-top:85px}
+.alternative-section h2{font-size:clamp(30px,4vw,48px);line-height:1.12;letter-spacing:-.04em;margin:18px 0 24px;max-width:850px}
+.alternative-section p{line-height:1.8;color:#b8c2cf}.alternative-copy{max-width:800px;font-size:18px}
+.alternative-section a,.alternative-related a{color:#83e1e4;text-decoration:underline;text-underline-offset:4px}
+.alternative-tint{background:#10171c}.alternative-columns{display:grid;grid-template-columns:1fr 1fr;gap:80px}.alternative-columns p{max-width:520px}
+.alternative-table-wrap{margin-top:32px;overflow-x:auto;border:1px solid #35404a;border-radius:12px}.alternative-table{width:100%;min-width:680px;border-collapse:collapse;text-align:left}
+.alternative-table caption{text-align:left;font-size:13px;padding:18px 22px;background:#151c22;color:#b4becb}.alternative-table th,.alternative-table td{padding:22px;border-top:1px solid #35404a;vertical-align:top;line-height:1.7}
+.alternative-table th{font-size:15px}.alternative-table td{font-size:15px;color:#bcc6d3;width:39%}.alternative-table thead th{font-size:13px}.alternative-table tr>:nth-child(2){background:#12272b}.alternative-table strong,.alternative-table thead th:nth-child(2){color:#8af0ed}
+.table-hint{display:none;font-size:13px;margin-top:24px}.alternative-steps{list-style:none;counter-reset:steps;display:grid;grid-template-columns:repeat(3,1fr);gap:36px;margin-top:42px;padding:0}
+.alternative-steps li{counter-increment:steps}.alternative-steps li:before,.alternative-number{content:'0' counter(steps);display:block;color:#78e5e3;font-size:13px;letter-spacing:.15em;margin-bottom:20px}
+.alternative-section h3{font-size:21px;line-height:1.3;margin-bottom:14px}.alternative-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:36px;margin-top:44px}.alternative-cards article{border-top:1px solid #405059;padding-top:24px}
+.alternative-film{display:grid;grid-template-columns:.8fr 1.2fr;align-items:center;gap:60px}.alternative-film-shot{display:block;width:100%;height:auto;border:1px solid #35404a;border-radius:12px;background:#07101b}
+.alternative-questions{max-width:900px}.alternative-questions details{border-bottom:1px solid #34404a;padding:24px 0}.alternative-questions summary{cursor:pointer;font-size:19px;line-height:1.5;font-weight:550}.alternative-questions details p{margin-top:16px}.alternative-related{margin-top:36px}
+.alternative-preferences{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0;text-align:left}.alternative-page a:focus-visible,.alternative-page summary:focus-visible,.alternative-page button:focus-visible,.alternative-table-wrap:focus-visible{outline:2px solid #83e1e4;outline-offset:5px}
+@media(max-width:850px){.alternative-hero{padding-top:112px}.alternative-back{margin-bottom:30px}.alternative-columns,.alternative-film{grid-template-columns:1fr;gap:28px}.alternative-cards,.alternative-steps{grid-template-columns:1fr;gap:30px}.alternative-section{padding:56px 0}.alternative-shot{margin-top:36px}}
+@media(max-width:680px){.alternative-page .container{padding-left:22px;padding-right:22px}.alternative-page .nav-inner{padding-left:22px;padding-right:22px}.alternative-page .nav .btn{padding:10px 14px;font-size:13px}.alternative-hero h1{font-size:clamp(38px,9vw,56px)}.table-hint{display:block}.alternative-table td,.alternative-table th{padding:16px}.alternative-shot img{border-radius:10px}.alternative-page .footer-grid{grid-template-columns:1fr}.alternative-page .footer-links{justify-content:flex-start}}
