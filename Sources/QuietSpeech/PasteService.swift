@@ -124,7 +124,7 @@ enum PasteService {
     }
 
     private static func postCommand(key: CGKeyCode) -> Bool {
-        guard let source = CGEventSource(stateID: .combinedSessionState),
+        guard let source = KeyboardEventSource.make(),
               let down = CGEvent(keyboardEventSource: source, virtualKey: key, keyDown: true),
               let up = CGEvent(keyboardEventSource: source, virtualKey: key, keyDown: false) else {
             return false

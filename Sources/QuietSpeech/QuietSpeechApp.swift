@@ -146,6 +146,14 @@ private struct MenuContent: View {
             }
         }
 
+        if model.shortcutIssue != nil {
+            Button("Restore Shortcuts…") {
+                model.requestedSettingsPane = .permissions
+                openWindow(id: "settings")
+                NSApp.activate(ignoringOtherApps: true)
+            }
+        }
+
         Divider()
 
         Text("Activation: \(model.shortcutConfiguration.summary)")

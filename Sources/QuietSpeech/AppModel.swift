@@ -177,6 +177,7 @@ final class AppModel {
     /// Accessibility covers both typing the transcript into other apps and
     /// watching the Fn key, so there is no separate Input Monitoring prompt.
     var accessibilityGranted = false
+    private(set) var shortcutIssue: String?
 
     // MARK: Internals
     private let engine = SpeechEngine()
@@ -314,9 +315,9 @@ final class AppModel {
 
     // MARK: - Dictation control
 
-    func beginDictation() {
+    func beginDictation(startedByShortcut: Bool = false) {
         guard !isRecording else { return }
-        Task { await start() }
+        Task { await start(startedByShortcut: startedByShortcut) }
     }
 
     func toggleDictation() {
@@ -327,8 +328,9 @@ final class AppModel {
         }
     }
 
-    func start() async {
-        guard !isRecording, !isStartingDictation else { return }
+    func start(startedByShortcut: Bool = false) async {
+        guard !isRecording, !isStartingDictation,
+              !startedByShortcut || shortcutSession.isActive else { return }
         guard license.canUseApp else {
             status = "Activate QuietSpeech"
             errorMessage = license.blockingMessage
@@ -338,12 +340,14 @@ final class AppModel {
         }
         isStartingDictation = true
         defer { isStartingDictation = false }
+        discardOnStop = false
         cancelOverlayPreview()
         let startupBeganAt = Date()
         shortcutLog.notice("startup: preparing context")
         errorMessage = nil
-        // Captured before any await: did the shortcut session ask for this?
-        let startedByShortcut = shortcutSession.isActive
+        // The caller captures the origin before queuing this task. Inferring
+        // it here can mistake a released shortcut for a menu start when the
+        // main queue has already processed both key-down and key-up.
         // The last dictation's field is judged before this one changes things,
         // quietly: the overlay is about to show the new dictation.
         correctionWatcher.finish()
@@ -1486,10 +1490,16 @@ final class AppModel {
             guard let self else { return }
             self.hotkeyError(message)
         }
+        shortcuts.onInputInterrupted = { [weak self] message in
+            self?.hotkeyError(message)
+        }
         shortcuts.onTapStatusChanged = { [weak self] active in
             guard let self else { return }
             self.accessibilityGranted = Permissions.accessibilityGranted
-            if active { self.errorMessage = nil }
+            if active {
+                self.shortcutIssue = nil
+                self.errorMessage = nil
+            }
         }
         // Advisory: the AX write reported success but a later read-back didn't
         // reflect it. We deliberately do NOT paste here — that's what caused
@@ -1535,10 +1545,11 @@ final class AppModel {
         for action in actions {
             switch action {
             case .start(let mode):
+                shortcutIssue = nil
                 shortcutLog.notice("dictation start (\(mode.rawValue, privacy: .public))")
                 holdPressedAt = mode == .hold ? time : nil
                 discardOnStop = false
-                beginDictation()
+                beginDictation(startedByShortcut: true)
             case .stop:
                 shortcutLog.notice("dictation stop")
                 if let pressed = holdPressedAt, time.timeIntervalSince(pressed) < Self.tapThreshold {
@@ -1558,8 +1569,22 @@ final class AppModel {
     }
 
     private func hotkeyError(_ message: String) {
+        shortcutIssue = message
         errorMessage = message
-        refreshPermissions()
+        accessibilityGranted = Permissions.accessibilityGranted
+        shortcutHoldTask?.cancel()
+        shortcutHoldTask = nil
+        shortcutSession.reset()
+        holdPressedAt = nil
+        // Uncertain input must not leave a recording running or insert a
+        // partial dictation unexpectedly. A starting shortcut will also see
+        // the reset session and discard after its pending await completes.
+        if isRecording || isStartingDictation {
+            discardOnStop = true
+            if isRecording { Task { await self.stop() } }
+        }
+        // Do not call refreshPermissions here: it can create a fresh tap
+        // from this error callback and turn a timeout into a re-enable loop.
     }
 
     func applyActivation() {
@@ -1573,6 +1598,7 @@ final class AppModel {
             if wasActive, isRecording { Task { await self.stop() } }
         }
         shortcuts.apply(configuration: shortcutConfiguration)
+        if shortcutConfiguration.isDisabled { shortcutIssue = nil }
     }
 
     func setToggleActivationMethod(_ method: ToggleActivationMethod) {
@@ -1606,9 +1632,7 @@ final class AppModel {
     // MARK: Permissions
 
     func refreshPermissions() {
-        // ensureTap() reports failures via onTapUnavailable, which calls back
-        // into hotkeyError() -> refreshPermissions(). Without this guard a
-        // missing Accessibility grant would recurse without bound.
+        // Serialize permission refreshes while lifecycle callbacks update UI.
         guard !isRefreshingPermissions else { return }
         isRefreshingPermissions = true
         defer { isRefreshingPermissions = false }
@@ -1622,6 +1646,8 @@ final class AppModel {
         // permission.
         if !shortcutConfiguration.isDisabled {
             shortcuts.ensureTap()
+        } else {
+            shortcuts.stopTap()
         }
 
         permLog.notice("""
@@ -1640,6 +1666,11 @@ final class AppModel {
 
     /// TCC caches per process: the reliable fix after granting is a relaunch.
     func relaunch() {
+        // Release the old listener before the replacement process can start.
+        shortcuts.stopTap()
+        shortcutHoldTask?.cancel()
+        shortcutHoldTask = nil
+        shortcutSession.reset()
         let url = Bundle.main.bundleURL
         let configuration = NSWorkspace.OpenConfiguration()
         configuration.createsNewApplicationInstance = true

@@ -1503,6 +1503,10 @@ struct PermissionsPane: View {
             )
             .padding(.bottom, 2)
 
+            if let issue = model.shortcutIssue {
+                SettingsNote(issue, icon: "exclamationmark.triangle")
+            }
+
             SettingsGroup("Access", icon: "lock.shield",
                           note: "macOS reads permissions per process. If you change one in System Settings, relaunch QuietSpeech afterwards.") {
                 permissionRow(

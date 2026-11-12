@@ -62,6 +62,13 @@ Repository review: 2026-10-26. Existing commits establish the actions below. The
 - **Lifecycle:** Keep the reminder after dismissal or while downloading, clear it on explicit Skip or a confirmed no-update result, and persist it for the current build so a relaunch does not lose it. A newer installed build starts without the older reminder. Render the dot as a template mask so it follows menu-bar and recording tint.
 - **Evidence:** [controller](../Sources/QuietSpeech/UpdateController.swift), [menu](../Sources/QuietSpeech/QuietSpeechApp.swift) and [tests](../Tests/QuietSpeechTests/UpdateControllerTests.swift). A separate signed test app detected the published update and displayed the badged icon with the install action first. No public version change is claimed.
 
+## 2026-11-12 — Prefer ordinary input delivery when shortcuts are interrupted
+
+- **Decision:** Make the synchronous event callback fail open: never wait for the configuration lock, never repeatedly re-enable a timeout/user-disabled stream, and invalidate stale queued activations. Pause unhealthy listeners until an explicit retry and discard uncertain recordings. Expose recovery through Restore Shortcuts → Permissions.
+- **Why:** Investigation reproduced stale Fn state consuming ordinary Command, a callback blocked behind a held lock, and an activation delivered after disable. These demonstrate input-handling weaknesses; they do not prove the cause of the complete reported keyboard-and-mouse incident.
+- **Lifecycle and generated events:** Disable new ports until their run-loop source is installed, serialize startup against cancellation, and release the old listener before relaunch. Use private event sources with zero hardware suppression, explicit hardware passthrough and a marker the shortcut listener ignores. Keep permission checks, UI work and per-key logs out of the input callback.
+- **Evidence and remaining limits:** [Investigation](investigations/input-freeze.md) and [thirteen safety tests](../Tests/QuietSpeechTests/ShortcutBackendSafetyTests.swift). Exact customer permission/hardware reproduction and full single-instance enforcement remain separate work. No public release is claimed here.
+
 ## Future entries
 
 Add an entry when a decision changes product behavior, audience focus, positioning, pricing, architecture, or a major marketing direction. Record the decision, reason, alternatives, evidence, owner, date, and what would cause a revisit. If superseded, link the new decision instead of silently rewriting history.

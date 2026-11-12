@@ -38,7 +38,7 @@ enum TypingService {
             log.notice("typing: refusing \(text.count) chars (limit \(maxCharacters))")
             return false
         }
-        guard let source = CGEventSource(stateID: .combinedSessionState) else {
+        guard let source = KeyboardEventSource.make() else {
             log.debug("typing: could not create event source")
             return false
         }
