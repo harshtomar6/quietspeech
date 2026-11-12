@@ -386,8 +386,8 @@ struct ActivationPane: View {
 
             SettingsGroup("While dictating", icon: "pause.circle") {
                 SettingsRow(
-                    "Pause media when dictation starts",
-                    subtitle: "Pause the current media player if it supports system controls. Media stays paused when you finish."
+                    "Pause media while dictating",
+                    subtitle: "Pause the current media player and resume when transcription finishes if it was playing. Requires system media controls."
                 ) {
                     SettingsToggle(isOn: $model.pauseMediaOnDictation) { _ in
                         model.persistPreferences()

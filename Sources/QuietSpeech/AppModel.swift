@@ -437,10 +437,14 @@ final class AppModel {
             return
         }
 
+        let mediaSession = sessionGeneration
         do {
-            await mediaPlayback.pauseIfEnabled(pauseMediaOnDictation)
+            await mediaPlayback.pauseIfEnabled(pauseMediaOnDictation, session: mediaSession)
             // The trigger can be released while the media request is pending.
-            guard !startedByShortcut || shortcutSession.isActive else { return }
+            guard !startedByShortcut || shortcutSession.isActive else {
+                await mediaPlayback.resumeIfNeeded(for: mediaSession)
+                return
+            }
             shortcutLog.notice("startup: starting audio at \(Date().timeIntervalSince(startupBeganAt), privacy: .public)s")
             try await engine.start(locale: language.locale)
             isRecording = true
@@ -450,6 +454,7 @@ final class AppModel {
             revealOverlay()
             shortcutLog.notice("engine listening")
         } catch {
+            await mediaPlayback.resumeIfNeeded(for: mediaSession)
             shortcutLog.error("engine start failed: \(error.localizedDescription, privacy: .public)")
             errorMessage = error.localizedDescription
             status = "Idle"
@@ -486,6 +491,13 @@ final class AppModel {
         }
         // Whatever stopped us — trigger, menu, overlay — the session is over.
         let generation = sessionGeneration
+        await finishStop(generation: generation)
+        // Keep media paused through provider transcription, AI work and
+        // insertion, including their error and empty-result paths.
+        await mediaPlayback.resumeIfNeeded(for: generation)
+    }
+
+    private func finishStop(generation: Int) async {
         shortcutSession.sessionDidStopExternally()
         status = "Finishing…"
         let audioURL = await engine.stop()
@@ -767,6 +779,7 @@ final class AppModel {
     /// Ends a session started by tapping Fn: nothing is inserted, saved to
     /// history, or shown.
     private func discardTap() async {
+        let mediaSession = sessionGeneration
         shortcutLog.notice("Fn tapped, not held -> session discarded")
         discardOnStop = false
         holdPressedAt = nil
@@ -786,6 +799,7 @@ final class AppModel {
         recordingStartedAt = nil
         status = "Idle"
         hud.hide()
+        await mediaPlayback.resumeIfNeeded(for: mediaSession)
     }
 
     private func hideOverlay() {

@@ -43,10 +43,17 @@ Repository review: 2026-10-26. Existing commits establish the actions below. The
 
 ## 2026-11-12 — Pause current media at dictation startup
 
-- **Decision:** Add an enabled-by-default, persistent Activation setting that sends a pause-only command before microphone startup. Leave media paused afterward; automatic resume was not requested. Apply it to hold, toggle and menu starts through the shared startup path.
+- **Decision:** Add an enabled-by-default, persistent Activation setting that sends a pause-only command before microphone startup. Initially leave media paused afterward; this part is superseded by the automatic-resume decision below. Apply it to hold, toggle and menu starts through the shared startup path.
 - **Why:** The owner requested automatically pausing playing media when dictation is activated. Avoid a play/pause key event, which can start paused media. Bound the request to 150 ms and continue dictation if unavailable.
 - **Implementation and limits:** Dynamically resolve the private system MediaRemote pause sender; missing symbols are a no-op. It targets macOS’s current media player, so unsupported players or simultaneous sources are not guaranteed. No metadata lookup, Automation prompt or additional dependency is introduced. See [media controller](../Sources/QuietSpeech/MediaPlaybackController.swift) and [tests](../Tests/QuietSpeechTests/MediaPlaybackControllerTests.swift).
 - **Revisit:** If macOS changes this private API or live player compatibility fails, revise the sender while retaining pause-only behavior and responsive startup. No public release is claimed by this entry.
+
+## 2026-11-12 — Resume interrupted media after transcription finishes
+
+- **Decision:** Extend the pause setting to resume the same paused media app after the complete transcription/AI/insertion flow. The owner explicitly requested automatic resume, superseding the earlier pause-only choice. Keep its existing enabled-by-default preference.
+- **Resume conditions:** Capture a confirmed playing state and player process ID before Pause. Send Play only if that app is still selected and paused at completion. Unknown state, an initially paused player, an unsuccessful Pause or a changed app does not authorize Play. Track changes within the same app are not identified. Carry pause ownership to a newer dictation and ignore stale completion requests.
+- **Implementation:** Commands retain the runtime-resolved MediaRemote sender. Direct C playback-state queries returned an empty player ID in a signed executable on this Mac; a read-only JavaScript query through the macOS script host returned the correct identity and state in the live test. The helper returns only PID and state, has a bounded lifetime, and does not request Automation or capture audio. Unavailable reads degrade to pause-only. See [controller](../Sources/QuietSpeech/MediaPlaybackController.swift), [completion paths](../Sources/QuietSpeech/AppModel.swift) and [tests](../Tests/QuietSpeechTests/MediaPlaybackControllerTests.swift).
+- **Revisit:** macOS changes to these private media interfaces or live compatibility failures. No public release is claimed by this entry.
 
 ## Future entries
 
