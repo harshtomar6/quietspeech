@@ -88,10 +88,14 @@ struct QuietSpeechApp: App {
         } label: {
             // 24 pt wide puts the ribbon at about 12 pt tall, the height of
             // the system's own menu bar icons; the artwork's 30 pt looked big.
-            Image(nsImage: BrandMark.image(size: 24))
+            Image(nsImage: BrandMark.menuBarImage(updateAvailable: updater.isUpdateAvailable))
                 .renderingMode(.template)
                 .foregroundStyle(model.isRecording ? Color(nsColor: .systemRed) : Color.primary)
-                .accessibilityLabel(model.isRecording ? "QuietSpeech, recording" : "QuietSpeech")
+                .accessibilityLabel([
+                    "QuietSpeech",
+                    model.isRecording ? "recording" : nil,
+                    updater.isUpdateAvailable ? "update available" : nil
+                ].compactMap { $0 }.joined(separator: ", "))
         }
     }
 }
@@ -127,6 +131,13 @@ private struct MenuContent: View {
     }
 
     var body: some View {
+        if updater.isUpdateAvailable {
+            Button("Install New Update…") {
+                updater.installUpdate()
+            }
+            Divider()
+        }
+
         Button(primaryActionTitle) {
             if model.license.canUseApp {
                 model.toggleDictation()
@@ -167,8 +178,10 @@ private struct MenuContent: View {
             }
         }
 
-        Button("Check for Updates…") {
-            updater.checkForUpdates()
+        if !updater.isUpdateAvailable {
+            Button("Check for Updates…") {
+                updater.checkForUpdates()
+            }
         }
 
         Button("Quit QuietSpeech") {

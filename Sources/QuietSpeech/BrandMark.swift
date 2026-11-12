@@ -22,6 +22,22 @@ enum BrandMark {
         return copy
     }
 
+    /// A template-image dot stays visible with the system menu-bar tint,
+    /// including dark wallpapers, high contrast, and the recording color.
+    static func menuBarImage(updateAvailable: Bool) -> NSImage {
+        let mark = image(size: 24)
+        guard updateAvailable else { return mark }
+        let size = NSSize(width: mark.size.width + 6, height: mark.size.height)
+        let image = NSImage(size: size, flipped: false) { _ in
+            mark.draw(in: NSRect(origin: .zero, size: mark.size))
+            NSColor.black.setFill()
+            NSBezierPath(ovalIn: NSRect(x: size.width - 5, y: size.height - 5, width: 5, height: 5)).fill()
+            return true
+        }
+        image.isTemplate = true
+        return image
+    }
+
     private static func loadTemplate() -> NSImage? {
         let image = NSImage(size: logicalSize)
         var loaded = false

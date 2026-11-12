@@ -55,6 +55,13 @@ Repository review: 2026-10-26. Existing commits establish the actions below. The
 - **Implementation:** Commands retain the runtime-resolved MediaRemote sender. Direct C playback-state queries returned an empty player ID in a signed executable on this Mac; a read-only JavaScript query through the macOS script host returned the correct identity and state in the live test. The helper returns only PID and state, has a bounded lifetime, and does not request Automation or capture audio. Unavailable reads degrade to pause-only. See [controller](../Sources/QuietSpeech/MediaPlaybackController.swift), [completion paths](../Sources/QuietSpeech/AppModel.swift) and [tests](../Tests/QuietSpeechTests/MediaPlaybackControllerTests.swift).
 - **Revisit:** macOS changes to these private media interfaces or live compatibility failures. No public release is claimed by this entry.
 
+## 2026-11-12 — Put available updates first in the menu bar
+
+- **Decision:** Show an update dot on QuietSpeech’s menu-bar icon and place “Install New Update…” before dictation controls whenever Sparkle reports an installable update. Route that action through Sparkle’s existing installation UI and use gentle menu reminders for scheduled checks. Keep manual Check for Updates when no update is known.
+- **Why:** The owner explicitly requested the dot and first-position install action. Sparkle remains responsible for compatibility, download verification and installation; no separate feed poller is added.
+- **Lifecycle:** Keep the reminder after dismissal or while downloading, clear it on explicit Skip or a confirmed no-update result, and persist it for the current build so a relaunch does not lose it. A newer installed build starts without the older reminder. Render the dot as a template mask so it follows menu-bar and recording tint.
+- **Evidence:** [controller](../Sources/QuietSpeech/UpdateController.swift), [menu](../Sources/QuietSpeech/QuietSpeechApp.swift) and [tests](../Tests/QuietSpeechTests/UpdateControllerTests.swift). A separate signed test app detected the published update and displayed the badged icon with the install action first. No public version change is claimed.
+
 ## Future entries
 
 Add an entry when a decision changes product behavior, audience focus, positioning, pricing, architecture, or a major marketing direction. Record the decision, reason, alternatives, evidence, owner, date, and what would cause a revisit. If superseded, link the new decision instead of silently rewriting history.

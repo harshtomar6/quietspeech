@@ -8,6 +8,8 @@ In Settings › Activation, Tap to Toggle can use a double-tap of your Hold to T
 
 Settings › Activation can pause the current media player while you dictate and resume it after transcription finishes. This is on by default. Media already paused stays paused; if the selected media app changes or its state is unavailable, automatic resume is skipped. Players must support macOS media controls.
 
+When an update is available, a dot appears on the menu-bar icon and **Install New Update…** is the first menu option.
+
 **[quietspeech.app](https://quietspeech.app)** has the notarized download and license keys.
 
 ## What it does
