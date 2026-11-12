@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import os
 
 // MARK: - Palette
 
@@ -420,6 +421,7 @@ final class HUDController {
     private var panel: NSPanel?
     private weak var model: AppModel?
     private var builtStyle: AppModel.OverlayStyle?
+    private let log = Logger(subsystem: "dev.harsh.quietspeech", category: "overlay")
 
     func show(model: AppModel) {
         self.model = model
@@ -433,22 +435,23 @@ final class HUDController {
         }
         position(panel)
 
-        panel.alphaValue = 0
+        present(panel)
+    }
+
+    func present(_ panel: NSPanel) {
+        self.panel = panel
+        // SwiftUI animates the content's entrance. Keep window visibility
+        // synchronous: an earlier fade-out completion must never order out
+        // the same panel after another dictation has shown it again.
+        panel.alphaValue = 1
         panel.orderFrontRegardless()
-        NSAnimationContext.runAnimationGroup { context in
-            context.duration = 0.16
-            panel.animator().alphaValue = 1
-        }
+        log.info("show window=\(panel.windowNumber) visible=\(panel.isVisible) activeSpace=\(panel.isOnActiveSpace)")
     }
 
     func hide() {
         guard let panel, panel.isVisible else { return }
-        NSAnimationContext.runAnimationGroup { context in
-            context.duration = 0.22
-            panel.animator().alphaValue = 0
-        } completionHandler: {
-            panel.orderOut(nil)
-        }
+        panel.orderOut(nil)
+        log.info("hide window=\(panel.windowNumber)")
     }
 
     // MARK: Panel plumbing

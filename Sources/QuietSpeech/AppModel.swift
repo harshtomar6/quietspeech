@@ -336,6 +336,7 @@ final class AppModel {
         }
         isStartingDictation = true
         defer { isStartingDictation = false }
+        cancelOverlayPreview()
         let startupBeganAt = Date()
         shortcutLog.notice("startup: preparing context")
         errorMessage = nil
@@ -1862,7 +1863,7 @@ final class AppModel {
     /// Shows the HUD with stand-in content so a style can be judged without
     /// dictating. Uses the preview fields, so a real transcript is untouched.
     func previewOverlay() {
-        guard !isRecording else { return }
+        guard !isRecording, !isStartingDictation else { return }
         previewTask?.cancel()
         sessionGeneration &+= 1
         isEditSession = false
@@ -1901,7 +1902,16 @@ final class AppModel {
             self.previewLevel = nil
             self.recordingStartedAt = nil
             self.overlayPhase = previousPhase
+            self.previewTask = nil
         }
+    }
+
+    private func cancelOverlayPreview() {
+        previewTask?.cancel()
+        previewTask = nil
+        previewText = nil
+        previewLevels = nil
+        previewLevel = nil
     }
 
     // MARK: - Misc
