@@ -6,6 +6,8 @@ Hold <kbd>Fn</kbd>, speak, and let go. The cleaned-up text appears wherever your
 
 In Settings › Activation, Tap to Toggle can use a double-tap of your Hold to Talk key or a separate shortcut. With double-tap, tap twice to start hands-free dictation and once to stop.
 
+Choose a microphone in Settings › Transcription or during setup. QuietSpeech remembers your choice, including connected wireless and USB inputs; System Default follows macOS. **Test Mic** shows the input level for up to 15 seconds without saving audio. Connect or pair your microphone with macOS first. If a selected mic disconnects, reconnect it or choose another input; QuietSpeech does not silently fall back to a different microphone.
+
 Settings › Activation can pause the current media player while you dictate and resume it after transcription finishes. This is on by default. Media already paused stays paused; if the selected media app changes or its state is unavailable, automatic resume is skipped. Players must support macOS media controls.
 
 When an update is available, a dot appears on the menu-bar icon and **Install New Update…** is the first menu option.

@@ -47,8 +47,12 @@ final class SpeechEngine {
     /// WAV file so a remote provider can transcribe it after the session.
     var recordsAudio = false
 
+    var microphoneUID = ""
+    var onInputInterrupted: (() -> Void)?
+
     private let log = Logger(subsystem: "dev.harsh.quietspeech", category: "speech")
-    private let audioEngine = AVAudioEngine()
+    private var audioEngine = AVAudioEngine()
+    private var inputObserver: NSObjectProtocol?
     private var analyzer: SpeechAnalyzer?
     private var transcriber: SpeechTranscriber?
     private var continuation: AsyncStream<AnalyzerInput>.Continuation?
@@ -105,6 +109,10 @@ final class SpeechEngine {
     func start(locale: Locale) async throws {
         guard !isRunning else { return }
 
+        // A fresh engine prevents a previous device's cached format from
+        // surviving a switch or a Bluetooth reconnection.
+        let (captureEngine, device) = try AudioInputHardware.makeEngine(selectedUID: microphoneUID)
+        audioEngine = captureEngine
         let input = audioEngine.inputNode
         let inputFormat = input.outputFormat(forBus: 0)
         guard inputFormat.channelCount > 0, inputFormat.sampleRate > 0 else {
@@ -143,6 +151,8 @@ final class SpeechEngine {
         let (stream, continuation) = AsyncStream<AnalyzerInput>.makeStream()
         self.continuation = continuation
 
+        try AudioInputHardware.validate(audioEngine, device: device)
+        guard input.outputFormat(forBus: 0) == inputFormat else { throw MicrophoneError.routeChanged }
         if recordsAudio {
             prepareRecording(inputFormat: inputFormat)
         }
@@ -191,6 +201,15 @@ final class SpeechEngine {
         }
 
         isRunning = true
+        inputObserver = NotificationCenter.default.addObserver(
+            forName: .AVAudioEngineConfigurationChange, object: captureEngine, queue: .main
+        ) { [weak self, weak captureEngine] _ in
+            Task { @MainActor in
+                guard let self, let captureEngine, self.isRunning, self.audioEngine === captureEngine,
+                      !AudioInputHardware.captureIsValid(captureEngine, device: device, format: inputFormat) else { return }
+                self.onInputInterrupted?()
+            }
+        }
     }
 
     @discardableResult
@@ -198,6 +217,7 @@ final class SpeechEngine {
         guard isRunning else { return nil }
         isRunning = false
 
+        removeInputObserver()
         audioEngine.stop()
         audioEngine.inputNode.removeTap(onBus: 0)
         continuation?.finish()
@@ -217,6 +237,7 @@ final class SpeechEngine {
     }
 
     func cancel() async {
+        removeInputObserver()
         audioEngine.stop()
         audioEngine.inputNode.removeTap(onBus: 0)
         continuation?.finish()
@@ -230,6 +251,11 @@ final class SpeechEngine {
         analyzer = nil
         transcriber = nil
         isRunning = false
+    }
+
+    private func removeInputObserver() {
+        if let inputObserver { NotificationCenter.default.removeObserver(inputObserver) }
+        inputObserver = nil
     }
 
     // MARK: - Provider transcription audio
@@ -319,7 +345,7 @@ final class SpeechEngine {
 
     /// Root-mean-square level of a buffer, mapped to 0...1 on a dB scale.
     /// Runs on the audio thread — no allocation.
-    private static func level(of buffer: AVAudioPCMBuffer) -> Float {
+    nonisolated static func level(of buffer: AVAudioPCMBuffer) -> Float {
         let frames = Int(buffer.frameLength)
         guard frames > 0 else { return 0 }
 

@@ -60,10 +60,10 @@ struct OverviewPane: View {
             SettingsGroup("Setup", icon: "checkmark.seal") {
                 setupRow(
                     title: "Microphone",
-                    detail: "Listening on demand",
-                    status: model.microphoneGranted ? "Granted" : "Needed",
-                    tone: model.microphoneGranted ? .green : .amber,
-                    pane: .permissions
+                    detail: model.microphoneGranted ? model.microphone.inputDescription : "Microphone access needed",
+                    status: !model.microphoneGranted ? "Needed" : (model.microphone.unavailable ? "Disconnected" : "Ready"),
+                    tone: model.microphoneGranted && !model.microphone.unavailable ? .green : .amber,
+                    pane: model.microphoneGranted ? .transcription : .permissions
                 )
                 SettingsDivider()
                 setupRow(
@@ -447,8 +447,10 @@ struct TranscriptionPane: View {
         VStack(alignment: .leading, spacing: 17) {
             SettingsPaneHeader(
                 title: "Transcription",
-                subtitle: "Language, cleanup, and how text adapts to the app you’re in."
+                subtitle: "Microphone, language, and how text adapts to the app you’re in."
             )
+
+            MicrophoneSettings(model: model)
 
             SettingsGroup(
                 "Recognition",
@@ -1511,7 +1513,7 @@ struct PermissionsPane: View {
                           note: "macOS reads permissions per process. If you change one in System Settings, relaunch QuietSpeech afterwards.") {
                 permissionRow(
                     title: "Microphone",
-                    detail: "Listens only while dictation is active.",
+                    detail: "Listens while dictating or testing your microphone.",
                     granted: model.microphoneGranted
                 ) {
                     Task {

@@ -167,7 +167,7 @@ struct OnboardingView: View {
         stepScaffold(
             symbol: "mic.fill",
             title: "Microphone",
-            subtitle: "QuietSpeech listens only while you dictate, and audio isn’t kept."
+            subtitle: "Choose your microphone, then check that it can hear you."
         ) {
             SettingsCard {
                 HStack(spacing: 12) {
@@ -200,7 +200,9 @@ struct OnboardingView: View {
                 .padding(.vertical, 11)
             }
 
-            SettingsNote("macOS asks once. You can revoke access later in System Settings.", icon: "lock")
+            MicrophoneSettings(model: model)
+
+            SettingsNote("QuietSpeech listens while dictating or testing your mic. Tests don’t save audio.", icon: "lock")
                 .padding(.horizontal, 2)
         }
     }

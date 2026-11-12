@@ -146,6 +146,8 @@ final class AppModel {
     var useDirectInsertion = true
     var overlayStyle: OverlayStyle = .capsule
     var pauseMediaOnDictation = true
+    let microphone = MicrophoneController()
+    var microphoneControlsDisabled: Bool { isRecording || isStartingDictation || isDiscardingRecording }
 
     /// First run shows the guided setup window instead of settings.
     var onboardingCompleted = false
@@ -187,6 +189,7 @@ final class AppModel {
     private let correctionWatcher = CorrectionWatcher()
     private var correctionTally = CorrectionTally()
     private var isStartingDictation = false
+    private var isDiscardingRecording = false
     private(set) var targetApp: NSRunningApplication?
     /// Turns matcher edges into start/stop/switchedToToggle.
     private var shortcutSession = DictationShortcutSessionController()
@@ -329,7 +332,7 @@ final class AppModel {
     }
 
     func start(startedByShortcut: Bool = false) async {
-        guard !isRecording, !isStartingDictation,
+        guard !isRecording, !isStartingDictation, !isDiscardingRecording,
               !startedByShortcut || shortcutSession.isActive else { return }
         guard license.canUseApp else {
             status = "Activate QuietSpeech"
@@ -340,6 +343,7 @@ final class AppModel {
         }
         isStartingDictation = true
         defer { isStartingDictation = false }
+        microphone.stopTest()
         discardOnStop = false
         cancelOverlayPreview()
         let startupBeganAt = Date()
@@ -418,6 +422,20 @@ final class AppModel {
             self?.status = "Error"
             self?.overlayPhase = .error
         }
+        engine.onInputInterrupted = { [weak self] in
+            guard let self, self.isRecording else { return }
+            let generation = self.sessionGeneration
+            Task { @MainActor in
+                guard self.isRecording, self.sessionGeneration == generation else { return }
+                await self.discardTap()
+                // A new session may have started while media was resuming.
+                guard self.sessionGeneration == generation + 1 else { return }
+                self.errorMessage = MicrophoneError.routeChanged.localizedDescription
+                self.status = "Microphone disconnected or changed"
+                self.overlayPhase = .error
+                self.hud.show(model: self)
+            }
+        }
         engine.onStatus = { [weak self] message in
             self?.status = message
         }
@@ -450,6 +468,7 @@ final class AppModel {
                 return
             }
             shortcutLog.notice("startup: starting audio at \(Date().timeIntervalSince(startupBeganAt), privacy: .public)s")
+            engine.microphoneUID = microphone.selectedUID
             try await engine.start(locale: language.locale)
             isRecording = true
             status = "Listening…"
@@ -479,6 +498,7 @@ final class AppModel {
     }
 
     func stop() async {
+        guard !isDiscardingRecording else { return }
         guard isRecording else {
             shortcutLog.notice("stop ignored: engine was not recording")
             return
@@ -783,6 +803,9 @@ final class AppModel {
     /// Ends a session started by tapping Fn: nothing is inserted, saved to
     /// history, or shown.
     private func discardTap() async {
+        guard !isDiscardingRecording else { return }
+        isDiscardingRecording = true
+        defer { isDiscardingRecording = false }
         let mediaSession = sessionGeneration
         shortcutLog.notice("Fn tapped, not held -> session discarded")
         discardOnStop = false

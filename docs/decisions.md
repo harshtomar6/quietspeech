@@ -69,6 +69,13 @@ Repository review: 2026-10-26. Existing commits establish the actions below. The
 - **Lifecycle and generated events:** Disable new ports until their run-loop source is installed, serialize startup against cancellation, and release the old listener before relaunch. Use private event sources with zero hardware suppression, explicit hardware passthrough and a marker the shortcut listener ignores. Keep permission checks, UI work and per-key logs out of the input callback.
 - **Evidence and remaining limits:** [Investigation](investigations/input-freeze.md) and [thirteen safety tests](../Tests/QuietSpeechTests/ShortcutBackendSafetyTests.swift). Exact customer permission/hardware reproduction and full single-instance enforcement remain separate work. No public release is claimed here.
 
+## 2026-11-12 — Remember a microphone choice without changing system audio
+
+- **Decision:** Offer the same microphone picker in onboarding and Transcription settings, with System Default plus connected input devices. Save an explicit choice by Core Audio UID and route only QuietSpeech's engine. Preserve a disconnected selection and require reconnection or an explicit new choice instead of falling back silently.
+- **Why:** The owner requested microphone input selection after a report that an external microphone could not be selected. A visible, bounded level test helps confirm setup without dictating into another app or retaining audio. Pairing/connection remains a macOS task, with a link to Sound settings.
+- **Capture lifecycle:** Use a fresh engine for each recording/test so formats are not cached across devices. Stop the 15-second test before dictation or when leaving the picker. Discard an interrupted dictation when its actual input stops or changes; ignore configuration notifications if the engine, input device and format are still valid. Signed capture checks showed that normal startup itself can emit such notifications.
+- **Evidence and limits:** [Routing and preview](../Sources/QuietSpeech/MicrophoneController.swift), [shared UI](../Sources/QuietSpeech/MicrophoneSettings.swift) and [tests](../Tests/QuietSpeechTests/MicrophoneControllerTests.swift). Built-in and connected iPhone capture were exercised in a signed probe without changing the system default. Other external hardware and physical disconnect behavior still need live coverage. No public release is claimed.
+
 ## Future entries
 
 Add an entry when a decision changes product behavior, audience focus, positioning, pricing, architecture, or a major marketing direction. Record the decision, reason, alternatives, evidence, owner, date, and what would cause a revisit. If superseded, link the new decision instead of silently rewriting history.
