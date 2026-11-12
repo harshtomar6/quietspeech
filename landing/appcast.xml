@@ -3,6 +3,32 @@
     <channel>
         <title>QuietSpeech</title>
         <item>
+            <title>0.3.7</title>
+            <pubDate>Thu, 12 Nov 2026 15:48:21 +0530</pubDate>
+            <sparkle:version>10</sparkle:version>
+            <sparkle:shortVersionString>0.3.7</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+            <description><![CDATA[<h2>QuietSpeech 0.3.7</h2>
+<ul>
+<li>Choose and remember a microphone in setup or Settings → Transcription. Reconnect a missing microphone or select another input before dictating.</li>
+<li>Check your microphone with a live input meter and a 15-second test that saves no audio.</li>
+<li>Automatically pause media while dictating and resume it after transcription finishes, when it was playing beforehand.</li>
+<li>See a dot on the menu bar icon when an update is available, with Install New Update as the first menu option.</li>
+<li>Fix the listening overlay intermittently disappearing when starting dictations in quick succession.</li>
+<li>Improve shortcut recovery when macOS interrupts keyboard access, with a Restore Shortcuts option.</li>
+</ul>
+]]></description>
+            <enclosure url="https://quietspeech.app/downloads/QuietSpeech-0.3.7.dmg" length="4368398" type="application/octet-stream" sparkle:edSignature="S8rVr8nzArXVhLpbjT9M74XkM4lbfnLPtzbQmS5fnpTkg7ZW53E6RWqz8CKGvz3j1iNCg/De9np/YThi9Uh4DA=="/>
+            <sparkle:deltas>
+                <enclosure url="https://quietspeech.app/downloads/QuietSpeech10-9.delta" sparkle:deltaFrom="9" length="355478" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="eaXWO0YumdYGcq5RzqIXDRyNOBd3KcOGUg7iZ3qouSXPrVizLEy9gz/GV/F8qpc59yMdsRSLqv3kCjIN8uMzCg=="/>
+                <enclosure url="https://quietspeech.app/downloads/QuietSpeech10-8.delta" sparkle:deltaFrom="8" length="356614" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="/qTnvPGCt0nLe9gnuwjP/3ngFLLcQbHOlyFQv5QQtQVZdg3zAwZBu83gmyeHV3WB8iTb7ByWpNIgAnV5nc2SAw=="/>
+                <enclosure url="https://quietspeech.app/downloads/QuietSpeech10-7.delta" sparkle:deltaFrom="7" length="361942" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="Nszf3g4hU6cr/jB+afsP9e81dvdffK6LPmMESuJKricyykuE4tZt0N7Vycwbt0CpMyn3jYE0kNlfjoCR7p+uAw=="/>
+                <enclosure url="https://quietspeech.app/downloads/QuietSpeech10-6.delta" sparkle:deltaFrom="6" length="430006" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="Lpte6HGMp2tovxCW9Gt28FEbkmBOPZnLC7rBHphwkdTftn7Sj4U4Sk0hk+wpYm1IaDsbexq7VvTUC6+QgOU8AA=="/>
+                <enclosure url="https://quietspeech.app/downloads/QuietSpeech10-5.delta" sparkle:deltaFrom="5" length="431846" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="vPbr1ZXKXVMrivc9hQvZkA1EI6koHAoZycaTKyEhsmzXa6LUj/EPaScxOujn8oOWmAqWjm/DqBkMFGzPyB+GDw=="/>
+            </sparkle:deltas>
+        </item>
+        <item>
             <title>0.3.6</title>
             <pubDate>Tue, 10 Nov 2026 00:29:53 +0530</pubDate>
             <sparkle:version>9</sparkle:version>
@@ -42,30 +68,6 @@
                 <enclosure url="https://quietspeech.app/downloads/QuietSpeech8-5.delta" sparkle:deltaFrom="5" length="308598" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="Rmq2W3zmOwepfkzlLARM1bZ+g4w4DKzEn3kinglR0214UJHu6K6W68aS7hxfoCmhO5u/18mrg+RzWMIrLpYICA=="/>
                 <enclosure url="https://quietspeech.app/downloads/QuietSpeech8-4.delta" sparkle:deltaFrom="4" length="324126" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="BZurNp7XcOhjltPJtvlcdxz2HPMrtpE68U9l5etIO5t+vRg69xkXUrnZnibqtxbzky5ms/5u4iJKHcyiEu9hDw=="/>
                 <enclosure url="https://quietspeech.app/downloads/QuietSpeech8-3.delta" sparkle:deltaFrom="3" length="331958" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="xkvNLf00xY6AdkSbkS6YwtRulBt9u5MG2BUrcHipKuWkWyiUzDRqjt5U5wOP4Pa9fRUxHoadHlB574LBX3rLAA=="/>
-            </sparkle:deltas>
-        </item>
-        <item>
-            <title>0.3.4</title>
-            <pubDate>Mon, 09 Nov 2026 11:47:35 +0530</pubDate>
-            <sparkle:version>7</sparkle:version>
-            <sparkle:shortVersionString>0.3.4</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
-            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
-            <description><![CDATA[<h2>QuietSpeech 0.3.4</h2>
-<ul>
-<li>Choose double-tapping the Hold to Talk key or a separate shortcut for Tap to Toggle. Double-tap to start hands-free dictation and tap once to stop.</li>
-<li>Fix saving modifier-key shortcuts and improve function-key selection.</li>
-<li>Fix startup freezes caused by macOS spell-checking.</li>
-<li>Prevent overlapping startups and late microphone starts after releasing the shortcut.</li>
-</ul>
-]]></description>
-            <enclosure url="https://quietspeech.app/downloads/QuietSpeech-0.3.4.dmg" length="4256409" type="application/octet-stream" sparkle:edSignature="nvn/x8FRZCHbuSjIdgb9rOOxZ0DZnmOWR73d9JX/QnlS5oedoRvyIv1C9HFo7yRsz7UUEz+hsxk23l+s0zwBAw=="/>
-            <sparkle:deltas>
-                <enclosure url="https://quietspeech.app/downloads/QuietSpeech7-6.delta" sparkle:deltaFrom="6" length="303510" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="V+K50UNNDyBI7bfP18qGrSe0z8waRpNq01hZaDsTBjRgokufOo22oWvlXYr5JNv1CJmG87RH4HKjy0d0/7QRDQ=="/>
-                <enclosure url="https://quietspeech.app/downloads/QuietSpeech7-5.delta" sparkle:deltaFrom="5" length="308602" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="8BoDQNO2lwurRVQUm2oTt6murFuo/4KdMoUzX1FztCxheW+lFYgltN6U5YSgXNGPU7zEmvb8wp5Zt81T6a5aDg=="/>
-                <enclosure url="https://quietspeech.app/downloads/QuietSpeech7-4.delta" sparkle:deltaFrom="4" length="320838" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="nRg83OgQjFC6QgwFV5N6OJ9TwQDuebGLsW8cuq6AEtwyCFX95+uiCKs3+uSz+5UjbOuUikKJB8eOk3tHEy7iBg=="/>
-                <enclosure url="https://quietspeech.app/downloads/QuietSpeech7-3.delta" sparkle:deltaFrom="3" length="333622" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="qRotkanYtrejP1skjLHv+z+x3uGDfcuMa64UwzxRxMOjvjF7t+5G1nJMZaoafG88/7wIpMz5wJwNX20IEoUFBg=="/>
-                <enclosure url="https://quietspeech.app/downloads/QuietSpeech7-2.delta" sparkle:deltaFrom="2" length="423866" type="application/octet-stream" sparkle:deltaFromSparkleExecutableSize="976432" sparkle:deltaFromSparkleLocales="de,he,ar,el,ja,fa,uk" sparkle:edSignature="aj52qSdNgCc4AvnJ0LGOZqX6ztgVgcOxZ1vHOPhw3YM2KvTY23HlrIR1Ys1Sr8DaNivw2z0ECa+oq0F2vBAGAA=="/>
             </sparkle:deltas>
         </item>
     </channel>
