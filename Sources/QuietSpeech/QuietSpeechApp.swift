@@ -168,9 +168,16 @@ private struct MenuContent: View {
         if model.aiGenerateReady {
             Text("Generate: say “\(model.generateTriggerDisplay)” then an instruction")
         }
-        if !model.license.canUseApp {
+        if let trial = model.license.trialSummary {
+            Text(trial)
+        } else if !model.license.canUseApp {
             Text("License: \(model.license.overviewStatus)")
                 .foregroundStyle(.secondary)
+        }
+        if model.license.isInTrial, let checkout = model.license.purchaseURL {
+            Button("Buy QuietSpeech…") {
+                NSWorkspace.shared.open(checkout)
+            }
         }
 
         Divider()

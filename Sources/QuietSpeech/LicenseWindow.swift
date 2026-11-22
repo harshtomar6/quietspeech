@@ -114,6 +114,15 @@ struct LicenseGateView: View {
             return "Verify your license"
         case .invalid:
             return "License needed"
+        case .unlicensed:
+            switch license.trial {
+            case .active:
+                let left = license.trialDaysLeft ?? 0
+                return left == 1 ? "1 day left in your trial" : "\(left) days left in your trial"
+            case .notStarted: return "Try QuietSpeech free"
+            case .ended: return "Your free trial has ended"
+            case .unavailable: return "Activate QuietSpeech"
+            }
         default:
             return "Activate QuietSpeech"
         }
@@ -125,6 +134,10 @@ struct LicenseGateView: View {
             return "QuietSpeech is already licensed on this Mac. Reconnect to verify it."
         case .invalid:
             return "This license is no longer active. Enter a new key or buy QuietSpeech."
+        case .unlicensed where license.trial == .ended:
+            return "Thanks for trying QuietSpeech. Buy once to keep dictating, with no subscription."
+        case .unlicensed where license.isInTrial:
+            return "Everything works during your trial. Buy once to keep it, with no subscription."
         default:
             return "Buy once, then enter your key to start dictating."
         }
@@ -258,11 +271,17 @@ struct LicenseGateView: View {
         HStack(spacing: 8) {
             Spacer()
 
-            Button("Quit") {
-                NSApplication.shared.terminate(nil)
+            if license.isInTrial {
+                Button("Continue Trial") { close() }
+                    .controlSize(.regular)
+                    .keyboardShortcut(.cancelAction)
+            } else {
+                Button("Quit") {
+                    NSApplication.shared.terminate(nil)
+                }
+                .controlSize(.regular)
+                .keyboardShortcut("q")
             }
-            .controlSize(.regular)
-            .keyboardShortcut("q")
         }
     }
 

@@ -152,7 +152,9 @@ struct OnboardingView: View {
 
             if model.license.isConfigured {
                 SettingsNote(
-                    "QuietSpeech is a one-time purchase. Buy once, then activate this Mac with your license key.",
+                    model.license.trial == .notStarted
+                        ? "Try everything free for \(model.license.configuration.trialDays) days, starting with your first dictation. Then buy once, with no subscription."
+                        : "QuietSpeech is a one-time purchase. Buy once, then activate this Mac with your license key.",
                     icon: "key"
                 )
                 .padding(.horizontal, 2)

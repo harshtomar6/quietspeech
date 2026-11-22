@@ -345,6 +345,7 @@ final class AppModel {
             LicenseWindowController.shared.present(model: self)
             return
         }
+        license.startTrialIfNeeded()
         isStartingDictation = true
         defer { isStartingDictation = false }
         microphone.stopTest()
@@ -953,9 +954,18 @@ final class AppModel {
     }
 
     func presentLicenseGateIfNeeded() {
-        guard onboardingCompleted,
-              license.isConfigured,
-              !license.canUseApp else { return }
+        guard onboardingCompleted, license.isConfigured else { return }
+        if !license.canUseApp {
+            LicenseWindowController.shared.present(model: self)
+            return
+        }
+        // Near the end of the trial, remind once for each remaining day.
+        guard let left = license.trialDaysLeft, left <= 2,
+              case .active = license.trial else { return }
+        let key = "trialReminderDaysLeft"
+        let reminded = UserDefaults.standard.object(forKey: key) as? Int
+        guard reminded.map({ left < $0 }) ?? true else { return }
+        UserDefaults.standard.set(left, forKey: key)
         LicenseWindowController.shared.present(model: self)
     }
 

@@ -6,19 +6,23 @@ public struct LicenseConfiguration: Sendable {
     public var portalURL: URL?
     public var apiBaseURL: URL
     public var offlineGraceDays: Int
+    /// Length of the free trial for unlicensed Macs; 0 turns it off.
+    public var trialDays: Int
 
     public init(
         organizationID: String,
         checkoutURL: URL? = nil,
         portalURL: URL? = nil,
         apiBaseURL: URL = URL(string: "https://api.polar.sh")!,
-        offlineGraceDays: Int = 14
+        offlineGraceDays: Int = 14,
+        trialDays: Int = 7
     ) {
         self.organizationID = organizationID.trimmingCharacters(in: .whitespacesAndNewlines)
         self.checkoutURL = checkoutURL
         self.portalURL = portalURL
         self.apiBaseURL = apiBaseURL
         self.offlineGraceDays = max(0, offlineGraceDays)
+        self.trialDays = max(0, trialDays)
     }
 
     public var isConfigured: Bool { !organizationID.isEmpty }
@@ -42,13 +46,17 @@ public struct LicenseConfiguration: Sendable {
         let offlineGraceDays = environment["QUIETSPEECH_OFFLINE_GRACE_DAYS"]
             .flatMap(Int.init)
             ?? 14
+        let trialDays = environment["QUIETSPEECH_TRIAL_DAYS"]
+            .flatMap(Int.init)
+            ?? 7
 
         return LicenseConfiguration(
             organizationID: organizationID,
             checkoutURL: checkoutURL,
             portalURL: portalURL,
             apiBaseURL: apiBaseURL,
-            offlineGraceDays: offlineGraceDays
+            offlineGraceDays: offlineGraceDays,
+            trialDays: trialDays
         )
     }
 

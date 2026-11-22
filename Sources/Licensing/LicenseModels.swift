@@ -101,6 +101,16 @@ public enum LicenseActivity: Equatable, Sendable {
     case deactivating
 }
 
+/// The free trial for an unlicensed Mac. It starts with the first
+/// dictation, not at install, so people who download and wait lose nothing.
+public enum TrialState: Equatable, Sendable {
+    /// No trial in this build (trialDays is 0).
+    case unavailable
+    case notStarted
+    case active(endsAt: Date)
+    case ended
+}
+
 public enum LicenseStatus: Equatable, Sendable {
     case unconfigured
     case unlicensed

@@ -141,16 +141,84 @@ final class LicenseServiceTests: XCTestCase {
 
     // MARK: - Helpers
 
+    // MARK: - Trial
+
+    func testTrialStartsWithFirstDictationNotInstall() {
+        let service = makeService(trialDays: 7)
+        XCTAssertEqual(service.trial, .notStarted)
+        XCTAssertTrue(service.canUseApp)
+        XCTAssertEqual(service.trialDaysLeft, 7)
+
+        now = now.addingTimeInterval(30 * 86_400)
+        XCTAssertEqual(service.trial, .notStarted, "Waiting before the first dictation costs nothing")
+        service.startTrialIfNeeded()
+        XCTAssertEqual(service.trial, .active(endsAt: now.addingTimeInterval(7 * 86_400)))
+        XCTAssertEqual(service.statusTitle, "Free trial · 7 days left")
+    }
+
+    func testTrialCountsDownThenBlocksAndSurvivesRelaunch() {
+        let service = makeService(trialDays: 7)
+        service.startTrialIfNeeded()
+        let start = now
+
+        now = start.addingTimeInterval(5.5 * 86_400)
+        XCTAssertEqual(service.trialDaysLeft, 2)
+        service.startTrialIfNeeded()
+        XCTAssertEqual(service.trialStartedAt, start, "A later dictation must not restart the trial")
+
+        now = start.addingTimeInterval(7 * 86_400)
+        XCTAssertEqual(service.trial, .ended)
+        XCTAssertFalse(service.canUseApp)
+        XCTAssertEqual(service.blockingMessage, "Your free trial has ended. Buy QuietSpeech to keep dictating.")
+
+        let relaunched = makeService(trialDays: 7)
+        XCTAssertEqual(relaunched.trial, .ended)
+        XCTAssertFalse(relaunched.canUseApp)
+    }
+
+    func testSettingTheClockBackEndsTheTrial() {
+        let service = makeService(trialDays: 7)
+        service.startTrialIfNeeded()
+        now = now.addingTimeInterval(-3 * 86_400)
+        XCTAssertEqual(service.trial, .ended)
+        XCTAssertFalse(service.canUseApp)
+    }
+
+    func testDeactivatingALicenseDoesNotGrantANewTrial() async {
+        let service = makeService(trialDays: 7)
+        service.startTrialIfNeeded()
+        now = now.addingTimeInterval(10 * 86_400)
+        service.keyInput = "TEST-KEY-1234"
+        await service.activate()
+        XCTAssertTrue(service.isLicensed)
+        XCTAssertFalse(service.isInTrial)
+        XCTAssertNil(service.trialSummary)
+
+        await service.deactivate()
+        XCTAssertEqual(service.trial, .ended)
+        XCTAssertFalse(service.canUseApp)
+    }
+
+    func testNoTrialWhenTurnedOff() {
+        let service = makeService(trialDays: 0)
+        XCTAssertEqual(service.trial, .unavailable)
+        service.startTrialIfNeeded()
+        XCTAssertNil(service.trialStartedAt)
+        XCTAssertFalse(service.canUseApp)
+    }
+
     private func makeService(
         configured: Bool = true,
-        graceDays: Int = 14
+        graceDays: Int = 14,
+        trialDays: Int = 0
     ) -> LicenseService {
         let configuration = LicenseConfiguration(
             organizationID: configured ? "test-org" : "",
             checkoutURL: URL(string: "https://example.com/buy"),
             portalURL: URL(string: "https://example.com/portal"),
             apiBaseURL: URL(string: "https://api.polar.sh")!,
-            offlineGraceDays: graceDays
+            offlineGraceDays: graceDays,
+            trialDays: trialDays
         )
         return LicenseService(
             configuration: configuration,

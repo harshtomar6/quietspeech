@@ -10,6 +10,9 @@ public final class LicenseService {
     public private(set) var messageIsError = false
     public private(set) var isOffline = false
     public private(set) var lastCheckedAt: Date?
+    /// When this Mac's free trial began; kept in the Keychain, so deleting
+    /// the app or its preferences doesn't restart it.
+    public private(set) var trialStartedAt: Date?
     public var keyInput = ""
 
     public let configuration: LicenseConfiguration
@@ -34,6 +37,7 @@ public final class LicenseService {
             store: store,
             now: now()
         )
+        self.trialStartedAt = store.string(for: Field.trialStartedAt.rawValue).flatMap(Self.parseDate)
     }
 
     // MARK: - Public state
@@ -45,9 +49,64 @@ public final class LicenseService {
         switch status {
         case .licensed, .unconfigured:
             return true
-        case .unlicensed, .needsVerification, .invalid:
+        case .unlicensed:
+            return isInTrial
+        case .needsVerification, .invalid:
             return false
         }
+    }
+
+    // MARK: - Trial
+
+    public var trial: TrialState {
+        guard configuration.trialDays > 0 else { return .unavailable }
+        guard let start = trialStartedAt else { return .notStarted }
+        let current = now()
+        // A clock set well before the trial began is treated as tampering.
+        if current < start.addingTimeInterval(-86_400) { return .ended }
+        let end = start.addingTimeInterval(Double(configuration.trialDays) * 86_400)
+        return current < end ? .active(endsAt: end) : .ended
+    }
+
+    /// True while an unlicensed Mac may dictate on the trial.
+    public var isInTrial: Bool {
+        guard case .unlicensed = status else { return false }
+        switch trial {
+        case .notStarted, .active: return true
+        case .unavailable, .ended: return false
+        }
+    }
+
+    /// Whole days left, counting a partial day as one.
+    public var trialDaysLeft: Int? {
+        guard isInTrial else { return nil }
+        guard case .active(let end) = trial else { return configuration.trialDays }
+        return max(1, Int((end.timeIntervalSince(now()) / 86_400).rounded(.up)))
+    }
+
+    /// Starts the trial at the first dictation; does nothing once started,
+    /// or on a licensed Mac.
+    public func startTrialIfNeeded() {
+        guard case .unlicensed = status, trial == .notStarted else { return }
+        let start = now()
+        store.set(Self.isoString(start), for: Field.trialStartedAt.rawValue)
+        trialStartedAt = start
+    }
+
+    public var trialSummary: String? {
+        guard case .unlicensed = status else { return nil }
+        switch trial {
+        case .unavailable: return nil
+        case .notStarted: return "Free trial: \(configuration.trialDays) days, starting with your first dictation"
+        case .active: return "Free trial: \(Self.days(trialDaysLeft ?? 0)) left"
+        case .ended: return "Free trial ended"
+        }
+    }
+
+    private static func days(_ n: Int) -> String { n == 1 ? "1 day" : "\(n) days" }
+
+    private static func day(_ date: Date) -> String {
+        date.formatted(.dateTime.weekday(.wide).month(.wide).day())
     }
 
     public var isLicensed: Bool {
@@ -74,7 +133,12 @@ public final class LicenseService {
         case .unconfigured:
             return "Licensing not configured"
         case .unlicensed:
-            return "License required"
+            switch trial {
+            case .notStarted: return "Free trial"
+            case .active: return "Free trial · \(Self.days(trialDaysLeft ?? 0)) left"
+            case .ended: return "Free trial ended"
+            case .unavailable: return "License required"
+            }
         case .licensed:
             return "Licensed"
         case .needsVerification:
@@ -89,7 +153,16 @@ public final class LicenseService {
         case .unconfigured:
             return "Add a Polar organization ID to this build before selling it."
         case .unlicensed:
-            return "Buy a one-time license, then activate this Mac with your key."
+            switch trial {
+            case .notStarted:
+                return "Try everything free for \(configuration.trialDays) days, starting with your first dictation. Then buy once to keep it."
+            case .active(let end):
+                return "Your trial ends \(Self.day(end))."
+            case .ended:
+                return "Your \(configuration.trialDays)-day trial has ended. Buy once, then activate this Mac with your key."
+            case .unavailable:
+                return "Buy a one-time license, then activate this Mac with your key."
+            }
         case .licensed(let details):
             if isOffline {
                 let checked = details.lastValidatedAt.map(Self.relative) ?? "earlier"
@@ -124,7 +197,11 @@ public final class LicenseService {
         case .unconfigured:
             return "Not configured"
         case .unlicensed:
-            return "Not activated"
+            switch trial {
+            case .notStarted, .active: return "Trial"
+            case .ended: return "Trial ended"
+            case .unavailable: return "Not activated"
+            }
         case .licensed:
             return "Licensed"
         case .needsVerification:
@@ -139,7 +216,11 @@ public final class LicenseService {
         case .unconfigured:
             return "Licensing is disabled in this build"
         case .unlicensed:
-            return "Buy once, then activate this Mac"
+            switch trial {
+            case .notStarted: return "\(configuration.trialDays) days free, from your first dictation"
+            case .active: return "\(Self.days(trialDaysLeft ?? 0)) left · buy once to keep it"
+            case .ended, .unavailable: return "Buy once, then activate this Mac"
+            }
         case .licensed(let details):
             return "This Mac · \(details.maskedKey)"
         case .needsVerification:
@@ -161,7 +242,9 @@ public final class LicenseService {
     public var blockingMessage: String {
         switch status {
         case .unlicensed:
-            return "Activate QuietSpeech with a license key to start dictating."
+            return trial == .ended
+                ? "Your free trial has ended. Buy QuietSpeech to keep dictating."
+                : "Activate QuietSpeech with a license key to start dictating."
         case .needsVerification:
             return "Connect to the internet so QuietSpeech can verify your license."
         case .invalid(let reason):
@@ -407,6 +490,9 @@ public final class LicenseService {
         case limitActivations = "license.limitActivations"
         case licenseStatus = "license.status"
         case invalidReason = "license.invalidReason"
+        // Deliberately not cleared with the license: deactivating must not
+        // grant a fresh trial.
+        case trialStartedAt = "trial.startedAt"
     }
 
     private func loadedDetails() -> LicenseDetails? {
