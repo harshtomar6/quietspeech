@@ -398,6 +398,8 @@ function setDemoStep(nextIndex, options = {}) {
   });
 
   if (demoTitle) demoTitle.textContent = demoTitles[nextIndex] || "";
+  const demoMenuApp = document.getElementById("demo-menu-app");
+  if (demoMenuApp) demoMenuApp.textContent = demoTitles[nextIndex] || "";
 
   if (type) startActiveDemoTyping();
 }

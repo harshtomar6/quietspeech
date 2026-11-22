@@ -118,7 +118,7 @@
         </div>
         <div class="film-card-wrap" data-reveal>
           <a class="hero-demo film-card" href="assets/film/quietspeech-film-720.mp4" data-film-open data-film-poster="assets/film/poster-720.jpg" data-film-tall-src="assets/film/quietspeech-film-feed.mp4" data-film-tall-poster="assets/film/poster-feed.jpg" data-ml-goal="launch_film_play" data-ml-goal-location="home" aria-label="Watch the QuietSpeech film, 43 seconds, with sound">
-            <img class="hero-demo-poster" src="assets/film/poster-720.jpg" alt="QuietSpeech film: No API key" width="1280" height="720" loading="lazy" decoding="async">
+            <img class="hero-demo-poster" src="assets/film/poster-720.jpg" alt="QuietSpeech film: dictating a note, with the overlay open below the notch" width="1280" height="720" loading="lazy" decoding="async">
             <span class="hero-demo-play" aria-hidden="true">
               <span class="hero-demo-play-icon">
                 <svg viewBox="0 0 20 20" fill="currentColor"><path d="M7.4 5.6v8.8l7.2-4.4z"/></svg>
@@ -225,6 +225,10 @@
 
           <div class="demo-stage">
             <div class="mac-window demo-window" role="group" aria-label="QuietSpeech dictating, editing, and generating text in Mac apps">
+              <div class="screen-bar" aria-hidden="true">
+                <span class="screen-bar-left"><b></b><strong id="demo-menu-app">Slack</strong></span>
+                <span class="screen-bar-right"><span>10:42</span></span>
+              </div>
               <div class="window-bar">
                 <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
                 <span class="window-title" id="demo-window-title">Slack</span>
@@ -301,15 +305,21 @@
                 </section>
               </div>
 
-              <div class="overlay overlay-capsule" aria-hidden="true">
-                <span class="overlay-icon" data-app="slack" id="demo-overlay-icon"></span>
-                <span class="overlay-status">
-                  <span class="waveform"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
-                  <span class="overlay-spinner"></span>
-                  <span class="overlay-check"></span>
+              <div class="notch-island" aria-hidden="true">
+                <span class="notch-glow"></span>
+                <span class="notch-rim"></span>
+                <span class="notch-body">
+                  <span class="notch-row">
+                    <span class="notch-lead"><span class="overlay-icon" data-app="slack" id="demo-overlay-icon"></span></span>
+                    <span class="notch-cutout"></span>
+                    <span class="notch-trail">
+                      <span class="overlay-time">0:00</span>
+                      <span class="overlay-spinner"></span>
+                      <span class="notch-done"><span class="overlay-check"></span>Inserted</span>
+                    </span>
+                  </span>
+                  <span class="notch-text"><span class="overlay-transcript" id="demo-live"></span></span>
                 </span>
-                <span class="overlay-transcript" id="demo-live"></span>
-                <span class="overlay-time">0:00</span>
               </div>
             </div>
           </div>

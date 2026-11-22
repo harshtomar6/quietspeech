@@ -1,81 +1,181 @@
-/* Shared pieces: the QuietSpeech capsule overlay (sizes from
-   Sources/QuietSpeech/HUD.swift), the brand world (navy wallpaper with the
-   icon's cyan ribbons), the menu bar and light Mac windows. The capsule is
-   drawn at 1x; scenes enlarge it with `zoom`. */
+/* Shared pieces: the QuietSpeech Notch overlay (Sources/QuietSpeech/HUD.swift,
+   NotchOverlay), the brand world (navy wallpaper with the icon's cyan
+   ribbons), the menu bar and light Mac windows.
+
+   The overlay is a black island that grows out of the notch in the menu
+   bar: the app icon and timer sit beside the notch, the live words run
+   underneath, and a rotating multicolor rim glows with the voice. It spins
+   faster while processing, shows "Inserted" as a strip level with the
+   notch, then folds back in. Drawn at film scale, so the notch matches the
+   40 px menu bar. Children keep the old cap-* class names so scenes and
+   capsule.js address them the same way. */
+
+@property --qa {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0deg;
+}
+
+@property --qb {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0deg;
+}
 
 .cap {
+  --nw: 210px;
+  --nh: 40px;
+  --halo: #ff5fa2, #a768ff, #4f8bff, #3fd8d4, #ffa24d, #ff5fa2;
   position: absolute;
+  z-index: 30;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 0;
   display: flex;
-  align-items: center;
-  gap: 9px;
-  width: 380px;
-  height: 54px;
-  padding: 0 16px 0 15px;
-  border-radius: 27px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.025) 55%),
-    rgba(30, 32, 38, 0.86);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.24),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
-    0 14px 34px rgba(0, 0, 0, 0.34),
-    0 2px 6px rgba(0, 0, 0, 0.18);
+  justify-content: center;
   color: #f5f5f7;
   font-family: "Inter", sans-serif;
-  backdrop-filter: blur(16px) saturate(190%);
+  pointer-events: none;
+}
+
+.qn-island {
+  position: relative;
+  flex: 0 0 auto;
+  width: var(--nw);
+  height: var(--nh);
+}
+
+/* Concave ears where the island meets the top edge. */
+.qn-island::before,
+.qn-island::after {
+  position: absolute;
+  top: 0;
+  width: 14px;
+  height: 14px;
+  content: "";
+}
+
+.qn-island::before {
+  left: -14px;
+  background: radial-gradient(circle at 0 100%, transparent 13.5px, #000 14px);
+}
+
+.qn-island::after {
+  right: -14px;
+  background: radial-gradient(circle at 100% 100%, transparent 13.5px, #000 14px);
+}
+
+.qn-body,
+.qn-rim,
+.qn-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 0 0 var(--nr, 16px) var(--nr, 16px);
+}
+
+.qn-rim,
+.qn-glow {
+  background: conic-gradient(from calc(var(--qa) + var(--qb)), var(--halo));
+  opacity: 0;
+}
+
+.qn-rim {
+  inset: 0 -3px -3px;
+  border-radius: 0 0 calc(var(--nr, 16px) + 3px) calc(var(--nr, 16px) + 3px);
+}
+
+.qn-glow {
+  inset: 0 -10px -16px;
+  filter: blur(28px);
+}
+
+.qn-body {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #000;
+}
+
+.qn-row {
+  display: flex;
+  flex: 0 0 var(--nh);
+  align-items: center;
+  padding: 0 26px;
+}
+
+.qn-lead,
+.qn-trail {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  min-width: 0;
+  height: 100%;
+  opacity: 0;
+}
+
+.qn-trail {
+  justify-content: flex-end;
+}
+
+.qn-cut {
+  flex: 0 0 var(--nw);
 }
 
 .cap-icon {
   flex: 0 0 auto;
-  width: 18px;
-  height: 18px;
+  width: 30px;
+  height: 30px;
+}
+
+/* Timer, spinner and "Inserted" share the slot right of the notch. */
+.cap-time,
+.cap-status,
+.qn-done {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
 }
 
 .cap-status {
-  position: relative;
-  flex: 0 0 auto;
-  width: 44px;
-  height: 24px;
-}
-
-.cap-wave,
-.cap-spin,
-.cap-check {
-  position: absolute;
-  inset: 0;
-  margin: auto;
-}
-
-.cap-wave {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-}
-
-.cap-wave i {
-  display: block;
-  width: 2.5px;
-  height: 24px;
-  border-radius: 2px;
-  background: linear-gradient(180deg, #5ce1e6, #2bb8c9);
+  width: 26px;
 }
 
 .cap-spin {
-  width: 15px;
-  height: 15px;
-  border: 1.6px solid rgba(255, 255, 255, 0.16);
-  border-top-color: rgba(255, 255, 255, 0.75);
+  width: 24px;
+  height: 24px;
+  border: 2.6px solid rgba(255, 255, 255, 0.16);
+  border-top-color: rgba(255, 255, 255, 0.8);
   border-radius: 50%;
   opacity: 0;
 }
 
+.qn-done {
+  gap: 10px;
+  color: #f5f5f7;
+  font-size: 21px;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+}
+
 .cap-check {
-  width: 17px;
-  height: 17px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  background: #30d158 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 6.2l2 2 4-4.4' fill='none' stroke='%23fff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 12px no-repeat;
+  background: #30d158 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 6.2l2 2 4-4.4' fill='none' stroke='%23fff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 18px no-repeat;
+}
+
+.qn-text {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+  padding: 0 34px 8px 6px;
   opacity: 0;
 }
 
@@ -88,10 +188,11 @@
   direction: rtl;
   text-align: left;
   white-space: nowrap;
-  font-size: 14.5px;
-  line-height: 1.4;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%);
-  mask-image: linear-gradient(90deg, transparent, #000 5%);
+  font-size: 30px;
+  line-height: 1.3;
+  padding-left: 28px;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 28px);
+  mask-image: linear-gradient(90deg, transparent, #000 28px);
 }
 
 .cap-text .ph {
@@ -111,20 +212,16 @@
 }
 
 .cap-time {
-  position: relative;
-  flex: 0 0 auto;
-  width: 24px;
-  height: 16px;
+  width: 60px;
+  justify-content: flex-end;
   color: rgba(245, 245, 247, 0.55);
-  font-size: 11.5px;
+  font-size: 20px;
   font-variant-numeric: tabular-nums;
-  text-align: right;
 }
 
 .cap-time span {
   position: absolute;
   right: 0;
-  top: 0;
   opacity: 0;
 }
 
@@ -183,6 +280,17 @@
 
 .mb b {
   font-weight: 700;
+}
+
+.mb::after {
+  position: absolute;
+  left: calc(50% - 105px);
+  top: 0;
+  width: 210px;
+  height: 40px;
+  border-radius: 0 0 16px 16px;
+  background: #000;
+  content: "";
 }
 
 .mb-right {
@@ -288,6 +396,7 @@ html[data-qs="tall"] br.p {
 }
 
 html[data-qs="feed"] .mb > span:nth-of-type(n + 5),
+html[data-qs="feed"] .mb > span:nth-of-type(n + 4),
 html[data-qs="tall"] .mb > span:nth-of-type(n + 5) {
   display: none;
 }

@@ -212,9 +212,6 @@
     }
 
     #hk-cap {
-      zoom: 2.2;
-      left: 246.4px;
-      top: 404px;
       opacity: 0;
     }
 
@@ -227,7 +224,6 @@
     html[data-qs="tall"] #hk-hold { left: -15px; top: -60px; }
     html[data-qs="tall"] #hk-notes { left: 60px; top: 300px; width: 960px; height: 880px; }
     html[data-qs="tall"] #hk-heard { left: 80px; top: 360px; font-size: 96px; }
-    html[data-qs="tall"] #hk-cap { left: 55.45px; top: 545.45px; }
 
     html[data-qs="feed"] #hk-cam { width: 1080px; height: 2700px; }
     html[data-qs="feed"] #hk-desk,
@@ -237,7 +233,6 @@
     html[data-qs="feed"] #hk-hold { left: -15px; top: -20px; }
     html[data-qs="feed"] #hk-notes { left: 60px; top: 120px; width: 960px; height: 820px; }
     html[data-qs="feed"] #hk-heard { left: 80px; top: 200px; font-size: 96px; }
-    html[data-qs="feed"] #hk-cap { zoom: 2; left: 80px; top: 572px; }
 
     html[data-qs="feed"] #hk-notes .lw-side,
     html[data-qs="tall"] #hk-notes .lw-side { display: none; }
@@ -339,7 +334,7 @@
       // Tilt up from the key to the screen.
       tl.fromTo("#hk-cam", { y: -H }, { y: 0, duration: 0.5, ease: "power3.inOut" }, 1.25);
 
-      // Listening: the menu bar mark turns red, the capsule springs in, the desk dims.
+      // Listening: the menu bar mark turns red, the overlay opens out of the notch, the desk dims.
       tl.to("#hk-mbqs", { backgroundColor: "#ff453a", duration: 0.15 }, 1.55);
       C.enter(tl, cap, 1.6);
       C.wave(tl, cap, 1.7, 3.3, 7);
