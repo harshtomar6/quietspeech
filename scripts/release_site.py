@@ -128,7 +128,7 @@ def render_changelog(latest):
         <div class="changelog-latest-copy">
           <p class="changelog-latest-label">Latest version</p>
           <p class="changelog-latest-version">QuietSpeech {latest} &middot; {long_date(date)}</p>
-          <p class="changelog-latest-note">For macOS 26 on Apple silicon. Activate it with your license key from the purchase email.</p>
+          <p class="changelog-latest-note">For macOS 26 on Apple silicon. Free for 7 days; if you have bought it, activate it with the key from your purchase email.</p>
         </div>
         <a class="btn btn-primary" href="/downloads/QuietSpeech-{latest}.dmg" download data-ml-goal="download_click" data-ml-goal-location="changelog">Download QuietSpeech {latest}</a>
       </div>"""
