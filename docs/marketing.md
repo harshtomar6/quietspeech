@@ -25,11 +25,14 @@ Reviewed: 2026-10-26. Public assets come from the repository; the owner confirme
 ## Measurement present in the repository
 
 - The landing page includes a Minilytics script and goal attributes for checkout, demo, pricing, download and GitHub source-link interactions. See [site source](../landing/index.html).
+- Checkout attribution (live since 2026-11-05): `landing/script.js` keeps the visitor's last `utm_*` tags for 30 days and copies them onto every `buy.polar.sh` link, plus `reference_id` set to the Minilytics visitor id, so Polar orders record their source. Polar's QuietSpeech checkout link redirects to `/thanks?checkout_id={CHECKOUT_ID}`, which records the Minilytics goal `purchase` once per checkout id. Minilytics rejects events from Vercel preview hostnames (403), so test tracking on production.
 - The repository does not contain verified traffic, conversion, sales, or campaign results. Do not infer performance from tracking code.
 
 ## Active channels and experiments
 
 None yet, per the owner on 2026-10-26. The launch site and its tracking are in place; no campaign results exist in this memory.
+
+- **SEO (started 2026-11-04):** plan, Voicy research and page backlog in [launch/SEO.md](../launch/SEO.md). Groundwork added the same day: a keyword title, canonical, SoftwareApplication JSON-LD, robots.txt, sitemap.xml and clean URLs. It goes live with the next site deploy. Search Console isn't verified yet.
 
 For each future experiment, record the audience, message, channel, start/end dates, success measure, result, evidence link, and next decision. Keep daily metrics in the analytics source and put only the interpreted learning here.
 
