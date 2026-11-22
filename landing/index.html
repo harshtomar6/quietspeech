@@ -117,8 +117,8 @@
           <p class="section-note" data-reveal>Dictation, editing, and drafting, plus why it needs no API key and keeps working offline.</p>
         </div>
         <div class="film-card-wrap" data-reveal>
-          <a class="hero-demo film-card" href="assets/film/quietspeech-film-720.mp4" data-film-open data-film-poster="assets/film/poster-720.jpg" data-film-tall-src="assets/film/quietspeech-film-feed.mp4" data-film-tall-poster="assets/film/poster-feed.jpg" data-ml-goal="launch_film_play" data-ml-goal-location="home" aria-label="Watch the QuietSpeech film, 43 seconds, with sound">
-            <img class="hero-demo-poster" src="assets/film/poster-720.jpg" alt="QuietSpeech film: dictating a note, with the overlay open below the notch" width="1280" height="720" loading="lazy" decoding="async">
+          <a class="hero-demo film-card" href="assets/film/quietspeech-film-720.mp4?v=notch" data-film-open data-film-poster="assets/film/poster-720.jpg?v=notch" data-film-tall-src="assets/film/quietspeech-film-feed.mp4?v=notch" data-film-tall-poster="assets/film/poster-feed.jpg?v=notch" data-ml-goal="launch_film_play" data-ml-goal-location="home" aria-label="Watch the QuietSpeech film, 43 seconds, with sound">
+            <img class="hero-demo-poster" src="assets/film/poster-720.jpg?v=notch" alt="QuietSpeech film: dictating a note, with the overlay open below the notch" width="1280" height="720" loading="lazy" decoding="async">
             <span class="hero-demo-play" aria-hidden="true">
               <span class="hero-demo-play-icon">
                 <svg viewBox="0 0 20 20" fill="currentColor"><path d="M7.4 5.6v8.8l7.2-4.4z"/></svg>
@@ -613,37 +613,48 @@
   </dialog>
 
   <footer class="footer dark">
-    <div class="container footer-grid">
-      <div class="footer-brand">
-        <img src="assets/icon-32.png" alt="" width="24" height="24">
-        <span>QuietSpeech</span>
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-about">
+          <a class="footer-brand" href="/"><img src="/assets/icon-32.png" alt="" width="28" height="28"><span>QuietSpeech</span></a>
+          <p class="footer-tagline">Dictation that runs on your Mac. Free for 7 days, then one payment.</p>
+          <a class="btn btn-small footer-download" href="/downloads/QuietSpeech-0.3.9.dmg" download data-ml-goal="download_click" data-ml-goal-location="footer">Download for Mac</a>
+        </div>
+        <nav class="footer-cols" aria-label="Footer">
+          <div class="footer-col">
+            <h2>Product</h2>
+            <a href="/#how">How it works</a>
+            <a href="/#modes">Modes</a>
+            <a href="/#privacy">Privacy</a>
+            <a href="/#pricing">Pricing</a>
+            <a href="/#faq">FAQ</a>
+            <a href="/changelog">Changelog</a>
+          </div>
+          <div class="footer-col">
+            <h2>Compare</h2>
+            <a href="/compare">All comparisons</a>
+            <a href="/wispr-flow-alternative">Wispr Flow alternative</a>
+            <a href="/apple-dictation-alternative">Apple Dictation alternative</a>
+          </div>
+          <div class="footer-col">
+            <h2>Support</h2>
+            <a href="https://polar.sh/momentum-apps/portal">Manage a license</a>
+            <a href="https://github.com/harshtomar6/quietspeech" data-ml-goal="github_click" data-ml-goal-location="footer">Source on GitHub</a>
+            <a href="/website-privacy">Website privacy</a>
+            <button type="button" class="footer-link-button" data-ad-preferences>Advertising preference</button>
+          </div>
+        </nav>
       </div>
-      <nav class="footer-links" aria-label="Footer">
-        <a href="#how">How it works</a>
-        <a href="#modes">Modes</a>
-        <a href="#privacy">Privacy</a>
-        <a href="#pricing">Pricing</a>
-        <a href="#faq">FAQ</a>
-        <a href="downloads/QuietSpeech-0.3.9.dmg" download data-ml-goal="download_click" data-ml-goal-location="footer">Download</a>
-        <a href="https://polar.sh/momentum-apps/portal">Manage a license</a>
-        <a href="/changelog">Changelog</a>
-        <a href="https://github.com/harshtomar6/quietspeech" data-ml-goal="github_click" data-ml-goal-location="footer">Source on GitHub</a>
-        <a href="/compare">Compare purchase options</a>
-        <a href="/wispr-flow-alternative">Wispr Flow alternative</a><a href="/apple-dictation-alternative">Apple Dictation alternative</a><a href="/website-privacy">Website privacy</a>
-        <button type="button" data-ad-preferences style="font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0">Advertising preference</button>
-      </nav>
-      <div class="footer-badges">
-        <a href="https://macbase.app/apps/quietspeech?ref=badge" target="_blank" rel="noopener">
-          <img src="https://macbase.app/badge/featured-on-macbase-dark.svg" alt="QuietSpeech is featured on MacBase" height="54" style="height:54px;width:auto">
-        </a>
-        <a href="https://www.trymacapps.com" target="_blank" rel="noopener">
-          <img src="https://www.trymacapps.com/badge.png" alt="Featured on TryMacApps" width="200" height="67" style="height:54px;width:auto">
-        </a>
+      <div class="footer-bottom">
+        <p class="footer-fine">&copy; 2026 Harsh Tomar. QuietSpeech is GPLv3 software, made for macOS. It is independent of Apple and Wispr Flow; product names belong to their owners.</p>
+        <div class="footer-badges">
+          <a href="https://macbase.app/apps/quietspeech?ref=badge" target="_blank" rel="noopener"><img src="https://macbase.app/badge/featured-on-macbase-dark.svg" alt="QuietSpeech is featured on MacBase" height="40"></a>
+          <a href="https://www.trymacapps.com" target="_blank" rel="noopener"><img src="https://www.trymacapps.com/badge.png" alt="Featured on TryMacApps" width="120" height="40"></a>
+        </div>
       </div>
-      <p class="footer-fine">QuietSpeech is GPLv3 software. Made for macOS. &copy; 2026 Harsh Tomar.</p>
     </div>
   </footer>
 
-  <script src="script.js?v=20261111"></script>
+  <script src="script.js?v=20261122"></script>
 </body>
 </html>
