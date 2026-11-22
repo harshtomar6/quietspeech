@@ -87,6 +87,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
 }
 
 struct SettingsView: View {
+    @Environment(\.openWindow) private var openWindow
     @Bindable var model: AppModel
 
     @State private var selectedPane: SettingsPane = .overview
@@ -202,6 +203,16 @@ struct SettingsView: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                 Spacer(minLength: 4)
+                Button {
+                    openWindow(id: ReportProblemView.windowID)
+                } label: {
+                    Image(systemName: "exclamationmark.bubble")
+                        .font(.system(size: 10.5))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.secondary)
+                .help("Report a Problem…")
+                .accessibilityLabel("Report a Problem")
                 Text("v\(SettingsView.version)")
                     .font(.system(size: 9.5))
                     .foregroundStyle(.tertiary)

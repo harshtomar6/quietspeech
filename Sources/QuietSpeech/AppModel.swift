@@ -1692,6 +1692,23 @@ final class AppModel {
         """)
     }
 
+    /// Settings and state for Report a Problem. No dictated text, only
+    /// which paths and settings are in play.
+    func diagnosticSummary() -> [String] {
+        let app = targetApp.map { "\($0.localizedName ?? "?") (\($0.bundleIdentifier ?? "no bundle ID"))" } ?? "none yet"
+        var lines = [
+            "License: \(license.overviewStatus)",
+            "Permissions: microphone=\(microphoneGranted) accessibility=\(accessibilityGranted) shortcutListener=\(shortcuts.tapActive)",
+            "Activation: \(shortcutConfiguration.summary)",
+            "Language: \(language.rawValue), context: \(contextMode.rawValue)",
+            "AI provider: \(aiProvider.rawValue), ready=\(aiReady)",
+            "Overlay: \(overlayStyle.rawValue)",
+            "Last target app: \(app)",
+        ]
+        if let errorMessage { lines.append("Last error: \(errorMessage)") }
+        return lines
+    }
+
     func requestAccessibility() {
         Permissions.promptAccessibility()
         refreshPermissions()

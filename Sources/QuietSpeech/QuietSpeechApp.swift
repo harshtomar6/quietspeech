@@ -83,6 +83,13 @@ struct QuietSpeechApp: App {
         .defaultLaunchBehavior(.suppressed)
         .restorationBehavior(.disabled)
 
+        Window("Report a Problem", id: ReportProblemView.windowID) {
+            ReportProblemView(model: model)
+        }
+        .windowResizability(.contentSize)
+        .defaultLaunchBehavior(.suppressed)
+        .restorationBehavior(.disabled)
+
         MenuBarExtra {
             MenuContent(model: model, updater: updater)
         } label: {
@@ -184,6 +191,11 @@ private struct MenuContent: View {
                 openWindow(id: "onboarding")
                 NSApp.activate(ignoringOtherApps: true)
             }
+        }
+
+        Button("Report a Problem…") {
+            openWindow(id: ReportProblemView.windowID)
+            NSApp.activate(ignoringOtherApps: true)
         }
 
         if !updater.isUpdateAvailable {
