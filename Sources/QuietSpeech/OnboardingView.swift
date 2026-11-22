@@ -498,11 +498,15 @@ private struct OverlayThumbnail: View {
             content
         }
         .frame(height: 76)
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 
     @ViewBuilder
     private var content: some View {
         switch style {
+        case .notch:
+            NotchOverlayThumbnail(text: "Listening…", scale: 0.8)
+                .frame(maxHeight: .infinity, alignment: .top)
         case .capsule:
             HStack(spacing: 8) {
                 Circle().fill(SettingsColor.accent).frame(width: 5, height: 5)

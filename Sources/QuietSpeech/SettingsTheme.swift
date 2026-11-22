@@ -458,6 +458,9 @@ struct SettingsOverlayThumbnail: View {
                 )
 
             switch style {
+            case .notch:
+                NotchOverlayThumbnail(scale: 0.85)
+                    .frame(maxHeight: .infinity, alignment: .top)
             case .capsule:
                 HStack(spacing: 6) {
                     HStack(alignment: .center, spacing: 1.5) {
@@ -493,6 +496,7 @@ struct SettingsOverlayThumbnail: View {
             }
         }
         .frame(height: 92)
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 }
 

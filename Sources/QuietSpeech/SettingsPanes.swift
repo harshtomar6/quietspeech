@@ -1146,6 +1146,7 @@ struct OutputPane: View {
                 SettingsDivider()
 
                 HStack(spacing: 9) {
+                    overlayTile(.notch)
                     overlayTile(.capsule)
                     overlayTile(.card)
                 }

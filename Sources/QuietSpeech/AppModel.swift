@@ -52,16 +52,18 @@ final class AppModel {
 
     /// Which overlay the HUD draws while dictating.
     enum OverlayStyle: String, CaseIterable, Identifiable {
-        case capsule, card
+        case notch, capsule, card
         var id: String { rawValue }
         var label: String {
             switch self {
+            case .notch: return "Notch"
             case .capsule: return "Capsule"
             case .card: return "Card"
             }
         }
         var detail: String {
             switch self {
+            case .notch: return "Grows out of the notch, with a glow that follows your voice."
             case .capsule: return "A single slim line of live text with a level meter and timer."
             case .card: return "A small card that names the app your words will be typed into."
             }
@@ -144,7 +146,7 @@ final class AppModel {
     var autoInsert = true
     /// Insert at the caret via the Accessibility API, falling back to paste.
     var useDirectInsertion = true
-    var overlayStyle: OverlayStyle = .capsule
+    var overlayStyle: OverlayStyle = .notch
     var pauseMediaOnDictation = true
     let microphone = MicrophoneController()
     var microphoneControlsDisabled: Bool { isRecording || isStartingDictation || isDiscardingRecording }
@@ -213,6 +215,8 @@ final class AppModel {
     private var discardOnStop = false
     /// Shows the overlay once a hold has lasted `tapThreshold`.
     private var overlayRevealTask: Task<Void, Never>?
+    /// Pending hide that lets the finished state linger; see `hideOverlay()`.
+    private var overlayHideTask: Task<Void, Never>?
     private var sessionGeneration = 0
     /// The last text typed into another app, for Paste Again.
     private(set) var lastInsertedText = ""
@@ -829,9 +833,22 @@ final class AppModel {
         await mediaPlayback.resumeIfNeeded(for: mediaSession)
     }
 
+    /// Hides the overlay after a finished session, keeping the result
+    /// ("Inserted", or the error) on screen long enough to read. A newer
+    /// session advances `sessionGeneration`, so this never hides it.
     private func hideOverlay() {
         guard !isRecording else { return }
-        hud.hide()
+        overlayHideTask?.cancel()
+        let generation = sessionGeneration
+        let linger: Duration = overlayPhase == .error ? .milliseconds(1800) : .milliseconds(1100)
+        overlayHideTask = Task { [weak self] in
+            try? await Task.sleep(for: linger)
+            guard let self, !Task.isCancelled,
+                  generation == self.sessionGeneration,
+                  !self.isRecording, !self.isStartingDictation else { return }
+            self.overlayHideTask = nil
+            self.hud.hide()
+        }
     }
 
     // MARK: - Audio level
@@ -1432,10 +1449,11 @@ final class AppModel {
         //   2. Synthetic typing — no clipboard, works where AX can't.
         //   3. Paste — borrows the clipboard, so last resort.
         if useDirectInsertion {
-            // Electron editors (VS Code, Cursor, Windsurf) expose an empty
-            // hidden textarea unless a screen reader is running. AX writes to
-            // it report success and are dropped, so type there instead.
-            let skipAX = destination.map(Self.isElectron) ?? false
+            // Electron editors (VS Code, Cursor, Windsurf) and other Chromium
+            // shells expose an empty hidden textarea unless a screen reader is
+            // running. AX writes to it report success and are dropped, so
+            // type there instead.
+            let skipAX = destination.flatMap(ChromiumShell.kind(of:)) != nil
             if !skipAX, AXInsertService.insert(text) {
                 insertLog.notice("insertion path: accessibility")
                 return
@@ -1473,11 +1491,12 @@ final class AppModel {
         ]
         if browserPrefixes.contains(where: { id.hasPrefix($0) }) { return "browser" }
         if id == "com.tinyspeck.slackmacgap" { return "slack" }
-        // Other Electron apps have the same silent-drop bridge. Editors and
-        // terminals are exempt: their text surfaces accept direct insertion
-        // reliably, and the no-clipboard path is worth keeping there.
-        guard !directTypingApps.contains(id), isElectron(app) else { return nil }
-        return "electron"
+        // Other Electron and CEF apps (such as the Yab browser) have the same
+        // silent-drop bridge. Editors and terminals are exempt: their text
+        // surfaces accept direct insertion reliably, and the no-clipboard path
+        // is worth keeping there.
+        guard !directTypingApps.contains(id), let shell = ChromiumShell.kind(of: app) else { return nil }
+        return shell.rawValue
     }
 
     /// Apps that are Electron-based but where synthetic typing has proven
@@ -1493,15 +1512,6 @@ final class AppModel {
         "dev.warp.Warp-Stable",
         "com.mitchellh.ghostty",
     ]
-
-    private static func isElectron(_ app: NSRunningApplication) -> Bool {
-        guard let bundleURL = app.bundleURL else { return false }
-        let framework = bundleURL
-            .appendingPathComponent("Contents")
-            .appendingPathComponent("Frameworks")
-            .appendingPathComponent("Electron Framework.framework")
-        return FileManager.default.fileExists(atPath: framework.path)
-    }
 
     // MARK: - Activation
 

@@ -155,7 +155,7 @@ enum SelectionService {
         if webApps.contains(id) || webPrefixes.contains(where: { id.hasPrefix($0) }) {
             return true
         }
-        return isElectron(app)
+        return ChromiumShell.kind(of: app) != nil
     }
 
     private static let webApps: Set<String> = [
@@ -181,15 +181,6 @@ enum SelectionService {
         "dev.warp.Warp-Stable",
         "com.mitchellh.ghostty",
     ]
-
-    private static func isElectron(_ app: NSRunningApplication) -> Bool {
-        guard let bundleURL = app.bundleURL else { return false }
-        let framework = bundleURL
-            .appendingPathComponent("Contents")
-            .appendingPathComponent("Frameworks")
-            .appendingPathComponent("Electron Framework.framework")
-        return FileManager.default.fileExists(atPath: framework.path)
-    }
 
     private static func role(of element: AXUIElement) -> String {
         stringAttribute(kAXRoleAttribute as CFString, of: element) ?? "unknown"
