@@ -1,38 +1,64 @@
 import AppKit
 import SwiftUI
 
-/// Report a Problem: a short description, the app it happened in, and
-/// optional diagnostics, sent as an email the user reviews before sending.
+/// Report a Problem: a short description, the app it happened in, an
+/// optional reply address and optional diagnostics, sent from the app.
 struct ReportProblemView: View {
     var model: AppModel
     @Environment(\.dismissWindow) private var dismissWindow
 
+    private enum SendState: Equatable {
+        case editing, sending, sent(String), failed(String)
+    }
+
     @State private var details = ""
     @State private var appName = ""
+    @State private var email = ""
     @State private var includeDiagnostics = true
     @State private var showDiagnostics = false
     @State private var summary: [String] = []
     @State private var log: [String] = []
     @State private var loadingLog = true
     @State private var copied = false
-    @State private var mailFailed = false
+    @State private var state = SendState.editing
     @FocusState private var detailsFocused: Bool
 
     private var report: ProblemReport {
         ProblemReport(
             description: details,
             appName: appName,
+            email: email,
             summary: includeDiagnostics ? summary : [],
             log: includeDiagnostics ? log : []
         )
     }
 
+    private var canSend: Bool {
+        state != .sending
+            && !(loadingLog && includeDiagnostics)
+            && report.isValidEmail
+            && !details.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
     var body: some View {
+        Group {
+            if case .sent(let id) = state {
+                sentView(id: id)
+            } else {
+                form
+            }
+        }
+        .padding(20)
+        .frame(width: 480)
+        .task { await load() }
+    }
+
+    private var form: some View {
         VStack(alignment: .leading, spacing: 14) {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Report a Problem")
                     .font(.title2.weight(.semibold))
-                Text("Tell us what went wrong. Your report opens as an email to \(ProblemReport.supportEmail), so you can read it before sending.")
+                Text("Tell us what went wrong and we’ll look into it. Reports go straight to the QuietSpeech developer.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -59,10 +85,23 @@ struct ReportProblemView: View {
                     }
             }
 
-            VStack(alignment: .leading, spacing: 6) {
-                Text("App you were typing into").font(.headline)
-                TextField("Optional", text: $appName)
-                    .textFieldStyle(.roundedBorder)
+            HStack(alignment: .top, spacing: 12) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("App you were typing into").font(.headline)
+                    TextField("Optional", text: $appName)
+                        .textFieldStyle(.roundedBorder)
+                }
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Email for a reply").font(.headline)
+                    TextField("Optional", text: $email)
+                        .textFieldStyle(.roundedBorder)
+                        .textContentType(.emailAddress)
+                    if !report.isValidEmail {
+                        Text("Check this address.")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    }
+                }
             }
 
             VStack(alignment: .leading, spacing: 6) {
@@ -87,25 +126,47 @@ struct ReportProblemView: View {
                 }
             }
 
-            if mailFailed {
-                Text("No mail app opened. Use Copy Report and email it to \(ProblemReport.supportEmail).")
+            if case .failed(let message) = state {
+                Text("Couldn’t send the report. \(message) Check your internet connection and try again, or use Copy Report.")
                     .font(.caption)
                     .foregroundStyle(.orange)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             HStack {
                 Button(copied ? "Copied" : "Copy Report") { copyReport() }
                 Spacer()
+                if state == .sending {
+                    ProgressView().controlSize(.small)
+                }
                 Button("Cancel", role: .cancel) { close() }
                     .keyboardShortcut(.cancelAction)
-                Button("Send Email…") { sendEmail() }
+                Button("Send Report") { Task { await send() } }
                     .keyboardShortcut(.defaultAction)
-                    .disabled(loadingLog && includeDiagnostics)
+                    .disabled(!canSend)
             }
         }
-        .padding(20)
-        .frame(width: 480)
-        .task { await load() }
+    }
+
+    private func sentView(id: String) -> some View {
+        VStack(spacing: 12) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 40))
+                .foregroundStyle(.green)
+            Text("Thanks, your report was sent")
+                .font(.title3.weight(.semibold))
+            Text(email.isEmpty
+                 ? "Your reference is \(id)."
+                 : "Your reference is \(id). We’ll reply to \(email.trimmingCharacters(in: .whitespaces)).")
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .textSelection(.enabled)
+            Button("Done") { close() }
+                .keyboardShortcut(.defaultAction)
+                .padding(.top, 4)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 24)
     }
 
     private func load() async {
@@ -116,18 +177,20 @@ struct ReportProblemView: View {
         loadingLog = false
     }
 
-    private func sendEmail() {
-        guard let url = report.mailtoURL, NSWorkspace.shared.open(url) else {
-            mailFailed = true
-            return
+    private func send() async {
+        state = .sending
+        do {
+            state = .sent(try await report.send())
+        } catch {
+            state = .failed(error.localizedDescription.hasSuffix(".")
+                            ? error.localizedDescription
+                            : error.localizedDescription + ".")
         }
-        close()
     }
 
     private func copyReport() {
-        let text = "To: \(ProblemReport.supportEmail)\nSubject: \(report.subject)\n\n\(report.body)"
         NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(text, forType: .string)
+        NSPasteboard.general.setString("\(report.subject)\n\n\(report.body)", forType: .string)
         copied = true
     }
 

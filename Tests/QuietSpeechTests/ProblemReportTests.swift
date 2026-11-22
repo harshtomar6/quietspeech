@@ -3,18 +3,26 @@ import Testing
 @testable import QuietSpeech
 
 @Suite struct ProblemReportTests {
-    @Test func mailtoAddressesSupportAndKeepsSymbols() throws {
-        let report = ProblemReport(description: "C++ & Rust = broken?\nsecond line", appName: "Xcode")
-        let url = try #require(report.mailtoURL)
-        let parts = try #require(URLComponents(url: url, resolvingAgainstBaseURL: false))
-        #expect(parts.scheme == "mailto")
-        #expect(parts.path == ProblemReport.supportEmail)
-        #expect(!(parts.percentEncodedQuery ?? "").contains("+"))
-        let body = parts.queryItems?.first { $0.name == "body" }?.value
-        #expect(body?.contains("C++ & Rust = broken?\nsecond line") == true)
-        #expect(body?.contains("App I was typing into: Xcode") == true)
-        let subject = parts.queryItems?.first { $0.name == "subject" }?.value
-        #expect(subject?.hasSuffix(": C++ & Rust = broken?") == true)
+    @Test func payloadCarriesTheReportAndTrimsLongLogLines() throws {
+        let long = String(repeating: "x", count: 2000)
+        let report = ProblemReport(description: "  C++ & Rust broke\n", appName: " Xcode ", email: " me@example.com ",
+                                   summary: ["QuietSpeech 1"], log: ["short", long])
+        let payload = report.payload
+        #expect(payload["description"] as? String == "C++ & Rust broke")
+        #expect(payload["app"] as? String == "Xcode")
+        #expect(payload["email"] as? String == "me@example.com")
+        #expect(payload["summary"] as? [String] == ["QuietSpeech 1"])
+        let log = try #require(payload["log"] as? [String])
+        #expect(log.first == "short")
+        #expect(log.last?.count == ProblemReport.maxLineLength)
+        _ = try JSONSerialization.data(withJSONObject: payload)
+    }
+
+    @Test func replyAddressIsOptionalButChecked() {
+        #expect(ProblemReport(description: "x", appName: "").isValidEmail)
+        #expect(ProblemReport(description: "x", appName: "", email: "a@b.co").isValidEmail)
+        #expect(!ProblemReport(description: "x", appName: "", email: "not an email").isValidEmail)
+        #expect(!ProblemReport(description: "x", appName: "", email: "a@b").isValidEmail)
     }
 
     @Test func noDiagnosticsWhenOff() {

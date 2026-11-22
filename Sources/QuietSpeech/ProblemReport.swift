@@ -2,20 +2,27 @@ import AppKit
 import Foundation
 import OSLog
 
-/// A problem report the user sends by email from Report a Problem.
+/// A problem report sent from Report a Problem to the site's
+/// `/api/report` endpoint, which posts it to the team's Slack.
 ///
 /// Diagnostics describe the Mac and the app's decisions (versions, settings,
 /// which insertion path ran). They never include audio or dictated text: the
 /// app logs only counts and bundle IDs publicly, and anything logged as
 /// private comes back from the log store redacted.
 struct ProblemReport {
-    static let supportEmail = "support@quietspeech.app"
-    /// Mail clients and browser mail handlers accept long mailto URLs, but
-    /// some stop around 64 KB. Logs are trimmed from the oldest end to fit.
+    /// `-reportEndpoint http://localhost:…` overrides it for local testing.
+    static var endpoint: URL {
+        UserDefaults.standard.string(forKey: "reportEndpoint").flatMap(URL.init(string:))
+            ?? URL(string: "https://quietspeech.app/api/report")!
+    }
+    /// Bounds for Copy Report's text; the server has its own limits.
     static let maxBodyLength = 24_000
+    static let maxLineLength = 500
 
     var description: String
     var appName: String
+    /// Where to reply; optional.
+    var email = ""
     /// Settings and system facts; empty when the user turned diagnostics off.
     var summary: [String] = []
     /// Recent log lines, oldest first; dropped from the oldest end to fit.
@@ -62,19 +69,42 @@ struct ProblemReport {
         return parts.joined(separator: "\n\n")
     }
 
-    var mailtoURL: URL? {
-        var components = URLComponents()
-        components.scheme = "mailto"
-        components.path = Self.supportEmail
-        components.queryItems = [
-            URLQueryItem(name: "subject", value: subject),
-            URLQueryItem(name: "body", value: body),
+    var isValidEmail: Bool {
+        let email = email.trimmingCharacters(in: .whitespaces)
+        return email.isEmpty || email.wholeMatch(of: #/[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+/#) != nil
+    }
+
+    /// The JSON the endpoint accepts.
+    var payload: [String: Any] {
+        [
+            "description": description.trimmingCharacters(in: .whitespacesAndNewlines),
+            "app": appName.trimmingCharacters(in: .whitespacesAndNewlines),
+            "email": email.trimmingCharacters(in: .whitespaces),
+            "version": Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "dev",
+            "summary": summary,
+            "log": log.map { String($0.prefix(Self.maxLineLength)) },
         ]
-        // URLComponents leaves "+" and "&" unescaped in query values;
-        // mail clients read "+" as a space, so escape both.
-        components.percentEncodedQuery = components.percentEncodedQuery?
-            .replacingOccurrences(of: "+", with: "%2B")
-        return components.url
+    }
+
+    struct SendError: LocalizedError {
+        var errorDescription: String?
+    }
+
+    /// Sends the report and returns its reference, such as "QS-7K2M9P".
+    func send(session: URLSession = .shared) async throws -> String {
+        var request = URLRequest(url: Self.endpoint, timeoutInterval: 20)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONSerialization.data(withJSONObject: payload)
+        let (data, response) = try await session.data(for: request)
+        let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+        guard status == 200,
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              json["ok"] as? Bool == true,
+              let id = json["id"] as? String else {
+            throw SendError(errorDescription: "The report service answered with status \(status).")
+        }
+        return id
     }
 }
 
